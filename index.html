@@ -655,6 +655,8 @@ body{padding-bottom:env(safe-area-inset-bottom)}
   .bootIn{padding:30px 20px}
 }
 
+.cleSante{margin-top:10px;padding:10px;border:1px dashed var(--glow);font:600 13px ui-monospace,Menlo,monospace;word-break:break-all;user-select:all;background:rgba(var(--glowRGB),.08)}
+
 </style>
 </head>
 <body>
@@ -1204,7 +1206,7 @@ function vueReglages(){
   const bloc=c=>c==="corps"?Object.entries(GRP).map(([g,G])=>`<div class="sep">${G.nom.toUpperCase()}</div>`+Object.entries(STATS).filter(([,s])=>s.grp===g).map(inp).join("")).join("")+`<div class="sep">CONDITION</div>`+["vit","agi"].map(k=>inp([k,STATS[k]])).join(""):
     Object.entries(STATS).filter(([,s])=>s.cote===c).map(([k,s])=>`<div><label>${s.ab} — ${s.nom}</label><input type="number" min="0" max="99" step="1" data-base="${k}" value="${etat.base[k]}"></div>`).join("");
   return `<div class="fen"><button class="btn retour" data-panneau="status">‹ STATUS</button><div class="titreF">SYSTÈME</div>
-    ${blocCompte()}
+    ${blocCompte()}${blocSante()}
     <p class="petit">Évaluation : règle tes statistiques de départ honnêtement sur 100. 100 représente la perfection humaine : inatteignable. Un adulte moyen est autour de 30.</p>
     <div class="evals">${bloc("corps")}<div class="sep">ESPRIT</div>${bloc("esprit")}</div>
     <label>SAUVEGARDE</label>
@@ -1268,7 +1270,7 @@ function rendre(){
     $("exp").onclick=()=>{const a=document.createElement("a");a.href=URL.createObjectURL(new Blob([JSON.stringify({...etat,invImg:IMG})],{type:"application/json"}));a.download=`systeme-${new Date().toISOString().slice(0,10)}.json`;a.click()};
     $("imp").onclick=()=>$("fic").click();
     $("fic").onchange=e=>{const f=e.target.files[0];if(!f)return;f.text().then(t=>{try{const s=JSON.parse(t);if(!Array.isArray(s.journal))throw 0;const ims=s.invImg||{};delete s.invImg;for(const k in ims)imgSet(k,ims[k]);etat=Object.assign(etatInitial(),s);if(!etat.inv)etat.inv=invInitial();etat.base=Object.assign(etatInitial().base,s.base);sauver();rendre();notif("[ SYSTÈME ]","Sauvegarde chargée")}catch(_){alert("Fichier invalide")}})};
-    lierCompte();
+    lierCompte();lierSante();
     $("raz").onclick=()=>{if(confirm("Rendre tous les points attribués ?")){etat.alloc={};sauver();rendre()}};
   }
 }
@@ -1919,6 +1921,7 @@ async function syncFaire(){
     if(cm!==canon(loc))appliquerDistant(m);
     if(!dist||cm!==canon(dist))await sbRest("POST","etats",{user_id:SYNC.sess.uid,data:m,maj:m._maj||0},{Prefer:"resolution=merge-duplicates,return=minimal"});
     SYNC.der=Date.now();syncStatut("ok");
+    santeRecuperer().catch(e=>console.warn("[santé]",e));
   }catch(e){console.warn("[sync]",e);if(SYNC.sess)syncStatut(navigator.onLine?"erreur":"horsligne")}
 }
 window._apresSauver=syncPlanifier;
@@ -2022,6 +2025,58 @@ function lierCompte(){
     const at=SYNC.sess&&SYNC.sess.at;if(at)fetch(SB.url+"/auth/v1/logout",{method:"POST",headers:{apikey:SB.cle,Authorization:"Bearer "+at}}).catch(()=>{});
     sessSauver(null);syncStatut("deconnecte");rendre()};
 }
+
+/* ================= SANTÉ (iPhone → Raccourcis → Supabase) =================
+   Un raccourci iPhone envoie chaque jour pas / distance / énergie active.
+   Le Système les convertit en XP (recalculé si les chiffres du jour changent) et coche la course de la quête du jour. */
+const SANTE_REGLES=r=>{
+  const pas=+r.pas||0,km=+r.distance_km||0,kcal=+r.energie_kcal||0,out=[];
+  const xv=Math.round(Math.min(45,pas/220)),xa=Math.round(Math.min(30,km*4)),xe=kcal>=350?Math.round(Math.min(20,(kcal-300)/25)):0;
+  if(xv>0)out.push({stat:"vit",xp:xv,note:`Santé · ${pas.toLocaleString("fr-FR")} pas`});
+  if(xa>0)out.push({stat:"agi",xp:xa,note:`Santé · ${km.toLocaleString("fr-FR",{maximumFractionDigits:1})} km parcourus`});
+  if(xe>0)out.push({stat:"dis",xp:xe,note:`Santé · ${Math.round(kcal)} kcal actives`});
+  return out;
+};
+SYNC.sante=[];
+async function santeRecuperer(){
+  if(!SYNC.sess)return;
+  const depuis=auj(new Date(Date.now()-30*864e5));
+  const rows=await sbRest("GET","sante?select=jour,pas,distance_km,energie_kcal,maj&jour=gte."+depuis+"&order=jour.desc");
+  SYNC.sante=rows||[];
+  let change=false;
+  for(const r of SYNC.sante){
+    const base=new Date(r.jour+"T21:00:00").getTime(),voulu=SANTE_REGLES(r).map((e,i)=>({t:base+100+i,...e,rang:"H",src:"sante",jour:r.jour}));
+    const actuel=etat.journal.filter(j=>j.src==="sante"&&j.jour===r.jour);
+    const cle=a=>a.map(j=>j.t+"|"+j.stat+"|"+j.xp).sort().join(",");
+    if(cle(actuel)!==cle(voulu)){etat.journal=etat.journal.filter(j=>!(j.src==="sante"&&j.jour===r.jour)).concat(voulu).sort((a,b)=>b.t-a.t);change=true}
+  }
+  // course de la quête du jour cochée automatiquement si la distance est atteinte
+  const r0=SYNC.sante.find(r=>r.jour===auj()),q=etat.qj;
+  if(r0&&q&&q.date===auj()&&q.statut!=="reussie"){
+    const i=q.taches.findIndex(t=>!t.fait&&/^Course/.test(t.txt));
+    if(i>=0){const km=parseFloat(q.taches[i].txt.replace(/[^\d,]/g,"").replace(",","."));
+      if(+r0.distance_km>=km){if(change)sauver();change=false;cocherTache(i);notif("[ SANTÉ ]",`${(+r0.distance_km).toLocaleString("fr-FR",{maximumFractionDigits:1})} km détectés : objectif course validé.`)}}
+  }
+  if(change){sauver();rendre();if(sysVue)rendreSys()}
+}
+async function santeCle(){
+  const b=$("santeGen"),z=$("santeCleZone");b.disabled=true;
+  try{const k=await sbRest("POST","rpc/sante_jeton",{});z.innerHTML=`<div class="cleSante" id="cleTxt">${esc(String(k))}</div>
+      <div class="outils" style="margin-top:8px"><button class="btn" id="cleCopier">COPIER LA CLÉ</button></div>
+      <p class="petit">Colle-la dans ton raccourci iPhone. Une nouvelle clé remplace l'ancienne.</p>`;
+    $("cleCopier").onclick=()=>{navigator.clipboard.writeText(String(k)).then(()=>notif("[ SANTÉ ]","Clé copiée."),()=>{})}}
+  catch(e){z.innerHTML=`<p class="petit" style="color:#ff8a9c">Impossible de créer la clé : ${esc(e.message)}</p>`}
+  finally{b.disabled=false}
+}
+function blocSante(){
+  if(!SB_OK||!SYNC.sess)return"";
+  const d=SYNC.sante[0];
+  return`<label>SANTÉ (iPHONE)</label><div class="carte">
+    <p class="petit" style="color:var(--txt)">${d?`Dernières données : <b>${new Date(d.jour+"T12:00").toLocaleDateString("fr-FR",{weekday:"long",day:"numeric",month:"long"})}</b> · ${(+d.pas).toLocaleString("fr-FR")} pas · ${(+d.distance_km).toLocaleString("fr-FR",{maximumFractionDigits:1})} km · ${Math.round(+d.energie_kcal)} kcal`:"Aucune donnée Santé reçue pour l'instant."}</p>
+    <p class="petit">Pas → Vitalité · Distance → Agilité · Énergie active → Discipline. La course de la quête du jour se coche toute seule.</p>
+    <div class="outils" style="margin-top:8px"><button class="btn" id="santeGen">GÉNÉRER MA CLÉ SANTÉ</button></div><div id="santeCleZone"></div></div>`;
+}
+function lierSante(){if($("santeGen"))$("santeGen").onclick=santeCle}
 
 if(/Electron/.test(navigator.userAgent))document.body.classList.add("electron");
 if(window.navigator.standalone||matchMedia("(display-mode: standalone)").matches)document.body.classList.add("pwa");
