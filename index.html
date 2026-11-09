@@ -1842,7 +1842,7 @@ appliquerTheme(true);majVue();rendre();
 /* ================= SYNCHRONISATION EN LIGNE (Supabase) =================
    Une ligne par joueur dans la table "etats" (protégée : chacun ne lit que la sienne).
    Fusion : le journal des quêtes est réuni des deux côtés, le reste suit la version la plus récente. */
-const SB={url:"__SB_URL__",cle:"__SB_KEY__"};
+const SB={url:"https://vildzxdbiayignkshcca.supabase.co",cle:"sb_publishable_NMxVL7Y8y3W8dvAnVHOcqg_k6lERTt-"};
 const SB_OK=/^https:\/\//.test(SB.url)&&SB.cle.length>20;
 const SYNC={sess:null,statut:"off",timer:null,file:Promise.resolve(),der:0,inscription:false};
 try{SYNC.sess=JSON.parse(localStorage.getItem("systeme_sess"))}catch(e){}
