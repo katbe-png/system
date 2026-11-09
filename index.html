@@ -843,11 +843,12 @@ body{padding-bottom:env(safe-area-inset-bottom)}
   <div class="titreF">CONNEXION<span>SYSTÈME</span></div>
   <p class="petit" id="aIntro">Connecte-toi pour synchroniser ta progression entre ton Mac et ton iPhone.</p>
   <form id="fAuth" autocomplete="on">
-    <label for="aEmail">EMAIL</label><input type="email" id="aEmail" autocomplete="username" required>
-    <label for="aMdp">MOT DE PASSE</label><input type="password" id="aMdp" autocomplete="current-password" required minlength="6">
+    <label for="aEmail" id="lEmail">EMAIL</label><input type="email" id="aEmail" autocomplete="username" required>
+    <label for="aMdp" id="lMdp">MOT DE PASSE</label><input type="password" id="aMdp" autocomplete="current-password" required minlength="6">
     <div class="authErr" id="aErr"></div>
     <button class="btn valider" type="submit" id="aGo">SE CONNECTER</button>
     <div class="authLiens"><button type="button" class="lienB" id="aBascule">Pas encore de compte ? Créer mon compte</button>
+      <button type="button" class="lienB" id="aOubli">Mot de passe oublié ?</button>
       <button type="button" class="lienB" id="aHors">Continuer sans synchroniser</button></div>
   </form></div></div>
 <div id="penal"></div>
@@ -997,7 +998,9 @@ function etatInitial(){
     base:Object.assign(baseDefaut(),EVAL2),
     alloc:{},journal:[],titres:[]};
 }
-let etat=etatInitial();
+let etat=etatInitial();etat._vierge=true;
+addEventListener("pointerdown",e=>{if(!e.target.closest("#auth,#boot"))window._interaction=true},true);
+addEventListener("keydown",e=>{if(!e.target.closest("#auth,#boot"))window._interaction=true},true);
 try{
   const s=JSON.parse(localStorage.getItem(KEY));
   if(s&&Array.isArray(s.journal)){etat=Object.assign(etatInitial(),s);etat.base=Object.assign(etatInitial().base,s.base)}
@@ -1016,7 +1019,7 @@ try{
     }
   }
 }catch(e){}
-const sauver=()=>{invalider();if(window._pret)etat._maj=Date.now();try{localStorage.setItem(KEY,JSON.stringify(etat))}catch(e){}if(window._apresSauver)window._apresSauver()};
+const sauver=()=>{invalider();if(window._pret){etat._maj=Date.now();if(window._interaction)delete etat._vierge}try{localStorage.setItem(KEY,JSON.stringify(etat))}catch(e){}if(window._apresSauver)window._apresSauver()};
 
 /* ================= CALCULS ================= */
 /* Rendements décroissants : chaque gain = XP × (100 − note) / DIFF → la note s'approche de 100 sans jamais l'atteindre */
@@ -1843,8 +1846,9 @@ appliquerTheme(true);majVue();rendre();
    Une ligne par joueur dans la table "etats" (protégée : chacun ne lit que la sienne).
    Fusion : le journal des quêtes est réuni des deux côtés, le reste suit la version la plus récente. */
 const SB={url:"https://vildzxdbiayignkshcca.supabase.co",cle:"sb_publishable_NMxVL7Y8y3W8dvAnVHOcqg_k6lERTt-"};
+const URL_WEB="https://katbe-png.github.io/system/";
 const SB_OK=/^https:\/\//.test(SB.url)&&SB.cle.length>20;
-const SYNC={sess:null,statut:"off",timer:null,file:Promise.resolve(),der:0,inscription:false};
+const SYNC={sess:null,statut:"off",timer:null,file:Promise.resolve(),der:0,mode:"connexion",recup:null};
 try{SYNC.sess=JSON.parse(localStorage.getItem("systeme_sess"))}catch(e){}
 function sessSauver(s){SYNC.sess=s;try{s?localStorage.setItem("systeme_sess",JSON.stringify(s)):localStorage.removeItem("systeme_sess")}catch(e){}}
 const sessDe=(j,av)=>({at:j.access_token,rt:j.refresh_token,exp:Date.now()+(j.expires_in||3600)*1000,uid:(j.user&&j.user.id)||(av&&av.uid),email:(j.user&&j.user.email)||(av&&av.email)});
@@ -1873,11 +1877,14 @@ async function sbRest(methode,q,corps,extra){
 const canon=o=>JSON.stringify(o,(k,v)=>v&&typeof v==="object"&&!Array.isArray(v)?Object.keys(v).sort().reduce((a,x)=>(a[x]=v[x],a),{}):v);
 function fusion(loc,dist){
   const a=loc._maj||0,b=dist._maj||0;
-  const base=a!==b?(a>b?loc:dist):((dist.journal||[]).length>(loc.journal||[]).length?dist:loc);
+  // une progression « vierge » (appareil neuf, rien fait dessus) ne remplace jamais une vraie progression
+  const base=loc._vierge&&!dist._vierge?dist:dist._vierge&&!loc._vierge?loc:
+    a!==b?(a>b?loc:dist):((dist.journal||[]).length>(loc.journal||[]).length?dist:loc);
   const suppr=new Set([...(loc._suppr||[]),...(dist._suppr||[])]);
   const m=new Map();
   for(const j of [...(loc.journal||[]),...(dist.journal||[])])if(!suppr.has(j.t))m.set(j.t+"|"+j.stat,j);
-  return{...JSON.parse(JSON.stringify(base)),journal:[...m.values()].sort((x,y)=>y.t-x.t).slice(0,3000),_suppr:[...suppr].slice(-500),_maj:Math.max(a,b)};
+  const r={...JSON.parse(JSON.stringify(base))};if(!(loc._vierge&&dist._vierge))delete r._vierge;
+  return{...r,journal:[...m.values()].sort((x,y)=>y.t-x.t).slice(0,3000),_suppr:[...suppr].slice(-500),_maj:Math.max(a,b)};
 }
 function appliquerDistant(m){
   etat=Object.assign(etatInitial(),m);
@@ -1928,26 +1935,58 @@ function ouvrirAuth(){
 }
 function fermerAuth(){$("auth").classList.remove("on");if(_authFin){const f=_authFin;_authFin=null;f()}}
 function majAuthMode(){
-  const i=SYNC.inscription;$("aGo").textContent=i?"CRÉER MON COMPTE":"SE CONNECTER";
-  $("aBascule").textContent=i?"J'ai déjà un compte : me connecter":"Pas encore de compte ? Créer mon compte";
-  $("aMdp").autocomplete=i?"new-password":"current-password";
+  const m=SYNC.mode,nv=m==="nouveau";
+  $("aGo").textContent={connexion:"SE CONNECTER",inscription:"CRÉER MON COMPTE",nouveau:"ENREGISTRER LE MOT DE PASSE"}[m];
+  $("aBascule").textContent=m==="inscription"?"J'ai déjà un compte : me connecter":"Pas encore de compte ? Créer mon compte";
+  $("aMdp").autocomplete=m==="connexion"?"current-password":"new-password";
+  $("aEmail").style.display=$("lEmail").style.display=nv?"none":"";$("aEmail").required=!nv;
+  $("lMdp").textContent=nv?"NOUVEAU MOT DE PASSE":"MOT DE PASSE";
+  $("aIntro").textContent=nv?"Choisis ton nouveau mot de passe. Note-le bien (par exemple dans le trousseau iCloud).":"Connecte-toi pour synchroniser ta progression entre ton Mac et ton iPhone.";
+  $("aBascule").style.display=$("aOubli").style.display=$("aHors").style.display=nv?"none":"";
+  $("aOubli").style.display=m==="connexion"?"":"none";
 }
-$("aBascule").onclick=()=>{SYNC.inscription=!SYNC.inscription;$("aErr").textContent="";majAuthMode()};
+$("aBascule").onclick=()=>{SYNC.mode=SYNC.mode==="inscription"?"connexion":"inscription";$("aErr").textContent="";majAuthMode()};
+$("aOubli").onclick=async()=>{
+  const em=$("aEmail").value.trim(),err=$("aErr");
+  if(!/.+@.+\..+/.test(em)){err.textContent="Entre d'abord ton email ci-dessus, puis clique à nouveau sur « Mot de passe oublié ? ».";$("aEmail").focus();return}
+  err.textContent="Envoi…";
+  try{await sbAuth("recover?redirect_to="+encodeURIComponent(URL_WEB),{email:em});
+    err.textContent="Email envoyé. Ouvre le lien reçu : il te permettra de choisir un nouveau mot de passe."}
+  catch(x){err.textContent=/rate|security purposes|too many/i.test(x.message)?"Trop de demandes : réessaie dans quelques minutes.":/failed to fetch|network/i.test(x.message)?"Pas de connexion internet.":x.message}
+};
+/* Retour du lien « mot de passe oublié » (ou de confirmation) : les jetons arrivent dans l'adresse */
+(function lienEmail(){
+  const h=new URLSearchParams(location.hash.slice(1));
+  if(h.get("error_description")){setTimeout(()=>notif("[ SYSTÈME ]",h.get("error_description").replace(/\+/g," ")),BOOT+200);history.replaceState(null,"",location.pathname);return}
+  const at=h.get("access_token");if(!at)return;
+  const s={at,rt:h.get("refresh_token"),exp:Date.now()+(+h.get("expires_in")||3600)*1000,uid:null,email:null};
+  try{const p=JSON.parse(atob(at.split(".")[1].replace(/-/g,"+").replace(/_/g,"/")));s.uid=p.sub;s.email=p.email}catch(e){}
+  history.replaceState(null,"",location.pathname);
+  if(h.get("type")==="recovery"){SYNC.recup=s;SYNC.mode="nouveau"}
+  else sessSauver(s);
+})();
 $("aHors").onclick=()=>{try{localStorage.setItem("systeme_horsligne","1")}catch(e){}syncStatut("deconnecte");fermerAuth()};
 $("fAuth").onsubmit=async e=>{
   e.preventDefault();const em=$("aEmail").value.trim(),mdp=$("aMdp").value,err=$("aErr");err.textContent="";$("aGo").disabled=true;
   try{
     let j;
-    if(SYNC.inscription){
-      j=await sbAuth("signup",{email:em,password:mdp});
-      if(!j.access_token){err.textContent="Compte créé. Ouvre le lien de confirmation reçu par email, puis connecte-toi ici.";SYNC.inscription=false;majAuthMode();return}
-    }else j=await sbAuth("token?grant_type=password",{email:em,password:mdp});
-    sessSauver(sessDe(j));try{localStorage.removeItem("systeme_horsligne")}catch(_){}
+    if(SYNC.mode==="nouveau"){
+      const r=await fetch(SB.url+"/auth/v1/user",{method:"PUT",headers:{apikey:SB.cle,Authorization:"Bearer "+SYNC.recup.at,"Content-Type":"application/json"},body:JSON.stringify({password:mdp})});
+      const u=await r.json().catch(()=>({}));if(!r.ok)throw new Error(u.msg||u.error_description||u.message||("Erreur "+r.status));
+      sessSauver({...SYNC.recup,email:u.email||SYNC.recup.email,uid:u.id||SYNC.recup.uid});SYNC.recup=null;SYNC.mode="connexion";
+      notif("[ SYSTÈME ]","Nouveau mot de passe enregistré. Utilise-le aussi sur ton Mac et ton iPhone.");
+    }else{
+      if(SYNC.mode==="inscription"){
+        j=await sbAuth("signup?redirect_to="+encodeURIComponent(URL_WEB),{email:em,password:mdp});
+        if(!j.access_token){err.textContent="Compte créé. Ouvre le lien de confirmation reçu par email, puis connecte-toi ici.";SYNC.mode="connexion";majAuthMode();return}
+      }else j=await sbAuth("token?grant_type=password",{email:em,password:mdp});
+      sessSauver(sessDe(j));
+    }try{localStorage.removeItem("systeme_horsligne")}catch(_){}
     $("aMdp").value="";await syncMaintenant();
     notif("[ SYSTÈME ]","Connecté. Ta progression est synchronisée.");fermerAuth();
   }catch(x){
     const m=x.message||"";
-    err.textContent=/invalid login|invalid credentials/i.test(m)?"Email ou mot de passe incorrect.":/not confirmed/i.test(m)?"Confirme d'abord ton email (lien reçu par mail).":
+    err.textContent=/invalid login|invalid credentials/i.test(m)?"Email ou mot de passe incorrect. Tu peux cliquer sur « Mot de passe oublié ? ».":/same.*password|different from the old/i.test(m)?"Choisis un mot de passe différent de l'ancien.":/expired|invalid.*token|jwt/i.test(m)?"Le lien a expiré : redemande un email « Mot de passe oublié ».":/database error/i.test(m)?"Le serveur a eu un raté : réessaie dans un instant.":/not confirmed/i.test(m)?"Confirme d'abord ton email (lien reçu par mail).":
       /already registered|already exists/i.test(m)?"Ce compte existe déjà : connecte-toi.":/password/i.test(m)?"Mot de passe trop faible (6 caractères minimum).":
       /failed to fetch|network/i.test(m)?"Pas de connexion internet.":m;
   }finally{$("aGo").disabled=false}
@@ -1955,6 +1994,7 @@ $("fAuth").onsubmit=async e=>{
 /* Au lancement : connecté → première synchro (6 s max) avant de vérifier la journée ; sinon écran de connexion */
 function syncDemarrer(){
   if(!SB_OK){syncStatut("off");return Promise.resolve()}
+  if(SYNC.recup)return new Promise(r=>{_authFin=r;ouvrirAuth()});
   if(SYNC.sess)return Promise.race([syncMaintenant(),new Promise(r=>setTimeout(r,6000))]);
   syncStatut("deconnecte");
   let hors=false;try{hors=localStorage.getItem("systeme_horsligne")==="1"}catch(e){}
