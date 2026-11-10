@@ -1934,13 +1934,14 @@ function terminerSeance(s){
 
 /* ---------- quêtes imposées par le Système (principales / secondaires) ---------- */
 const XP_RANG={E:40,D:80,C:150,B:250,A:400,S:700};
-const MULT={principale:1.5,secondaire:1,legendaire:2};
-const NOM_TYPE={principale:"QUÊTE PRINCIPALE",secondaire:"QUÊTE SECONDAIRE",legendaire:"QUÊTE LÉGENDAIRE"};
+const MULT={principale:1.5,secondaire:1,legendaire:4};
+const NOM_TYPE={principale:"QUÊTE PRINCIPALE",secondaire:"QUÊTE SECONDAIRE",legendaire:"QUÊTE PRINCIPALE · LÉGENDAIRE"};
+const duree=j=>j>=60?`${Math.round(j/30.4)} mois`:`${j} jour${j>1?"s":""}`;
 const MAX_SEC=3,MAX_PRI=1;
 /* catalogue : [clé, type, stat, rang, jours, titre, description, étapes] */
 const CATALOGUE=[
   // ----- légendaire (sans limite de temps, ne bloque pas les autres quêtes) -----
-  ["l_bts","legendaire","int","S",0,"Le Diplôme du Monarque","Obtenir ton BTS NDRC. Chaque épreuve préparée te rapproche du titre.",["E1 · Culture générale et expression révisée","E2 · Anglais révisé","E3 · CEJM (culture économique, juridique et managériale) révisée","E4 · Relation client et négociation-vente : fiches et entraînement à l'oral","E5 · Relation client à distance et digitalisation révisée","E6 · Relation client et animation de réseaux : dossier prêt","Toutes les épreuves passées","BTS NDRC obtenu"]],
+  ["l_bts","legendaire","int","S",730,"Le Diplôme du Monarque","Obtenir ton BTS NDRC en 2 ans. Chaque semestre validé et chaque épreuve préparée te rapproche du titre.",["1re année · semestre 1 validé","1re année · semestre 2 validé","Passage en 2e année validé","E1 · Culture générale et expression révisée","E2 · Anglais révisé","E3 · CEJM (culture économique, juridique et managériale) révisée","E4 · Relation client et négociation-vente : fiches et entraînement à l'oral","E5 · Relation client à distance et digitalisation révisée","E6 · Relation client et animation de réseaux : dossier prêt","Toutes les épreuves passées","BTS NDRC obtenu"]],
   // ----- principales (2 à 4 semaines) -----
   ["p_vente","principale","cha","B",21,"L'Éveil du Vendeur","Conclure 10 ventes complètes chez Cuir Center en menant toi-même la découverte des besoins.",["3 ventes conclues","6 ventes conclues","10 ventes conclues","Noter ce qui a fait signer à chaque fois"]],
   ["p_bts","principale","int","B",21,"Le Grimoire du BTS","Avoir une fiche de révision à jour pour chaque matière et traiter 2 sujets d'annales.",["Fiche Relation client","Fiche Gestion de la relation","Fiche Culture économique","Fiche Culture générale","Sujet d'annales 1","Sujet d'annales 2"]],
@@ -2001,7 +2002,7 @@ function tirer(type,n,graine){
   return l.slice(0,n).map(x=>x.c);
 }
 function genererOffres(){
-  const a=auj();let ch=false;
+  const a=auj();let ch=migrerBTS();
   // les offres secondaires durent la journée, l'offre principale 3 jours
   for(const o of etat.offres)if(o.statut==="ouverte"&&o.expire<a){o.statut="expiree";o.maj=Date.now();ch=true}
   const actSec=etat.quetes.filter(q=>q.statut==="active"&&q.type==="secondaire").length;
@@ -2032,7 +2033,7 @@ function accepterOffre(o){
   etat.quetes.push({id:"q-"+o.id,cle,titre,desc,type,stat,rang,xp:Math.round(XP_RANG[rang]*MULT[type]),echeance:jours?ajJours(auj(),jours-1):"",cree:auj(),statut:"active",
     etapes:et.map(t=>({txt:t,fait:false})),maj:Date.now()});
   o.statut="acceptee";o.maj=Date.now();sauver();sfx("plonge");
-  notif(`[ ${NOM_TYPE[type]} ACCEPTÉE ]`,jours?`${titre} · ${jours} jour${jours>1?"s":""}`:titre);
+  notif(`[ ${NOM_TYPE[type]} ACCEPTÉE ]`,jours?`${titre} · ${jours>=700?"2 ans":duree(jours)}`:titre);
 }
 function refuserOffre(o){o.statut="refusee";o.maj=Date.now();sauver();sfx("clic")}
 function accomplirQuete(q){
@@ -2046,6 +2047,9 @@ function verifQuetes(){
   if(ch)sauver();
 }
 if(!etat.offres)etat.offres=[];
+function migrerBTS(){let ch=false;for(const q of etat.quetes)if(q.cle==="l_bts"&&!q.v2){ch=true;const c=catQ("l_bts"),anc=new Map(q.etapes.map(e=>[e.txt,e.fait]));
+  q.etapes=c[7].map(t=>({txt:t,fait:!!anc.get(t)}));q.desc=c[6];q.xp=Math.round(XP_RANG.S*MULT.legendaire);q.echeance=q.echeance||ajJours(q.cree||auj(),729);q.v2=true;q.maj=Date.now()}return ch}
+migrerBTS();
 
 /* ---------- vues ---------- */
 function vueQuetes(){
@@ -2104,7 +2108,7 @@ const ordreT={legendaire:0,principale:1,secondaire:2};
       <div class="qTete"><span class="qType">[ ${NOM_TYPE[type]} ]</span><span class="rgQ">${rang}</span></div>
       <h3>${esc(titre)}</h3><p class="qDesc">${esc(desc)}</p>
       ${et.length?`<ul class="qEt">${et.map(t=>`<li>${esc(t)}</li>`).join("")}</ul>`:""}
-      <div class="qPied"><span>Récompense <b>+${xp} XP ${info(stat).nom}</b> · ${jours?`délai <b>${jours} jour${jours>1?"s":""}</b>`:"<b>sans limite de temps</b>"}</span><span>${type==="legendaire"?"":je<=0?"Offre valable aujourd'hui":`Offre valable ${je+1} jours`}</span></div>
+      <div class="qPied"><span>Récompense <b>+${xp} XP ${info(stat).nom}</b> · ${jours?`délai <b>${jours>=700?"2 ans":duree(jours)}</b>`:"<b>sans limite de temps</b>"}</span><span>${type==="legendaire"?"":je<=0?"Offre valable aujourd'hui":`Offre valable ${je+1} jours`}</span></div>
       <div class="outils"><button class="btn valider" data-qaccept="${o.id}">ACCEPTER</button><button class="btn" data-qrefus="${o.id}">REFUSER</button></div></div>`};
   const carte=q=>{const n=q.etapes.filter(e=>e.fait).length,t=q.etapes.length,rc=COUL_RANG[q.rang],jr=q.echeance?joursEntre(auj(),q.echeance):null;
     return `<div class="qCarte ${q.type}" style="--rc:${rc}">
@@ -2112,7 +2116,7 @@ const ordreT={legendaire:0,principale:1,secondaire:2};
       <h3>${esc(q.titre)}</h3>${q.desc?`<p class="qDesc">${esc(q.desc)}</p>`:""}
       ${t?`<div class="taches">${q.etapes.map((e,i)=>`<div class="tache ${e.fait?"fait":""}" data-qetape="${q.id}|${i}"><span class="cb">${e.fait?"✓":""}</span><span class="tx">${esc(e.txt)}</span></div>`).join("")}</div>
         <div class="barre qBar"><i style="width:${n/t*100}%"></i></div>`:""}
-      <div class="qPied"><span>Récompense <b>+${q.xp} XP ${info(q.stat).nom}</b></span>${jr!==null?`<span class="${jr<=1?"urgent":""}">${jr<0?"Échue":jr===0?"Dernier jour":`${jr+1} jours restants`}</span>`:""}</div>
+      <div class="qPied"><span>Récompense <b>+${q.xp} XP ${info(q.stat).nom}</b></span>${jr!==null?`<span class="${jr<=1?"urgent":""}">${jr<0?"Échue":jr===0?"Dernier jour":`${duree(jr+1)} restant${jr+1>1?"s":""}`}</span>`:""}</div>
       <div class="outils">${!t||n===t?`<button class="btn valider" data-qacc="${q.id}">ACCOMPLIR</button>`:""}<button class="btn" data-qabd="${q.id}">ABANDONNER</button></div></div>`};
   return `${ouv.length?`<div class="sec">LE SYSTÈME T'ASSIGNE</div>${ouv.map(offre).join("")}`:""}
     <div class="sec">EN COURS${act.some(q=>q.type==="legendaire")?" · 1 légendaire":""} · ${act.filter(q=>q.type==="principale").length}/${MAX_PRI} principale · ${act.filter(q=>q.type==="secondaire").length}/${MAX_SEC} secondaires</div>
