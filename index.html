@@ -734,6 +734,8 @@ body{padding-bottom:env(safe-area-inset-bottom)}
 .qCarte .pf{display:flex;flex-direction:column;align-items:center;gap:2px;margin:0;font:inherit;letter-spacing:0}
 .qCarte .pf input{width:58px;padding:7px 4px;font:700 15px Montserrat,sans-serif;text-align:center}
 @media(max-width:700px){.qCarte .pf input{width:54px}}
+.qGains{display:flex;flex-wrap:wrap;gap:6px 14px;padding:8px 12px 12px;font-size:12px;color:var(--dim)}
+.qGains b{color:#5dff9b;font-weight:600}
 
 </style>
 </head>
@@ -1885,7 +1887,7 @@ function majDock(){
   else if(q.statut==="reussie"){p.textContent="✓";p.className="pastille ok";p.style.display="block"}
   else{p.textContent=n;p.className="pastille";p.style.display="block"}
   const s=$("btnSon"),m=$("btnMus");if(s){s.classList.toggle("off",!etat.son.sfx);s.innerHTML=etat.son.sfx?ICO_SON1:ICO_SON0}if(m)m.classList.toggle("off",!etat.son.mus);
-  const pq=$("pastQs");if(pq&&etat.quetes){const s=etat.seances.some(x=>x.date===auj()&&x.fini),pr=(etat.programme[jourSem()]||{exos:[]}).exos.length;const n3=etat.offres.filter(o=>o.statut==="ouverte").length+(pr&&!s?1:0);pq.style.display=n3?"block":"none";pq.textContent=n3}
+  const pq=$("pastQs");if(pq&&etat.quetes){const s=etat.seances.some(x=>x.date===auj()&&x.fini),pr=(etat.programme[jourSem()]||{exos:[]}).exos.length;const n3=etat.offres.filter(o=>o.statut==="ouverte").length;pq.style.display=n3?"block":"none";pq.textContent=n3}
   const d=$("pastD");if(d){const n2=etat.donjons.actifs.filter(x=>!x.fait.includes(auj())).length;d.style.display=n2?"block":"none";d.textContent=n2}
 }
 
@@ -1897,37 +1899,54 @@ const PROG_DEFAUT={"dim": {"title": "Course", "sub": "40 min EF", "exos": [{"id"
 if(!etat.programme){etat.programme=JSON.parse(JSON.stringify(PROG_DEFAUT));etat.programme._maj=1}
 if(!etat.seances)etat.seances=[];
 if(!etat.quetes)etat.quetes=[];
+/* Séance unique : Full Body. Chaque exercice garde son record ; l'XP récompense la progression. */
+const FB_DEFAUT={title:"Full Body",sub:"La même séance à chaque entraînement : bats tes records pour gagner de l'XP.",exos:[
+  {id:"fb1",name:"Squat",detail:"3 séries × 8–10 reps",depart:"60"},
+  {id:"fb2",name:"Développé couché",detail:"3 × 10–12",depart:"18"},
+  {id:"fb3",name:"Tractions",detail:"3 × max",pdc:true},
+  {id:"fb4",name:"Soulevé de terre jambes tendues (RDL)",detail:"3 × 10",depart:"32"},
+  {id:"fb5",name:"Développé militaire",detail:"3 × 10",depart:"12"},
+  {id:"fb6",name:"Tirage horizontal",detail:"3 × 12",depart:"32"},
+  {id:"fb7",name:"Élévations latérales poulie",detail:"2 × 15",depart:"3,5"},
+  {id:"fb8",name:"Curl marteau",detail:"2 × 12 · enchaîné avec l'extension triceps",depart:"10"},
+  {id:"fb9",name:"Extension triceps poulie",detail:"2 × 12 · enchaînée avec le curl marteau",depart:"10"},
+  {id:"fb10",name:"Mollets",detail:"3 × 15",depart:"55"},
+  {id:"fb11",name:"Relevés de jambes suspendu",detail:"3 × 12",pdc:true}],_maj:1};
+if(!etat.fullbody)etat.fullbody=JSON.parse(JSON.stringify(FB_DEFAUT));
 
-/* exercice → faisceaux travaillés (part de l'XP) */
+/* exercice → faisceaux travaillés : 1 = muscle principal (toute l'XP), moins = muscles qui aident */
 const EXO_MUSCLES=[
-  [/course|sortie|footing|cardio|(^|\s)v[ée]lo(\s|$)|rameur/i,{vit:.7,agi:.3}],
-  [/hip thrust/i,{fess:1}],[/rdl|jambes tendues|roumain/i,{ischio:.6,fess:.4}],
-  [/deadlift|soulev[ée] de terre/i,{lomb:.4,ischio:.3,fess:.3}],
+  [/course|sortie|footing|cardio|(^|\s)v[ée]lo(\s|$)|rameur/i,{vit:1,agi:.4}],
+  [/hip thrust/i,{fess:1,ischio:.4}],
+  [/rdl|jambes tendues|roumain/i,{ischio:1,fess:.7,lomb:.5,avb_flex:.2}],
+  [/deadlift|soulev[ée] de terre/i,{lomb:.8,ischio:.7,fess:.7,trap:.4,avb_flex:.3}],
   [/leg curl|ischio/i,{ischio:1}],[/leg extension/i,{quad:1}],
   [/abducteur/i,{fess:1}],[/adducteur/i,{addu:1}],[/mollet/i,{mollet:1}],
-  [/squat|presse|fente/i,{quad:.6,fess:.3,addu:.1}],
-  [/inclin/i,{pec_haut:.6,delt_ant:.2,tri_lat:.2}],
-  [/d[ée]velopp[ée] couch|bench/i,{pec_mil:.6,tri_lat:.2,delt_ant:.2}],
-  [/militaire|d[ée]velopp[ée] (assis|épaules)|overhead/i,{delt_ant:.6,delt_lat:.2,tri_long:.2}],
-  [/dips/i,{pec_bas:.5,tri_lat:.5}],[/fly|[ée]cart[ée]|pec deck|butterfly/i,{pec_mil:1}],
-  [/[ée]l[ée]vation lat/i,{delt_lat:1}],[/[ée]l[ée]vation front|avant [ée]paule/i,{delt_ant:1}],
-  [/derri[èe]re [ée]paule|arri[èe]re d.[ée]paule|oiseau|face pull/i,{delt_post:1}],
-  [/front|extension.*triceps|triceps/i,{tri_long:.6,tri_med:.4}],
-  [/marteau/i,{brachial:.7,avb_flex:.3}],[/curl|biceps/i,{bic_court:.5,bic_long:.5}],
-  [/avant-bras|poignet|grip/i,{avb_flex:.6,avb_ext:.4}],
-  [/traction|tirage vertical|pull-?up|lat pull/i,{dorsal:.7,bic_long:.3}],
-  [/tirage horizontal|rowing|row/i,{rhomb:.6,dorsal:.2,delt_post:.2}],
-  [/trap[èe]ze|shrug/i,{trap:1}],
-  [/abdo|gainage|crunch|relev[ée]/i,{abd_droit:.5,abd_trans:.3,abd_obl:.2}],
-  [/pompe/i,{pec_mil:.6,tri_lat:.2,delt_ant:.2}]
+  [/squat|presse|fente/i,{quad:1,fess:.7,addu:.4,lomb:.3,abd_trans:.2}],
+  [/inclin/i,{pec_haut:1,delt_ant:.5,tri_lat:.4,pec_mil:.3}],
+  [/d[ée]velopp[ée] couch|bench/i,{pec_mil:1,pec_haut:.4,pec_bas:.4,tri_lat:.5,delt_ant:.5}],
+  [/militaire|d[ée]velopp[ée] (assis|épaules)|overhead/i,{delt_ant:1,delt_lat:.5,tri_long:.4,trap:.3,abd_trans:.2}],
+  [/dips/i,{pec_bas:1,tri_lat:.8,delt_ant:.3}],[/fly|[ée]cart[ée]|pec deck|butterfly/i,{pec_mil:1,pec_haut:.3}],
+  [/[ée]l[ée]vations? lat/i,{delt_lat:1,trap:.2}],[/[ée]l[ée]vations? front|avant [ée]paule/i,{delt_ant:1}],
+  [/derri[èe]re [ée]paule|arri[èe]re d.[ée]paule|oiseau|face pull/i,{delt_post:1,rhomb:.4}],
+  [/front|extension.*triceps|triceps/i,{tri_lat:1,tri_med:.8,tri_long:.5}],
+  [/marteau/i,{brachial:1,avb_flex:.5,bic_long:.4}],[/curl|biceps/i,{bic_court:1,bic_long:1,brachial:.3}],
+  [/avant-bras|poignet|grip/i,{avb_flex:1,avb_ext:.6}],
+  [/traction|tirage vertical|pull-?up|lat pull/i,{dorsal:1,bic_long:.5,rhomb:.4,brachial:.3,avb_flex:.3}],
+  [/tirage horizontal|rowing|row/i,{rhomb:1,dorsal:.6,delt_post:.5,trap:.3,bic_court:.3}],
+  [/trap[èe]ze|shrug/i,{trap:1,avb_flex:.3}],
+  [/abdo|gainage|crunch|relev[ée]/i,{abd_droit:1,abd_trans:.6,abd_obl:.4,avb_flex:.2}],
+  [/pompe/i,{pec_mil:1,tri_lat:.5,delt_ant:.5,abd_trans:.2}]
 ];
 const musclesDe=nom=>{for(const [r,m] of EXO_MUSCLES)if(r.test(nom))return m;return{dis:1}};
+/* les muscles reçoivent le double de l'XP de progression */
+const MULT_MUSC=2;
 const XP_EXO=15,XP_SEANCE=20,XP_COMPLETE=25;
 
 /* ---------- état de la vue ---------- */
 let qOnglet="entrainement",qJour=jourSem(),qEdit=false;
 function seanceEnCours(){
-  const d=auj();let s=etat.seances.find(x=>x.date===d&&x.jour===qJour&&!x.fini);
+  const d=auj();let s=etat.seances.find(x=>x.date===d&&x.jour==="fb"&&!x.fini);
   return s||null;
 }
 const estCardio=nom=>/course|sortie|footing|cardio|(^|\s)v[ée]lo(\s|$)|rameur|marche/i.test(nom);
@@ -1940,24 +1959,45 @@ function texPerf(e){
   return [r!==null?`${fmt(r)} reps`:"",se!==null?`${fmt(se)} séries`:"",charge].filter(Boolean).join(" × ");
 }
 function demarrerSeance(){
-  const P=etat.programme[qJour];
-  const s={id:uidQ(),date:auj(),jour:qJour,titre:P.title||"Séance",exos:P.exos.map(e=>({id:e.id,nom:e.name,detail:e.detail||"",perf:"",fait:false,pdc:!!(e.lastS&&e.lastS.pdc)})),fini:false,maj:Date.now()};
+  const P=etat.fullbody;
+  const s={id:uidQ(),date:auj(),jour:"fb",titre:P.title||"Full Body",exos:P.exos.map(e=>({id:e.id,nom:e.name,detail:e.detail||"",perf:"",fait:false,pdc:e.rec?!!e.rec.pdc:!!e.pdc})),fini:false,maj:Date.now()};
   etat.seances.push(s);sauver();sfx("plonge");return s;
 }
+/* Compare une perf à ton record : la charge compte le plus, puis les séries, puis les reps. */
+function progression(e,rec){
+  const R=nb(e.reps),S=nb(e.series),K=nb(e.kg)||0;
+  if(R===null||S===null)return{xp:0,type:"incomplet"};
+  if(!rec)return{xp:3,type:"premiere"};
+  const r0=nb(rec.reps)||0,s0=nb(rec.series)||0,k0=nb(rec.kg)||0,dK=Math.round((K-k0)*100)/100,v=R*S,v0=r0*s0;
+  if(!!e.pdc!==!!rec.pdc&&!e.pdc)return{xp:0,type:"moins",txt:"sans PDC"};
+  if(dK<0)return{xp:0,type:"moins",txt:`${fmt(-dK)} kg de moins`};
+  if(dK>0){const xp=v>=v0*.7?Math.min(60,Math.round(10+6*dK)):Math.min(40,Math.round(8+3*dK));return{xp,type:"record",txt:`+${fmt(dK)} kg`}}
+  if(R===r0&&S===s0)return{xp:3,type:"egal"};
+  if(v>v0)return{xp:Math.min(60,Math.max(5,Math.round((v-v0)*1.5))),type:"record",txt:[R>r0?`+${fmt(R-r0)} reps`:"",S>s0?`+${fmt(S-s0)} série${S-s0>1?"s":""}`:"",`+${fmt(v-v0)} reps au total`].filter(Boolean).join(", ")};
+  return{xp:0,type:"moins",txt:"moins de reps"};
+}
 function terminerSeance(s){
-  const faits=s.exos.filter(e=>e.fait);if(!faits.length){notif("[ SYSTÈME ]","Coche au moins un exercice pour terminer la séance.");return}
-  const j0=joueur(),t0=Date.now();let i=0;
-  for(const e of faits){const m=musclesDe(e.nom);for(const [k,p] of Object.entries(m)){const xp=Math.max(1,Math.round(XP_EXO*p));crediter(k,xp,`Entraînement · ${e.nom}${e.perf?" ("+e.perf+")":""}`,"S",t0+(i++))}}
+  const faits=s.exos.filter(e=>e.fait);if(!faits.length){notif("[ SYSTÈME ]","Note au moins un exercice pour terminer la séance.");return}
+  const P=etat.fullbody,j0=joueur(),t0=Date.now();let i=0,records=0;
+  const touches=[...new Set(faits.flatMap(e=>Object.keys(musclesDe(e.nom))))].filter(k=>STATS[k]),avant={};touches.forEach(k=>avant[k]=val(k));
+  for(const e of faits){
+    const x=P.exos.find(y=>y.id===e.id),res=progression(e,x&&x.rec);e.res=res;
+    if(res.xp>0){const m=musclesDe(e.nom),lab={record:"Record battu",premiere:"Référence",egal:"Record égalé"}[res.type];
+      for(const [k,p] of Object.entries(m))crediter(k,Math.max(1,Math.round(res.xp*p*MULT_MUSC)),`${lab} · ${e.nom} (${e.perf})${res.txt?" "+res.txt:""}`,"S",t0+(i++))}
+    if(x&&(res.type==="record"||res.type==="premiere")){x.rec={reps:e.reps,series:e.series,kg:e.kg,pdc:!!e.pdc,txt:e.perf,date:auj()};if(res.type==="record")records++}
+    if(x&&e.perf){x.last=e.perf}
+  }
   crediter("dis",XP_SEANCE,`Séance terminée : ${s.titre}`,"S",t0+(i++));
   const complet=faits.length===s.exos.length;
-  if(complet)crediter("dis",XP_COMPLETE,`Séance complète : ${s.titre}`,"S",t0+(i++));
-  // « dernière fois » mis à jour dans le programme
-  const P=etat.programme[s.jour];for(const e of s.exos)if(e.perf){const x=P.exos.find(y=>y.id===e.id);if(x){x.last=e.perf;x.lastS={reps:e.reps,series:e.series,kg:e.kg,pdc:!!e.pdc,km:e.km,min:e.min}}}
-  etat.programme._maj=Date.now();
-  s.fini=true;s.finiLe=Date.now();s.xp=etat.journal.filter(j=>j.t>=t0&&j.t<t0+i).reduce((a,j)=>a+j.xp,0);s.maj=Date.now();
-  // la course de la quête du jour se coche si la séance contient une course faite
-  const q=etat.qj;if(q&&q.date===auj()&&faits.some(e=>/course|sortie/i.test(e.nom))){const k=q.taches.findIndex(t=>!t.fait&&/^Course/.test(t.txt));if(k>=0)cocherTache(k)}
-  sauver();sfx("or");notif("[ QUÊTE D'ENTRAÎNEMENT ACCOMPLIE ]",`${s.titre} · +${s.xp} XP${complet?" · séance complète":""}`,true);apresGain(j0);rendre();
+  if(complet)crediter("dis",15,`Séance complète : ${s.titre}`,"S",t0+(i++));
+  P._maj=Date.now();invalider();
+  s.gains=touches.map(k=>[k,Math.round((val(k)-avant[k])*100)/100]).filter(([,d])=>d>=.01).sort((a,b)=>b[1]-a[1]).slice(0,8);
+  s.fini=true;s.finiLe=Date.now();s.records=records;s.xp=etat.journal.filter(j=>j.t>=t0&&j.t<t0+i).reduce((a,j)=>a+j.xp,0);s.maj=Date.now();
+  sauver();sfx("or");
+  notif("[ QUÊTE D'ENTRAÎNEMENT ACCOMPLIE ]",`${s.titre} · +${s.xp} XP`,true);
+  if(s.gains.length)setTimeout(()=>notif("[ STATISTIQUES EN HAUSSE ]",s.gains.slice(0,3).map(([k,d])=>`${info(k).nom} +${fmt(d.toFixed(2))}`).join(" · "),true),1800);
+  if(records)setTimeout(()=>notif("[ RECORD BATTU ]",`${records} record${records>1?"s":""} battu${records>1?"s":""} aujourd'hui`,true),900);
+  apresGain(j0);rendre();
 }
 
 /* ---------- quêtes imposées par le Système (principales / secondaires) ---------- */
@@ -2082,25 +2122,22 @@ function vueQuetes(){
     ${qOnglet==="entrainement"?vueEntrainement():qOnglet==="quetes"?vueMesQuetes():vueQJournal()}`;
 }
 function vueEntrainement(){
-  const P=etat.programme[qJour]||{title:"",exos:[]},s=seanceEnCours(),aujS=jourSem();
-  const faiteAuj=etat.seances.find(x=>x.date===auj()&&x.jour===qJour&&x.fini);
-  const jours=`<div class="qJours">${JOURS_S.map(([k,n])=>`<button class="${k===qJour?"on":""} ${k===aujS?"auj":""}" data-qjour="${k}" title="${n}">${n.slice(0,3).toUpperCase()}<small>${esc((etat.programme[k]||{}).title||"Repos")}</small></button>`).join("")}</div>`;
-  if(qEdit)return jours+vueEditProg();
-  if(!P.exos.length)return jours+`<div class="qVide">JOUR DE REPOS<br><small>Aucune séance prévue ${JOURS_S.find(x=>x[0]===qJour)[1].toLowerCase()}.</small></div>
-    <div class="outils" style="justify-content:center"><button class="btn" data-qedit="1">MODIFIER LE PROGRAMME</button></div>`;
+  if(qEdit)return vueEditProg();
+  const P=etat.fullbody,s=seanceEnCours(),faiteAuj=etat.seances.find(x=>x.date===auj()&&x.jour==="fb"&&x.fini);
+  const semaine=etat.seances.filter(x=>x.fini&&x.jour==="fb"&&joursEntre(x.date,auj())<7).length;
   const ex=s?s.exos:P.exos.map(e=>({id:e.id,nom:e.name,detail:e.detail,perf:"",fait:false}));
-  const last=id=>(P.exos.find(e=>e.id===id)||{}).last||"";
-  const nb=ex.filter(e=>e.fait).length,xpPrev=nb*XP_EXO+XP_SEANCE+(nb===ex.length?XP_COMPLETE:0);
-  return jours+`<div class="qCarte ${s?"active":""}">
-    <div class="qTete"><span class="qType">QUÊTE D'ENTRAÎNEMENT</span>${faiteAuj?`<span class="qFait">✓ ACCOMPLIE AUJOURD'HUI</span>`:""}</div>
+  const recDe=id=>(P.exos.find(e=>e.id===id)||{}).rec;
+  return `<div class="qCarte ${s?"active":""}">
+    <div class="qTete"><span class="qType">QUÊTE D'ENTRAÎNEMENT</span>${faiteAuj?`<span class="qFait">✓ ACCOMPLIE AUJOURD'HUI</span>`:`<span class="qFait" style="color:var(--dim)">${semaine} séance${semaine>1?"s":""} cette semaine</span>`}</div>
     <h3>${esc(P.title)}</h3>${P.sub?`<p class="qDesc">${esc(P.sub)}</p>`:""}
-    <div class="exos">${ex.map(e=>{const m=Object.keys(musclesDe(e.nom)).map(k=>info(k).ab).join(" · ");return `<div class="exo ${e.fait?"fait":""}">
+    <div class="exos">${ex.map(e=>{const m=Object.entries(musclesDe(e.nom)).filter(([,p])=>p>=.5).map(([k])=>info(k).ab).join(" · "),r=recDe(e.id),pe=P.exos.find(y=>y.id===e.id)||{};
+      return `<div class="exo ${e.fait?"fait":""}">
       <span class="cb" ${s?`data-qexo="${e.id}"`:""}>${e.fait?"✓":""}</span>
-      <div class="exoTx"><b>${esc(e.nom)}</b><small>${esc(e.detail||"")}${last(e.id)?` · <i>dernière fois : ${esc(last(e.id))}</i>`:""}</small><em>${m}</em></div>
-      ${s?champsPerf(e,(P.exos.find(y=>y.id===e.id)||{}).lastS||{}):""}</div>`}).join("")}</div>
-    ${s?`<p class="recomp">Récompense : <b>+${XP_EXO} XP</b> par exercice (répartis sur les muscles travaillés), <b>+${XP_SEANCE} XP</b> de Discipline, <b>+${XP_COMPLETE}</b> si tout est fait · prévu : <b>+${xpPrev} XP</b></p>
+      <div class="exoTx"><b>${esc(e.nom)}</b><small>${esc(e.detail||"")} · ${r?`<i>record : ${esc(r.txt)}</i>`:`<i>pas encore de record${pe.depart?` · départ conseillé ${esc(pe.depart)} kg`:""}</i>`}</small><em>${m}</em></div>
+      ${s?champsPerf(e,r||{kg:pe.depart}):""}</div>`}).join("")}</div>
+    ${s?`<p class="recomp">L'XP dépend de ta <b>progression</b> sur ton record : <b>charge en hausse</b> = beaucoup d'XP, <b>plus de séries ou de reps</b> = de l'XP, <b>record égalé</b> = un peu d'XP, moins bien = 0. L'XP va <b>aux muscles travaillés</b> (doublée pour le muscle principal). Bonus : <b>+${XP_SEANCE}</b> Discipline la séance, <b>+15</b> si tout est noté.</p>
       <div class="outils" style="justify-content:center"><button class="btn valider" data-qfinir="1">TERMINER LA SÉANCE</button><button class="btn" data-qabandon="1">ANNULER</button></div>`
-     :`<div class="outils" style="justify-content:center"><button class="btn valider" data-qcommencer="1">${faiteAuj?"REFAIRE CETTE SÉANCE":"COMMENCER LA SÉANCE"}</button><button class="btn" data-qedit="1">MODIFIER LE PROGRAMME</button></div>`}
+     :`<div class="outils" style="justify-content:center"><button class="btn valider" data-qcommencer="1">${faiteAuj?"REFAIRE UNE SÉANCE":"COMMENCER LA SÉANCE"}</button><button class="btn" data-qedit="1">MODIFIER LA SÉANCE</button></div>`}
   </div>${vueDernieres()}`;
 }
 function champsPerf(e,L){
@@ -2112,18 +2149,18 @@ function champsPerf(e,L){
 function vueDernieres(){
   const l=etat.seances.filter(x=>x.fini).sort((a,b)=>b.finiLe-a.finiLe).slice(0,5);
   if(!l.length)return"";
-  return `<div class="sec">DERNIÈRES SÉANCES</div><div class="qListe">${l.map(x=>`<div class="qLigne"><span>${new Date(x.date+"T12:00").toLocaleDateString("fr-FR",{weekday:"short",day:"numeric",month:"short"})}</span><b>${esc(x.titre)}</b><span>${x.exos.filter(e=>e.fait).length}/${x.exos.length} exos</span><span class="xpq">+${x.xp||0} XP</span></div>`).join("")}</div>`;
+  return `<div class="sec">DERNIÈRES SÉANCES</div><div class="qListe">${l.map(x=>`<div class="qLigne"><span>${new Date(x.date+"T12:00").toLocaleDateString("fr-FR",{weekday:"short",day:"numeric",month:"short"})}</span><b>${esc(x.titre)}</b><span>${x.records?`${x.records} record${x.records>1?"s":""}`:`${x.exos.filter(e=>e.fait).length}/${x.exos.length} exos`}</span><span class="xpq">+${x.xp||0} XP</span></div>${x.gains&&x.gains.length&&x===l[0]?`<div class="qGains">${x.gains.map(([k,d])=>`<span>${esc(info(k).nom)} <b>+${fmt(d.toFixed(2))}</b></span>`).join("")}</div>`:""}`).join("")}</div>`;
 }
 function vueEditProg(){
-  const P=etat.programme[qJour];
-  return `<div class="qCarte"><div class="qTete"><span class="qType">MODIFIER · ${JOURS_S.find(x=>x[0]===qJour)[1].toUpperCase()}</span></div>
-    <div class="deux"><div><label>NOM DE LA SÉANCE</label><input id="pTitre" value="${esc(P.title||"")}" placeholder="Repos"></div><div><label>DESCRIPTION</label><input id="pSous" value="${esc(P.sub||"")}"></div></div>
-    <label>EXERCICES</label><div class="exosEdit">${P.exos.map((e,i)=>`<div class="exoEdit"><input data-pnom="${i}" value="${esc(e.name)}" placeholder="Exercice"><input data-pdet="${i}" value="${esc(e.detail||"")}" placeholder="Objectif (ex : 3x12)"><button class="btn mini" data-psuppr="${i}" title="Supprimer">✕</button></div>`).join("")}</div>
+  const P=etat.fullbody;
+  return `<div class="qCarte"><div class="qTete"><span class="qType">MODIFIER LA SÉANCE</span></div>
+    <label>EXERCICES</label><div class="exosEdit">${P.exos.map((e,i)=>`<div class="exoEdit"><input data-pnom="${i}" value="${esc(e.name)}" placeholder="Exercice"><input data-pdet="${i}" value="${esc(e.detail||"")}" placeholder="Format (ex : 3 × 12)"><button class="btn mini" data-psuppr="${i}" title="Supprimer">✕</button></div>`).join("")}</div>
+    <p class="petit" style="margin-top:8px">Renommer un exercice garde son record. Un nouvel exercice démarre sans record.</p>
     <div class="outils"><button class="btn" data-pajout="1">+ AJOUTER UN EXERCICE</button></div>
     <div class="outils" style="justify-content:center;margin-top:14px"><button class="btn valider" data-pok="1">ENREGISTRER</button><button class="btn" data-qedit="0">ANNULER</button></div></div>`;
 }
 function lireEditProg(){
-  const P=etat.programme[qJour];P.title=$("pTitre").value.trim();P.sub=$("pSous").value.trim();
+  const P=etat.fullbody;
   P.exos.forEach((e,i)=>{const n=document.querySelector(`[data-pnom="${i}"]`),d=document.querySelector(`[data-pdet="${i}"]`);if(n)e.name=n.value.trim();if(d)e.detail=d.value.trim()});
 }
 function vueMesQuetes(){
@@ -2168,10 +2205,10 @@ document.addEventListener("click",e=>{
   if(t=g("[data-qpdc]")){const s=seanceEnCours();if(!s)return;const x=s.exos.find(y=>y.id===t.dataset.qpdc);x.pdc=!x.pdc;x.perf=texPerf(x);if(x.perf)x.fait=true;s.maj=Date.now();sauver();sfx("clic");rendreSys();return}
   if(g("[data-qfinir]")){const s=seanceEnCours();if(s)terminerSeance(s);rendreSys();return}
   if(g("[data-qabandon]")){const s=seanceEnCours();if(s&&confirm("Annuler la séance en cours ? Rien ne sera crédité.")){etat.seances=etat.seances.filter(x=>x!==s);sauver();rendreSys()}return}
-  if(t=g("[data-qedit]")){if(t.dataset.qedit==="1"&&seanceEnCours()){notif("[ SYSTÈME ]","Termine ou annule la séance en cours avant de modifier le programme.");return}qEdit=t.dataset.qedit==="1";rendreSys();return}
-  if(g("[data-pajout]")){lireEditProg();etat.programme[qJour].exos.push({id:uidQ(),name:"",detail:""});rendreSys();return}
-  if(t=g("[data-psuppr]")){lireEditProg();etat.programme[qJour].exos.splice(+t.dataset.psuppr,1);rendreSys();return}
-  if(g("[data-pok]")){lireEditProg();const P=etat.programme[qJour];P.exos=P.exos.filter(x=>x.name);etat.programme._maj=Date.now();qEdit=false;sauver();notif("[ PROGRAMME ]","Séance enregistrée.");rendreSys();return}
+  if(t=g("[data-qedit]")){if(t.dataset.qedit==="1"&&seanceEnCours()){notif("[ SYSTÈME ]","Termine ou annule la séance en cours avant de la modifier.");return}qEdit=t.dataset.qedit==="1";rendreSys();return}
+  if(g("[data-pajout]")){lireEditProg();etat.fullbody.exos.push({id:uidQ(),name:"",detail:""});rendreSys();return}
+  if(t=g("[data-psuppr]")){lireEditProg();etat.fullbody.exos.splice(+t.dataset.psuppr,1);rendreSys();return}
+  if(g("[data-pok]")){lireEditProg();const P=etat.fullbody;P.exos=P.exos.filter(x=>x.name);P._maj=Date.now();qEdit=false;sauver();notif("[ PROGRAMME ]","Séance enregistrée.");rendreSys();return}
   if(t=g("[data-qaccept]")){const o=etat.offres.find(x=>x.id===t.dataset.qaccept);if(o)accepterOffre(o);rendreSys();majDock();return}
   if(t=g("[data-qrefus]")){const o=etat.offres.find(x=>x.id===t.dataset.qrefus);if(o)refuserOffre(o);rendreSys();majDock();return}
   if(t=g("[data-qetape]")){const [id,i]=t.dataset.qetape.split("|"),q=etat.quetes.find(x=>x.id===id);if(!q)return;const et=q.etapes[+i];et.fait=!et.fait;q.maj=Date.now();sauver();sfx(et.fait?"valide":"clic");rendreSys();return}
@@ -2274,6 +2311,7 @@ function fusion(loc,dist){
   // quêtes et séances : fusion élément par élément (la version la plus récente de chacune)
   const parId=(x,y)=>{const m=new Map();for(const e of [...(x||[]),...(y||[])]){const p=m.get(e.id);if(!p||(e.maj||0)>(p.maj||0))m.set(e.id,e)}return[...m.values()]};
   r.quetes=parId(loc.quetes,dist.quetes);r.offres=parId(loc.offres,dist.offres);r.seances=parId(loc.seances,dist.seances).slice(-400);
+  if(loc.fullbody||dist.fullbody)r.fullbody=JSON.parse(JSON.stringify(((loc.fullbody||{})._maj||0)>=((dist.fullbody||{})._maj||0)?loc.fullbody:dist.fullbody));
   if(loc.programme||dist.programme)r.programme=JSON.parse(JSON.stringify(((loc.programme||{})._maj||0)>=((dist.programme||{})._maj||0)?loc.programme:dist.programme));
   r.donjons={finis,actifs:[...act.values()].filter(x=>!finis.some(f=>f.id===x.id&&f.date>=x.debut)).slice(0,2)};
   if(loc.qj&&dist.qj&&loc.qj.date===dist.qj.date){const f=q=>(q.statut==="reussie"?100:0)+q.taches.filter(t=>t.fait).length;r.qj=JSON.parse(JSON.stringify(f(loc.qj)>=f(dist.qj)?loc.qj:dist.qj))}
@@ -2302,7 +2340,7 @@ function appliquerDistant(m){
   if(!etat.son)etat.son={sfx:true,mus:false};
   if(!etat.equip)etat.equip={};
   if(!etat.programme){etat.programme=JSON.parse(JSON.stringify(PROG_DEFAUT));etat.programme._maj=1}
-  if(!etat.seances)etat.seances=[];if(!etat.quetes)etat.quetes=[];if(!etat.offres)etat.offres=[];
+  if(!etat.seances)etat.seances=[];if(!etat.quetes)etat.quetes=[];if(!etat.offres)etat.offres=[];if(!etat.fullbody)etat.fullbody=JSON.parse(JSON.stringify(FB_DEFAUT));
   try{localStorage.setItem(KEY,JSON.stringify(etat))}catch(e){}
   invalider();_nAura=-1;
   document.body.classList.toggle("penalite",!!(etat.penal&&!etat.penal.fait));
