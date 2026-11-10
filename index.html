@@ -721,6 +721,19 @@ body{padding-bottom:env(safe-area-inset-bottom)}
 .qCarte.secondaire .qBar i{background:var(--rc);box-shadow:0 0 8px var(--rc)}
 .qCarte.offre.secondaire{background:linear-gradient(180deg,color-mix(in srgb,var(--rc) 10%,transparent),rgba(3,8,22,.6))}
 .qCarte.legendaire .qBar i{background:var(--gold);box-shadow:0 0 8px var(--gold)}
+.perfs{display:flex;align-items:center;gap:6px;flex:none}
+.perfs i{color:var(--dim);font-style:normal;font-weight:700}
+.pf{display:flex;flex-direction:column;align-items:center;gap:2px;margin:0}
+.pf input{width:58px;background:rgba(3,8,22,.85);border:1px solid var(--line);color:var(--txt);padding:7px 4px;font:700 15px Montserrat,sans-serif;text-align:center}
+.pf input:focus{outline:none;border-color:var(--glow);box-shadow:0 0 8px rgba(var(--glowRGB),.4)}
+.pf input::placeholder{color:rgba(230,238,255,.28);font-weight:500}
+.pf span{font:700 9.5px Rajdhani,sans-serif;letter-spacing:.15em;color:var(--dim);text-transform:uppercase}
+.pdc{align-self:flex-start;height:35px;padding:0 9px;background:rgba(3,8,22,.6);border:1px solid var(--line);color:var(--dim);font:700 11px Rajdhani,sans-serif;letter-spacing:.15em;cursor:pointer}
+.pdc.on{background:rgba(var(--glowRGB),.25);border-color:var(--glow);color:#fff;text-shadow:0 0 6px var(--glow)}
+@media(max-width:700px){.perfs{width:100%;justify-content:flex-start;padding-left:34px}.pf input{width:54px}}
+.qCarte .pf{display:flex;flex-direction:column;align-items:center;gap:2px;margin:0;font:inherit;letter-spacing:0}
+.qCarte .pf input{width:58px;padding:7px 4px;font:700 15px Montserrat,sans-serif;text-align:center}
+@media(max-width:700px){.qCarte .pf input{width:54px}}
 
 </style>
 </head>
@@ -1917,9 +1930,18 @@ function seanceEnCours(){
   const d=auj();let s=etat.seances.find(x=>x.date===d&&x.jour===qJour&&!x.fini);
   return s||null;
 }
+const estCardio=nom=>/course|sortie|footing|cardio|(^|\s)v[ée]lo(\s|$)|rameur|marche/i.test(nom);
+const nb=v=>{const x=parseFloat(String(v||"").replace(",","."));return isNaN(x)?null:x};
+const fmt=x=>String(x).replace(".",",");
+function texPerf(e){
+  if(estCardio(e.nom)){const km=nb(e.km),mn=nb(e.min);return [km!==null?`${fmt(km)} km`:"",mn!==null?`${fmt(mn)} min`:""].filter(Boolean).join(" · ")}
+  const r=nb(e.reps),se=nb(e.series),kg=nb(e.kg);if(r===null&&se===null&&kg===null&&!e.pdc)return"";
+  const charge=e.pdc?(kg?`PDC +${fmt(kg)} kg`:"PDC"):(kg!==null?`${fmt(kg)} kg`:"");
+  return [r!==null?`${fmt(r)} reps`:"",se!==null?`${fmt(se)} séries`:"",charge].filter(Boolean).join(" × ");
+}
 function demarrerSeance(){
   const P=etat.programme[qJour];
-  const s={id:uidQ(),date:auj(),jour:qJour,titre:P.title||"Séance",exos:P.exos.map(e=>({id:e.id,nom:e.name,detail:e.detail||"",perf:"",fait:false})),fini:false,maj:Date.now()};
+  const s={id:uidQ(),date:auj(),jour:qJour,titre:P.title||"Séance",exos:P.exos.map(e=>({id:e.id,nom:e.name,detail:e.detail||"",perf:"",fait:false,pdc:!!(e.lastS&&e.lastS.pdc)})),fini:false,maj:Date.now()};
   etat.seances.push(s);sauver();sfx("plonge");return s;
 }
 function terminerSeance(s){
@@ -1930,7 +1952,7 @@ function terminerSeance(s){
   const complet=faits.length===s.exos.length;
   if(complet)crediter("dis",XP_COMPLETE,`Séance complète : ${s.titre}`,"S",t0+(i++));
   // « dernière fois » mis à jour dans le programme
-  const P=etat.programme[s.jour];for(const e of s.exos)if(e.perf){const x=P.exos.find(y=>y.id===e.id);if(x)x.last=e.perf}
+  const P=etat.programme[s.jour];for(const e of s.exos)if(e.perf){const x=P.exos.find(y=>y.id===e.id);if(x){x.last=e.perf;x.lastS={reps:e.reps,series:e.series,kg:e.kg,pdc:!!e.pdc,km:e.km,min:e.min}}}
   etat.programme._maj=Date.now();
   s.fini=true;s.finiLe=Date.now();s.xp=etat.journal.filter(j=>j.t>=t0&&j.t<t0+i).reduce((a,j)=>a+j.xp,0);s.maj=Date.now();
   // la course de la quête du jour se coche si la séance contient une course faite
@@ -2075,11 +2097,17 @@ function vueEntrainement(){
     <div class="exos">${ex.map(e=>{const m=Object.keys(musclesDe(e.nom)).map(k=>info(k).ab).join(" · ");return `<div class="exo ${e.fait?"fait":""}">
       <span class="cb" ${s?`data-qexo="${e.id}"`:""}>${e.fait?"✓":""}</span>
       <div class="exoTx"><b>${esc(e.nom)}</b><small>${esc(e.detail||"")}${last(e.id)?` · <i>dernière fois : ${esc(last(e.id))}</i>`:""}</small><em>${m}</em></div>
-      ${s?`<input class="perf" data-qperf="${e.id}" value="${esc(e.perf)}" placeholder="kg × reps" inputmode="text">`:""}</div>`}).join("")}</div>
+      ${s?champsPerf(e,(P.exos.find(y=>y.id===e.id)||{}).lastS||{}):""}</div>`}).join("")}</div>
     ${s?`<p class="recomp">Récompense : <b>+${XP_EXO} XP</b> par exercice (répartis sur les muscles travaillés), <b>+${XP_SEANCE} XP</b> de Discipline, <b>+${XP_COMPLETE}</b> si tout est fait · prévu : <b>+${xpPrev} XP</b></p>
       <div class="outils" style="justify-content:center"><button class="btn valider" data-qfinir="1">TERMINER LA SÉANCE</button><button class="btn" data-qabandon="1">ANNULER</button></div>`
      :`<div class="outils" style="justify-content:center"><button class="btn valider" data-qcommencer="1">${faiteAuj?"REFAIRE CETTE SÉANCE":"COMMENCER LA SÉANCE"}</button><button class="btn" data-qedit="1">MODIFIER LE PROGRAMME</button></div>`}
   </div>${vueDernieres()}`;
+}
+function champsPerf(e,L){
+  const ch=(k,lab,ph)=>`<label class="pf"><input data-qf="${e.id}|${k}" value="${esc(e[k]??"")}" placeholder="${esc(ph??"")}" inputmode="decimal"><span>${lab}</span></label>`;
+  if(estCardio(e.nom))return `<div class="perfs">${ch("km","km",L.km)}${ch("min","min",L.min)}</div>`;
+  return `<div class="perfs">${ch("reps","reps",L.reps)}<i>×</i>${ch("series","séries",L.series)}<i>×</i>
+    ${ch("kg",e.pdc?"+ kg":"kg",L.kg)}<button class="pdc ${e.pdc?"on":""}" data-qpdc="${e.id}" title="Poids du corps (ajoute des kg si tu es lesté)">PDC</button></div>`;
 }
 function vueDernieres(){
   const l=etat.seances.filter(x=>x.fini).sort((a,b)=>b.finiLe-a.finiLe).slice(0,5);
@@ -2137,6 +2165,7 @@ document.addEventListener("click",e=>{
   if(t=g("[data-qjour]")){qJour=t.dataset.qjour;qEdit=false;sfx("clic");rendreSys();return}
   if(g("[data-qcommencer]")){demarrerSeance();rendreSys();return}
   if(t=g("[data-qexo]")){const s=seanceEnCours();if(!s)return;const x=s.exos.find(y=>y.id===t.dataset.qexo);x.fait=!x.fait;s.maj=Date.now();sauver();sfx(x.fait?"valide":"clic");rendreSys();return}
+  if(t=g("[data-qpdc]")){const s=seanceEnCours();if(!s)return;const x=s.exos.find(y=>y.id===t.dataset.qpdc);x.pdc=!x.pdc;x.perf=texPerf(x);if(x.perf)x.fait=true;s.maj=Date.now();sauver();sfx("clic");rendreSys();return}
   if(g("[data-qfinir]")){const s=seanceEnCours();if(s)terminerSeance(s);rendreSys();return}
   if(g("[data-qabandon]")){const s=seanceEnCours();if(s&&confirm("Annuler la séance en cours ? Rien ne sera crédité.")){etat.seances=etat.seances.filter(x=>x!==s);sauver();rendreSys()}return}
   if(t=g("[data-qedit]")){if(t.dataset.qedit==="1"&&seanceEnCours()){notif("[ SYSTÈME ]","Termine ou annule la séance en cours avant de modifier le programme.");return}qEdit=t.dataset.qedit==="1";rendreSys();return}
@@ -2150,8 +2179,9 @@ document.addEventListener("click",e=>{
   if(t=g("[data-qabd]")){const q=etat.quetes.find(x=>x.id===t.dataset.qabd);if(q&&confirm(`Abandonner « ${q.titre} » ? Aucune XP ne sera gagnée.`)){q.statut="echouee";q.fini=auj();q.maj=Date.now();sauver();rendreSys()}return}
 },true);
 document.addEventListener("input",e=>{
-  const t=e.target.closest("[data-qperf]");if(!t)return;const s=seanceEnCours();if(!s)return;
-  const x=s.exos.find(y=>y.id===t.dataset.qperf);x.perf=t.value;if(t.value&&!x.fait){x.fait=true;const cb=t.parentElement.querySelector(".cb");cb.textContent="✓";t.parentElement.classList.add("fait")}
+  const t=e.target.closest("[data-qf]");if(!t)return;const s=seanceEnCours();if(!s)return;
+  const [id,k]=t.dataset.qf.split("|"),x=s.exos.find(y=>y.id===id);x[k]=t.value.trim();x.perf=texPerf(x);
+  const row=t.closest(".exo");if(x.perf&&!x.fait){x.fait=true;row.querySelector(".cb").textContent="✓";row.classList.add("fait")}
   s.maj=Date.now();clearTimeout(window._tPerf);window._tPerf=setTimeout(sauver,600);
 });
 
