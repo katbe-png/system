@@ -1624,16 +1624,17 @@ function genererQuete(){
   const e=Object.keys(TACHE_ESP).sort((a,b)=>val(a)-val(b))[0];t.push({txt:TACHE_ESP[e],stat:e});
   return{date:auj(),taches:t.map(x=>({...x,fait:false})),statut:"en_cours",vu:false};
 }
+function jourReussi(d){return (etat.qjHist||[]).includes(d)||etat.journal.some(x=>x.note==="Bonus de quête quotidienne"&&auj(new Date(x.t))===d)}
 function verifJour(){
   const a=auj();let penal=false;
-  if(etat.qj&&etat.qj.date<a&&etat.qj.statut!=="reussie"){penal=true}
+  if(etat.qj&&etat.qj.date<a&&etat.qj.statut!=="reussie"&&!jourReussi(etat.qj.date)){penal=true}
   if(!etat.qj||etat.qj.date<a){
     if(penal){
       const j0=joueur();
       const tp=new Date(etat.qj.date+"T23:59:59").getTime();
       if(!etat.journal.some(x=>x.t===tp)){crediter("dis",-150,"Pénalité : quête quotidienne échouée","P",tp);crediter("vit",-100,"Pénalité : quête quotidienne échouée","P",tp+1)}
       etat.serie=0;const n=Math.min(100,Math.round(30*Math.min(3,1+(j0.niv-1)*.05)));
-      etat.penal={date:a,txt:`Survie : ${n} burpees, puis 5 min de gainage cumulé`,fait:false};
+      etat.penal={date:a,jour:etat.qj.date,txt:`Survie : ${n} burpees, puis 5 min de gainage cumulé`,fait:false};
     }
     etat.qj=genererQuete();sauver();
   }
@@ -1835,7 +1836,7 @@ function apresDemarrage(){demarrageJour();rendre();setTimeout(()=>{
   if(etat.penal&&!etat.penal.fait){ouvrirSys("penalite");if(_penal)notif("[ PÉNALITÉ ]","Quête quotidienne échouée. Discipline −, Vitalité −, série perdue.")}
   else if(etat.qj&&!etat.qj.vu&&etat.qj.statut!=="reussie"){etat.qj.vu=true;sauver();ouvrirSys("quete")}
 },Math.max(300,BOOT+300-(Date.now()-_debut)))}
-setInterval(()=>{if(etat.qj&&etat.qj.date<auj()){verifDonjons();if(verifJour()){document.body.classList.add("penalite");ouvrirSys("penalite")}else ouvrirSys("quete")}},60000);
+setInterval(async()=>{if(etat.qj&&etat.qj.date<auj()){if(window.syncAvantJour)await syncAvantJour();if(!(etat.qj&&etat.qj.date<auj()))return;verifDonjons();if(verifJour()){document.body.classList.add("penalite");ouvrirSys("penalite")}else ouvrirSys("quete")}},60000);
 
 if(!etat.majTitreOmbre){etat.titrePerso="Homme de l'Ombre";etat.majTitreOmbre=true;sauver()}
 if(!etat.majEval2){etat.base=Object.assign({},etat.base,EVAL2);etat.majEval2=true;etat.majAura10=true;sauver()}
@@ -1886,8 +1887,26 @@ function fusion(loc,dist){
   const m=new Map();
   for(const j of [...(loc.journal||[]),...(dist.journal||[])])if(!suppr.has(j.t))m.set(j.t+"|"+j.stat,j);
   const r={...JSON.parse(JSON.stringify(base))};if(!(loc._vierge&&dist._vierge))delete r._vierge;
+  r.qjHist=[...new Set([...(loc.qjHist||[]),...(dist.qjHist||[])])];
+  if(loc.qj&&dist.qj&&loc.qj.date===dist.qj.date){const f=q=>(q.statut==="reussie"?100:0)+q.taches.filter(t=>t.fait).length;r.qj=JSON.parse(JSON.stringify(f(loc.qj)>=f(dist.qj)?loc.qj:dist.qj))}
   return{...r,journal:[...m.values()].sort((x,y)=>y.t-x.t).slice(0,3000),_suppr:[...suppr].slice(-500),_maj:Math.max(a,b)};
 }
+/* Répare les incohérences venant d'un appareil resté en retard :
+   un jour où la quête a été accomplie (bonus présent ou historique) ne peut pas être pénalisé. */
+function reparer(m){
+  const jourDe=t=>auj(new Date(t)),ok=new Set(m.qjHist||[]);
+  for(const j of m.journal||[])if(j.note==="Bonus de quête quotidienne")ok.add(jourDe(j.t));
+  if(m.qj&&m.qj.statut==="reussie")ok.add(m.qj.date);
+  m.journal=(m.journal||[]).filter(j=>!(j.rang==="P"&&/quête quotidienne échouée/.test(j.note||"")&&ok.has(jourDe(j.t))));
+  if(m.penal&&!m.penal.fait){const jf=m.penal.jour||auj(new Date(new Date(m.penal.date+"T12:00").getTime()-864e5));if(ok.has(jf))delete m.penal}
+  m.qjHist=[...ok].sort().slice(-400);
+  let n=0,d=new Date();if(!ok.has(auj(d)))d=new Date(d.getTime()-864e5);
+  while(ok.has(auj(d))){n++;d=new Date(d.getTime()-864e5)}
+  m.serie=n;m.serieMax=Math.max(m.serieMax||0,n);
+  return m;
+}
+function syncAvantJour(){if(!SB_OK||!SYNC.sess)return Promise.resolve();return Promise.race([syncMaintenant(),new Promise(r=>setTimeout(r,8000))])}
+window.syncAvantJour=syncAvantJour;
 function appliquerDistant(m){
   etat=Object.assign(etatInitial(),m);
   if(!etat.inv||!Array.isArray(etat.inv.items))etat.inv=invInitial();
@@ -1897,6 +1916,7 @@ function appliquerDistant(m){
   try{localStorage.setItem(KEY,JSON.stringify(etat))}catch(e){}
   invalider();_nAura=-1;
   document.body.classList.toggle("penalite",!!(etat.penal&&!etat.penal.fait));
+  if(sysVue==="penalite"&&!(etat.penal&&!etat.penal.fait))fermerSys();
   appliquerTheme(true);rendre();if(sysVue)rendreSys();majDock();
 }
 function syncStatut(s){
@@ -1917,7 +1937,7 @@ async function syncFaire(){
     const rows=await sbRest("GET","etats?select=data&user_id=eq."+SYNC.sess.uid);
     if((etat._maj||0)!==avant){syncPlanifier();return}   // modifié pendant l'appel : on recommence juste après
     const dist=rows&&rows[0]?rows[0].data:null,loc=JSON.parse(JSON.stringify(etat));
-    const m=dist?fusion(loc,dist):loc,cm=canon(m);
+    const m=reparer(dist?fusion(loc,dist):JSON.parse(JSON.stringify(loc))),cm=canon(m);
     if(cm!==canon(loc))appliquerDistant(m);
     if(!dist||cm!==canon(dist))await sbRest("POST","etats",{user_id:SYNC.sess.uid,data:m,maj:m._maj||0},{Prefer:"resolution=merge-duplicates,return=minimal"});
     SYNC.der=Date.now();syncStatut("ok");
@@ -1928,7 +1948,7 @@ window._apresSauver=syncPlanifier;
 addEventListener("online",()=>syncMaintenant());
 addEventListener("offline",()=>syncStatut("horsligne"));
 document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible")syncMaintenant()});
-setInterval(()=>{if(document.visibilityState==="visible")syncMaintenant()},60000);
+setInterval(()=>{if(document.visibilityState==="visible"||Date.now()-SYNC.der>5*60000)syncMaintenant()},60000);
 
 /* ---------- Connexion ---------- */
 let _authFin=null;
