@@ -709,6 +709,12 @@ body{padding-bottom:env(safe-area-inset-bottom)}
 .qCarte .tache{padding:9px 12px}
 #sysCorps .outils{display:flex;flex-wrap:wrap;gap:8px}
 #sysCorps .outils .btn{width:auto;flex:0 0 auto;margin:0}
+.qCarte.offre{border-style:dashed;background:linear-gradient(180deg,rgba(var(--glowRGB),.08),rgba(3,8,22,.6))}
+.qCarte.offre.principale{border-color:var(--gold);background:linear-gradient(180deg,rgba(255,211,107,.08),rgba(3,8,22,.6))}
+.qEt{margin:6px 0 4px 18px;color:var(--clair);font-size:13px;line-height:1.6}
+.qCarte.legendaire{border-color:#c48bff;box-shadow:0 0 22px rgba(196,139,255,.35),inset 0 0 30px rgba(196,139,255,.08)}
+.qCarte.legendaire .qType{color:#d9b8ff;text-shadow:0 0 8px #a86bff}
+.qCarte.offre.legendaire{background:linear-gradient(180deg,rgba(196,139,255,.12),rgba(3,8,22,.6))}
 
 </style>
 </head>
@@ -1860,7 +1866,7 @@ function majDock(){
   else if(q.statut==="reussie"){p.textContent="✓";p.className="pastille ok";p.style.display="block"}
   else{p.textContent=n;p.className="pastille";p.style.display="block"}
   const s=$("btnSon"),m=$("btnMus");if(s){s.classList.toggle("off",!etat.son.sfx);s.innerHTML=etat.son.sfx?ICO_SON1:ICO_SON0}if(m)m.classList.toggle("off",!etat.son.mus);
-  const pq=$("pastQs");if(pq&&etat.quetes){const s=etat.seances.some(x=>x.date===auj()&&x.fini),pr=(etat.programme[jourSem()]||{exos:[]}).exos.length;const n3=etat.quetes.filter(q=>q.statut==="active").length+(pr&&!s?1:0);pq.style.display=n3?"block":"none";pq.textContent=n3}
+  const pq=$("pastQs");if(pq&&etat.quetes){const s=etat.seances.some(x=>x.date===auj()&&x.fini),pr=(etat.programme[jourSem()]||{exos:[]}).exos.length;const n3=etat.offres.filter(o=>o.statut==="ouverte").length+(pr&&!s?1:0);pq.style.display=n3?"block":"none";pq.textContent=n3}
   const d=$("pastD");if(d){const n2=etat.donjons.actifs.filter(x=>!x.fait.includes(auj())).length;d.style.display=n2?"block":"none";d.textContent=n2}
 }
 
@@ -1900,7 +1906,7 @@ const musclesDe=nom=>{for(const [r,m] of EXO_MUSCLES)if(r.test(nom))return m;ret
 const XP_EXO=15,XP_SEANCE=20,XP_COMPLETE=25;
 
 /* ---------- état de la vue ---------- */
-let qOnglet="entrainement",qJour=jourSem(),qEdit=false,qForm=null;
+let qOnglet="entrainement",qJour=jourSem(),qEdit=false;
 function seanceEnCours(){
   const d=auj();let s=etat.seances.find(x=>x.date===d&&x.jour===qJour&&!x.fini);
   return s||null;
@@ -1926,44 +1932,120 @@ function terminerSeance(s){
   sauver();sfx("or");notif("[ QUÊTE D'ENTRAÎNEMENT ACCOMPLIE ]",`${s.titre} · +${s.xp} XP${complet?" · séance complète":""}`,true);apresGain(j0);rendre();
 }
 
-/* ---------- quêtes principales / secondaires ---------- */
+/* ---------- quêtes imposées par le Système (principales / secondaires) ---------- */
 const XP_RANG={E:40,D:80,C:150,B:250,A:400,S:700};
-const STATS_QUETE=()=>[...Object.keys(STATS).filter(k=>!STATS[k].grp),...MUSCLES];
-const PROPOSITIONS={
-  int:[["Le Savoir du Vendeur","Maîtriser les fiches techniques des 5 canapés les plus vendus du magasin",["Choisir les 5 modèles","Apprendre matières, dimensions et entretien","Réciter les arguments clés sans notes"]],
-       ["Le Grimoire du BTS","Terminer une fiche de révision complète par matière",["Fiche Relation client","Fiche Gestion","Fiche Culture éco","Se faire interroger"]]],
-  elo:[["La Voix du Monarque","Enregistrer et améliorer un pitch de vente de 2 minutes",["Écrire le pitch","S'enregistrer","Corriger les tics de langage","Le refaire devant quelqu'un"]]],
-  cha:[["L'Aura du Chef de Rayon","Conclure 3 ventes en prenant l'initiative de l'accueil",["Vente 1","Vente 2","Vente 3"]]],
-  dsc:[["Le Réseau de l'Ombre","Avoir une vraie conversation avec 3 personnes nouvelles",["Personne 1","Personne 2","Personne 3"]]],
-  men:[["Le Calme de l'Ombre","7 jours de méditation de 10 minutes",["Jour 1","Jour 2","Jour 3","Jour 4","Jour 5","Jour 6","Jour 7"]]],
-  dis:[["Le Rituel du Matin","Une semaine de réveil fixe et de lit fait",["Lundi","Mardi","Mercredi","Jeudi","Vendredi","Samedi","Dimanche"]]],
-  aur:[["L'Allure du Monarque","Construire 3 tenues complètes et soignées pour la semaine",["Tenue 1","Tenue 2","Tenue 3","Photo de validation"]]],
-  fin:[["Le Trésor Scellé","Mettre de côté une somme fixe pendant 4 semaines",["Semaine 1","Semaine 2","Semaine 3","Semaine 4"]]],
-  vit:[["Le Souffle du Chasseur","Courir 5 km d'une traite",["Courir 2 km","Courir 3 km","Courir 4 km","Courir 5 km"]]],
-  agi:[["Le Corps Libéré","10 séances de mobilité de 10 minutes",["1","2","3","4","5","6","7","8","9","10"]]]
-};
-function proposerQuete(){
-  const cands=Object.keys(PROPOSITIONS).sort((a,b)=>val(a)-val(b));
-  for(const k of cands)for(const [titre,desc,et] of PROPOSITIONS[k])if(!etat.quetes.some(q=>q.titre===titre&&q.statut!=="echouee"&&q.statut!=="supprimee"))
-    return{titre,desc,stat:k,type:"secondaire",rang:"C",echeance:ajJours(auj(),14),etapes:et.join("\n"),propose:true};
-  return null;
+const MULT={principale:1.5,secondaire:1,legendaire:2};
+const NOM_TYPE={principale:"QUÊTE PRINCIPALE",secondaire:"QUÊTE SECONDAIRE",legendaire:"QUÊTE LÉGENDAIRE"};
+const MAX_SEC=3,MAX_PRI=1;
+/* catalogue : [clé, type, stat, rang, jours, titre, description, étapes] */
+const CATALOGUE=[
+  // ----- légendaire (sans limite de temps, ne bloque pas les autres quêtes) -----
+  ["l_bts","legendaire","int","S",0,"Le Diplôme du Monarque","Obtenir ton BTS NDRC. Chaque épreuve préparée te rapproche du titre.",["E1 · Culture générale et expression révisée","E2 · Anglais révisé","E3 · CEJM (culture économique, juridique et managériale) révisée","E4 · Relation client et négociation-vente : fiches et entraînement à l'oral","E5 · Relation client à distance et digitalisation révisée","E6 · Relation client et animation de réseaux : dossier prêt","Toutes les épreuves passées","BTS NDRC obtenu"]],
+  // ----- principales (2 à 4 semaines) -----
+  ["p_vente","principale","cha","B",21,"L'Éveil du Vendeur","Conclure 10 ventes complètes chez Cuir Center en menant toi-même la découverte des besoins.",["3 ventes conclues","6 ventes conclues","10 ventes conclues","Noter ce qui a fait signer à chaque fois"]],
+  ["p_bts","principale","int","B",21,"Le Grimoire du BTS","Avoir une fiche de révision à jour pour chaque matière et traiter 2 sujets d'annales.",["Fiche Relation client","Fiche Gestion de la relation","Fiche Culture économique","Fiche Culture générale","Sujet d'annales 1","Sujet d'annales 2"]],
+  ["p_marque","principale","int","A",30,"La Marque","Faire avancer le projet de marque du BTS : 3 produits fun autour de la fête, prêts à être présentés.",["Concept et cible définis","Noms des 3 produits","Visuels ou maquettes","Prix et argumentaire","Présentation répétée en groupe"]],
+  ["p_souffle","principale","vit","B",28,"Le Souffle du Chasseur","Courir 5 km d'une traite.",["Courir 2 km sans t'arrêter","Courir 3 km","Courir 4 km","Courir 5 km"]],
+  ["p_corps","principale","dis","A",28,"Le Corps du Monarque","Ne manquer aucune séance de ton programme pendant 4 semaines.",["Semaine 1 complète","Semaine 2 complète","Semaine 3 complète","Semaine 4 complète"]],
+  ["p_voix","principale","elo","B",14,"La Voix du Monarque","Présenter un canapé en 2 minutes, sans notes et sans hésitation.",["Écrire le pitch","T'enregistrer et t'écouter","Supprimer les tics de langage","Le présenter devant quelqu'un"]],
+  ["p_tresor","principale","fin","B",28,"Le Trésor Scellé","Mettre de côté une somme fixe chaque semaine pendant 4 semaines.",["Semaine 1","Semaine 2","Semaine 3","Semaine 4"]],
+  ["p_allure","principale","aur","C",21,"L'Allure de l'Ombre","Construire ton image : 3 tenues complètes, une coupe fraîche et une routine de soin tenue 2 semaines.",["Tenue 1","Tenue 2","Tenue 3","Coupe de cheveux","Routine de soin : 14 jours"]],
+  ["p_calme","principale","men","C",14,"Le Calme de l'Ombre","14 jours de méditation de 10 minutes.",["Jours 1 à 4","Jours 5 à 9","Jours 10 à 14"]],
+  ["p_livre","principale","int","C",21,"La Bibliothèque Oubliée","Lire un livre entier sur la vente, la psychologie ou le développement personnel.",["Choisir le livre","Premier tiers","Deuxième tiers","Livre terminé","Écrire les 3 idées à retenir"]],
+  ["p_reseau","principale","dsc","C",21,"Le Réseau de l'Ombre","Avoir une vraie conversation avec 5 personnes que tu connais peu.",["Personne 1","Personne 2","Personne 3","Personne 4","Personne 5"]],
+  // ----- secondaires (1 à 7 jours) -----
+  ["s_fiche","secondaire","int","D",3,"Fiche technique","Apprendre par cœur la fiche d'un canapé du magasin : matière, dimensions, entretien, prix.",["Choisir le modèle","Le réciter sans regarder"]],
+  ["s_revis","secondaire","int","D",5,"Trois soirs d'étude","30 minutes de révisions BTS, 3 soirs.",["Soir 1","Soir 2","Soir 3"]],
+  ["s_video","secondaire","int","E",2,"Le Savoir de l'Ombre","Regarder une vidéo sur une technique de vente et en résumer l'idée principale.",[]],
+  ["s_aborder","secondaire","cha","D",1,"Premier Contact","Aborder toi-même les 5 premiers clients qui entrent au magasin aujourd'hui.",[]],
+  ["s_complement","secondaire","cha","C",5,"La Vente Additionnelle","Conclure une vente avec un produit complémentaire (protection cuir, coussins, plaid…).",[]],
+  ["s_avis","secondaire","cha","D",7,"La Réputation","Obtenir un remerciement ou un avis positif d'un client.",[]],
+  ["s_pitch1","secondaire","elo","E",2,"Une Minute","T'enregistrer en train de présenter un produit pendant 1 minute, puis t'écouter.",[]],
+  ["s_lire","secondaire","elo","E",3,"La Voix Claire","Lire à voix haute 10 minutes, 2 jours.",["Jour 1","Jour 2"]],
+  ["s_collegue","secondaire","elo","D",3,"Répétition Générale","Présenter un canapé à un collègue comme s'il était client, et lui demander son avis.",[]],
+  ["s_appel","secondaire","dsc","E",3,"Le Lien","Appeler un proche que tu n'as pas eu depuis longtemps.",[]],
+  ["s_questions","secondaire","dsc","E",2,"L'Écoute","Poser 3 questions ouvertes dans une conversation et écouter vraiment les réponses.",[]],
+  ["s_reseaux","secondaire","men","D",3,"Le Silence","Pas de réseaux sociaux avant midi, 3 jours.",["Jour 1","Jour 2","Jour 3"]],
+  ["s_medit","secondaire","men","E",3,"Respiration","10 minutes de méditation ou de respiration, 3 jours.",["Jour 1","Jour 2","Jour 3"]],
+  ["s_gratitude","secondaire","men","E",3,"Le Journal du Soir","Écrire 3 choses positives de ta journée, 3 soirs.",["Soir 1","Soir 2","Soir 3"]],
+  ["s_coucher","secondaire","dis","D",4,"Le Couvre-Feu","Te coucher avant minuit, 3 soirs.",["Soir 1","Soir 2","Soir 3"]],
+  ["s_chambre","secondaire","dis","E",2,"Le Quartier Général","Ranger et nettoyer entièrement ta chambre.",[]],
+  ["s_veille","secondaire","dis","E",4,"Préparation","Préparer tes affaires la veille au soir, 3 fois.",["Soir 1","Soir 2","Soir 3"]],
+  ["s_tenue","secondaire","aur","E",2,"Tenue Impeccable","Préparer et porter une tenue parfaitement repassée et assortie.",[]],
+  ["s_soin","secondaire","aur","D",5,"La Routine","Routine de soin du visage matin et soir, 5 jours.",["Jour 1","Jour 2","Jour 3","Jour 4","Jour 5"]],
+  ["s_208","secondaire","aur","D",4,"La Monture","Laver et nettoyer ta 208, intérieur et extérieur.",["Extérieur","Intérieur"]],
+  ["s_depenses","secondaire","fin","E",3,"Le Registre","Noter toutes tes dépenses pendant 3 jours.",["Jour 1","Jour 2","Jour 3"]],
+  ["s_noachat","secondaire","fin","D",3,"Le Sceau","Aucun achat inutile pendant 3 jours.",["Jour 1","Jour 2","Jour 3"]],
+  ["s_epargne","secondaire","fin","D",7,"La Réserve","Mettre 20 € de côté.",[]],
+  ["s_pas","secondaire","vit","E",1,"La Marche du Chasseur","Faire 10 000 pas aujourd'hui.",[]],
+  ["s_3km","secondaire","vit","D",3,"La Traque","Courir 3 km.",[]],
+  ["s_eau","secondaire","vit","E",3,"La Source","Boire 2 L d'eau par jour, 3 jours.",["Jour 1","Jour 2","Jour 3"]],
+  ["s_etir","secondaire","agi","E",4,"La Souplesse","20 minutes d'étirements, 2 fois.",["Séance 1","Séance 2"]],
+  ["s_mobil","secondaire","agi","D",5,"Le Corps Délié","10 minutes de mobilité (hanches, épaules, chevilles), 3 jours.",["Jour 1","Jour 2","Jour 3"]],
+  ["s_pompes","secondaire","pec","D",1,"Centurion","100 pompes dans la journée, en autant de séries que nécessaire.",[]],
+  ["s_gainage","secondaire","abd","D",1,"Le Bouclier","5 minutes de gainage cumulé dans la journée.",[]],
+  ["s_avb","secondaire","avb","E",2,"La Poigne","3 suspensions à la barre de 45 secondes.",[]],
+  ["s_mollets","secondaire","jam","E",2,"Les Racines","150 extensions des mollets dans la journée.",[]]
+];
+const catQ=k=>CATALOGUE.find(c=>c[0]===k);
+/* hasard reproductible pour une date donnée : tes deux appareils proposent les mêmes quêtes le même jour */
+function hasardJour(graine){let h=2166136261;for(const c of graine)h=Math.imul(h^c.charCodeAt(0),16777619);return()=>{h=Math.imul(h^(h>>>15),2246822507);h=Math.imul(h^(h>>>13),3266489909);return((h^=h>>>16)>>>0)/4294967296}}
+function candidats(type){
+  const a=auj(),recents=new Set(etat.quetes.filter(q=>q.cle&&(q.statut==="active"||(q.fini&&joursEntre(q.fini,a)<14))).map(q=>q.cle));
+  for(const o of etat.offres)if(o.statut!=="ouverte"&&joursEntre(o.date,a)<7)recents.add(o.cle);
+  for(const o of etat.offres)if(o.statut==="ouverte")recents.add(o.cle);
+  return CATALOGUE.filter(c=>c[1]===type&&!recents.has(c[0]));
 }
-function creerQuete(f){
-  const q={id:uidQ(),titre:f.titre.trim(),desc:(f.desc||"").trim(),type:f.type,stat:f.stat,rang:f.rang,
-    xp:Math.round(XP_RANG[f.rang]*(f.type==="principale"?1.5:1)),echeance:f.echeance||"",cree:auj(),statut:"active",
-    etapes:(f.etapes||"").split("\n").map(x=>x.trim()).filter(Boolean).map(t=>({txt:t,fait:false})),maj:Date.now()};
-  etat.quetes.push(q);sauver();sfx("plonge");notif(q.type==="principale"?"[ NOUVELLE QUÊTE PRINCIPALE ]":"[ NOUVELLE QUÊTE ]",q.titre);
+function tirer(type,n,graine){
+  const r=hasardJour(graine),l=candidats(type).map(c=>({c,p:(100-val(c[2]))*(0.6+r())})).sort((x,y)=>y.p-x.p);
+  return l.slice(0,n).map(x=>x.c);
 }
+function genererOffres(){
+  const a=auj();let ch=false;
+  // les offres secondaires durent la journée, l'offre principale 3 jours
+  for(const o of etat.offres)if(o.statut==="ouverte"&&o.expire<a){o.statut="expiree";o.maj=Date.now();ch=true}
+  const actSec=etat.quetes.filter(q=>q.statut==="active"&&q.type==="secondaire").length;
+  const ouvSec=etat.offres.filter(o=>o.statut==="ouverte"&&o.type==="secondaire").length;
+  const dejaAuj=etat.offres.some(o=>o.type==="secondaire"&&o.date===a);
+  if(!dejaAuj&&actSec<MAX_SEC){
+    for(const c of tirer("secondaire",Math.max(0,3-ouvSec),"s"+a)){etat.offres.push({id:"o-"+a+"-"+c[0],cle:c[0],type:"secondaire",date:a,expire:a,statut:"ouverte",maj:Date.now()});ch=true}
+  }
+  const actPri=etat.quetes.some(q=>q.statut==="active"&&q.type==="principale");
+  const ouvPri=etat.offres.some(o=>o.statut==="ouverte"&&o.type==="principale");
+  const derPri=etat.offres.filter(o=>o.type==="principale").map(o=>o.date).sort().pop();
+  if(!actPri&&!ouvPri&&(!derPri||joursEntre(derPri,a)>=3)){
+    const [c]=tirer("principale",1,"p"+a);
+    if(c){etat.offres.push({id:"o-"+a+"-"+c[0],cle:c[0],type:"principale",date:a,expire:ajJours(a,2),statut:"ouverte",maj:Date.now()});ch=true;
+      setTimeout(()=>notif("[ NOUVELLE QUÊTE PRINCIPALE ]",`${c[5]} — en attente de ta réponse.`),BOOT+1500)}
+  }
+  for(const c of CATALOGUE.filter(x=>x[1]==="legendaire"))
+    if(!etat.quetes.some(q=>q.cle===c[0]&&q.statut!=="echouee")&&!etat.offres.some(o=>o.cle===c[0]&&o.statut==="ouverte")&&!etat.offres.some(o=>o.cle===c[0]&&o.statut==="refusee"&&joursEntre(o.date,a)<7)){
+      etat.offres.push({id:"o-"+a+"-"+c[0],cle:c[0],type:"legendaire",date:a,expire:"2099-12-31",statut:"ouverte",maj:Date.now()});ch=true}
+  etat.offres=etat.offres.filter(o=>o.statut==="ouverte"||joursEntre(o.date,a)<30);
+  if(ch)sauver();
+}
+function accepterOffre(o){
+  const c=catQ(o.cle);if(!c)return;
+  const actifs=etat.quetes.filter(q=>q.statut==="active"&&q.type===o.type).length;
+  if(o.type!=="legendaire"&&actifs>=(o.type==="principale"?MAX_PRI:MAX_SEC)){notif("[ SYSTÈME ]",o.type==="principale"?"Une seule quête principale à la fois.":`${MAX_SEC} quêtes secondaires au maximum en même temps.`);return}
+  const [cle,type,stat,rang,jours,titre,desc,et]=c;
+  etat.quetes.push({id:"q-"+o.id,cle,titre,desc,type,stat,rang,xp:Math.round(XP_RANG[rang]*MULT[type]),echeance:jours?ajJours(auj(),jours-1):"",cree:auj(),statut:"active",
+    etapes:et.map(t=>({txt:t,fait:false})),maj:Date.now()});
+  o.statut="acceptee";o.maj=Date.now();sauver();sfx("plonge");
+  notif(`[ ${NOM_TYPE[type]} ACCEPTÉE ]`,jours?`${titre} · ${jours} jour${jours>1?"s":""}`:titre);
+}
+function refuserOffre(o){o.statut="refusee";o.maj=Date.now();sauver();sfx("clic")}
 function accomplirQuete(q){
   if(q.statut!=="active")return;const j0=joueur();
   crediter(q.stat,q.xp,`Quête ${q.type} : ${q.titre}`,q.rang);q.statut="accomplie";q.fini=auj();q.maj=Date.now();
-  sauver();sfx("or");notif(q.type==="principale"?"[ QUÊTE PRINCIPALE ACCOMPLIE ]":"[ QUÊTE ACCOMPLIE ]",`${q.titre} · +${q.xp} XP ${info(q.stat).nom}`,true);apresGain(j0);rendre();
+  sauver();sfx("or");notif(`[ ${NOM_TYPE[q.type]} ACCOMPLIE ]`,`${q.titre} · +${q.xp} XP ${info(q.stat).nom}`,true);apresGain(j0);rendre();
 }
 function verifQuetes(){
   let ch=false;for(const q of etat.quetes)if(q.statut==="active"&&q.echeance&&q.echeance<auj()){q.statut="echouee";q.fini=auj();q.maj=Date.now();ch=true;
-    setTimeout(()=>notif("[ QUÊTE ÉCHOUÉE ]",`${q.titre} : l'échéance est dépassée.`),1200)}
+    setTimeout(()=>notif("[ QUÊTE ÉCHOUÉE ]",`${q.titre} : le délai est écoulé.`),1200)}
   if(ch)sauver();
 }
+if(!etat.offres)etat.offres=[];
 
 /* ---------- vues ---------- */
 function vueQuetes(){
@@ -2013,33 +2095,31 @@ function lireEditProg(){
   P.exos.forEach((e,i)=>{const n=document.querySelector(`[data-pnom="${i}"]`),d=document.querySelector(`[data-pdet="${i}"]`);if(n)e.name=n.value.trim();if(d)e.detail=d.value.trim()});
 }
 function vueMesQuetes(){
-  if(qForm)return vueFormQuete();
-  const act=etat.quetes.filter(q=>q.statut==="active").sort((a,b)=>(a.type==="principale"?0:1)-(b.type==="principale"?0:1)||((a.echeance||"9")<(b.echeance||"9")?-1:1));
+  genererOffres();
+const ordreT={legendaire:0,principale:1,secondaire:2};
+  const ouv=etat.offres.filter(o=>o.statut==="ouverte"&&catQ(o.cle)).sort((a,b)=>ordreT[a.type]-ordreT[b.type]);
+  const act=etat.quetes.filter(q=>q.statut==="active").sort((a,b)=>(ordreT[a.type]-ordreT[b.type])||((a.echeance||"9")<(b.echeance||"9")?-1:1));
+  const offre=o=>{const [,type,stat,rang,jours,titre,desc,et]=catQ(o.cle),rc=COUL_RANG[rang],xp=Math.round(XP_RANG[rang]*MULT[type]),je=joursEntre(auj(),o.expire);
+    return `<div class="qCarte offre ${type}" style="--rc:${rc}">
+      <div class="qTete"><span class="qType">[ ${NOM_TYPE[type]} ]</span><span class="rgQ">${rang}</span></div>
+      <h3>${esc(titre)}</h3><p class="qDesc">${esc(desc)}</p>
+      ${et.length?`<ul class="qEt">${et.map(t=>`<li>${esc(t)}</li>`).join("")}</ul>`:""}
+      <div class="qPied"><span>Récompense <b>+${xp} XP ${info(stat).nom}</b> · ${jours?`délai <b>${jours} jour${jours>1?"s":""}</b>`:"<b>sans limite de temps</b>"}</span><span>${type==="legendaire"?"":je<=0?"Offre valable aujourd'hui":`Offre valable ${je+1} jours`}</span></div>
+      <div class="outils"><button class="btn valider" data-qaccept="${o.id}">ACCEPTER</button><button class="btn" data-qrefus="${o.id}">REFUSER</button></div></div>`};
   const carte=q=>{const n=q.etapes.filter(e=>e.fait).length,t=q.etapes.length,rc=COUL_RANG[q.rang],jr=q.echeance?joursEntre(auj(),q.echeance):null;
     return `<div class="qCarte ${q.type}" style="--rc:${rc}">
-      <div class="qTete"><span class="qType">${q.type==="principale"?"QUÊTE PRINCIPALE":"QUÊTE SECONDAIRE"}</span><span class="rgQ">${q.rang}</span></div>
+      <div class="qTete"><span class="qType">${NOM_TYPE[q.type]}</span><span class="rgQ">${q.rang}</span></div>
       <h3>${esc(q.titre)}</h3>${q.desc?`<p class="qDesc">${esc(q.desc)}</p>`:""}
       ${t?`<div class="taches">${q.etapes.map((e,i)=>`<div class="tache ${e.fait?"fait":""}" data-qetape="${q.id}|${i}"><span class="cb">${e.fait?"✓":""}</span><span class="tx">${esc(e.txt)}</span></div>`).join("")}</div>
         <div class="barre qBar"><i style="width:${n/t*100}%"></i></div>`:""}
-      <div class="qPied"><span>Récompense <b>+${q.xp} XP ${info(q.stat).nom}</b></span>${jr!==null?`<span class="${jr<=2?"urgent":""}">${jr<0?"Échue":jr===0?"Dernier jour":`${jr} j restant${jr>1?"s":""}`}</span>`:"<span>Sans échéance</span>"}</div>
-      <div class="outils">${!t||n===t?`<button class="btn valider" data-qacc="${q.id}">ACCOMPLIR</button>`:""}<button class="btn" data-qmod="${q.id}">MODIFIER</button><button class="btn" data-qabd="${q.id}">ABANDONNER</button><button class="btn" data-qsup="${q.id}">SUPPRIMER</button></div></div>`};
-  return `<div class="outils" style="justify-content:center;margin-bottom:14px"><button class="btn valider" data-qnew="1">+ NOUVELLE QUÊTE</button><button class="btn" data-qprop="1">LE SYSTÈME PROPOSE</button></div>
-    ${act.length?act.map(carte).join(""):`<div class="qVide">AUCUNE QUÊTE EN COURS<br><small>Crée ta propre quête ou laisse le Système t'en proposer une selon tes points faibles.</small></div>`}`;
-}
-function vueFormQuete(){
-  const f=qForm,opts=STATS_QUETE().map(k=>`<option value="${k}" ${f.stat===k?"selected":""}>${info(k).nom}</option>`).join("");
-  return `<div class="qCarte">${f.id?`<div class="qTete"><span class="qType">MODIFIER LA QUÊTE</span></div>`:""}${f.propose?`<div class="qTete"><span class="qType">[ LE SYSTÈME PROPOSE UNE QUÊTE ]</span></div>`:""}
-    <label>TITRE</label><input id="fTitre" value="${esc(f.titre||"")}" placeholder="Ex : Le Grimoire du BTS">
-    <label>DESCRIPTION</label><input id="fDesc" value="${esc(f.desc||"")}" placeholder="L'objectif à atteindre">
-    <div class="deux"><div><label>TYPE</label><select id="fType"><option value="secondaire" ${f.type!=="principale"?"selected":""}>Secondaire</option><option value="principale" ${f.type==="principale"?"selected":""}>Principale (×1,5 XP)</option></select></div>
-      <div><label>STAT RÉCOMPENSÉE</label><select id="fStat">${opts}</select></div></div>
-    <div class="deux"><div><label>DIFFICULTÉ (RANG)</label><select id="fRang">${Object.entries(XP_RANG).map(([r,x])=>`<option value="${r}" ${f.rang===r?"selected":""}>Rang ${r} · ${x} XP</option>`).join("")}</select></div>
-      <div><label>ÉCHÉANCE (OPTIONNELLE)</label><input type="date" id="fEch" value="${f.echeance||""}"></div></div>
-    <label>ÉTAPES (UNE PAR LIGNE, OPTIONNEL)</label><textarea id="fEtapes" rows="5" placeholder="Étape 1&#10;Étape 2">${esc(f.etapes||"")}</textarea>
-    <div class="outils" style="justify-content:center;margin-top:14px"><button class="btn valider" data-qcreer="1">${f.id?"ENREGISTRER":f.propose?"ACCEPTER LA QUÊTE":"CRÉER LA QUÊTE"}</button>${f.propose?`<button class="btn" data-qprop="1">AUTRE PROPOSITION</button>`:""}<button class="btn" data-qannul="1">ANNULER</button></div></div>`;
+      <div class="qPied"><span>Récompense <b>+${q.xp} XP ${info(q.stat).nom}</b></span>${jr!==null?`<span class="${jr<=1?"urgent":""}">${jr<0?"Échue":jr===0?"Dernier jour":`${jr+1} jours restants`}</span>`:""}</div>
+      <div class="outils">${!t||n===t?`<button class="btn valider" data-qacc="${q.id}">ACCOMPLIR</button>`:""}<button class="btn" data-qabd="${q.id}">ABANDONNER</button></div></div>`};
+  return `${ouv.length?`<div class="sec">LE SYSTÈME T'ASSIGNE</div>${ouv.map(offre).join("")}`:""}
+    <div class="sec">EN COURS${act.some(q=>q.type==="legendaire")?" · 1 légendaire":""} · ${act.filter(q=>q.type==="principale").length}/${MAX_PRI} principale · ${act.filter(q=>q.type==="secondaire").length}/${MAX_SEC} secondaires</div>
+    ${act.length?act.map(carte).join(""):`<div class="qVide">AUCUNE QUÊTE ACCEPTÉE<br><small>Accepte une des quêtes que le Système te propose. De nouvelles quêtes secondaires arrivent chaque jour.</small></div>`}`;
 }
 function vueQJournal(){
-  const l=[...etat.quetes.filter(q=>q.statut!=="active"&&q.statut!=="supprimee").map(q=>({d:q.fini,txt:q.titre,type:q.type==="principale"?"PRINCIPALE":"SECONDAIRE",ok:q.statut==="accomplie",xp:q.statut==="accomplie"?q.xp:0,rang:q.rang})),
+  const l=[...etat.quetes.filter(q=>q.statut!=="active").map(q=>({d:q.fini,txt:q.titre,type:NOM_TYPE[q.type].replace("QUÊTE ",""),ok:q.statut==="accomplie",xp:q.statut==="accomplie"?q.xp:0,rang:q.rang})),
     ...etat.seances.filter(x=>x.fini).map(x=>({d:x.date,txt:x.titre,type:"ENTRAÎNEMENT",ok:true,xp:x.xp||0,rang:"S"}))].sort((a,b)=>(b.d||"").localeCompare(a.d||"")).slice(0,60);
   if(!l.length)return `<div class="qVide">AUCUNE QUÊTE TERMINÉE POUR L'INSTANT</div>`;
   return `<div class="qListe">${l.map(x=>`<div class="qLigne ${x.ok?"":"rate"}"><span>${x.d?new Date(x.d+"T12:00").toLocaleDateString("fr-FR",{day:"numeric",month:"short"}):""}</span><b>${esc(x.txt)}</b><span>${x.type}</span><span class="xpq">${x.ok?`+${x.xp} XP`:"ÉCHOUÉE"}</span></div>`).join("")}</div>`;
@@ -2049,7 +2129,7 @@ function vueQJournal(){
 document.addEventListener("click",e=>{
   if(sysVue!=="quetes")return;
   const g=s=>e.target.closest(s);let t;
-  if(t=g("[data-qonglet]")){qOnglet=t.dataset.qonglet;qEdit=false;qForm=null;sfx("clic");rendreSys();return}
+  if(t=g("[data-qonglet]")){qOnglet=t.dataset.qonglet;qEdit=false;sfx("clic");rendreSys();return}
   if(t=g("[data-qjour]")){qJour=t.dataset.qjour;qEdit=false;sfx("clic");rendreSys();return}
   if(g("[data-qcommencer]")){demarrerSeance();rendreSys();return}
   if(t=g("[data-qexo]")){const s=seanceEnCours();if(!s)return;const x=s.exos.find(y=>y.id===t.dataset.qexo);x.fait=!x.fait;s.maj=Date.now();sauver();sfx(x.fait?"valide":"clic");rendreSys();return}
@@ -2059,17 +2139,8 @@ document.addEventListener("click",e=>{
   if(g("[data-pajout]")){lireEditProg();etat.programme[qJour].exos.push({id:uidQ(),name:"",detail:""});rendreSys();return}
   if(t=g("[data-psuppr]")){lireEditProg();etat.programme[qJour].exos.splice(+t.dataset.psuppr,1);rendreSys();return}
   if(g("[data-pok]")){lireEditProg();const P=etat.programme[qJour];P.exos=P.exos.filter(x=>x.name);etat.programme._maj=Date.now();qEdit=false;sauver();notif("[ PROGRAMME ]","Séance enregistrée.");rendreSys();return}
-  if(g("[data-qnew]")){qForm={type:"secondaire",stat:"dis",rang:"C",etapes:""};rendreSys();return}
-  if(g("[data-qprop]")){const p=proposerQuete();if(!p){notif("[ SYSTÈME ]","Aucune nouvelle proposition pour l'instant.");return}qForm=p;sfx("verre");rendreSys();return}
-  if(g("[data-qannul]")){qForm=null;rendreSys();return}
-  if(g("[data-qcreer]")){const f={titre:$("fTitre").value,desc:$("fDesc").value,type:$("fType").value,stat:$("fStat").value,rang:$("fRang").value,echeance:$("fEch").value,etapes:$("fEtapes").value};
-    if(!f.titre.trim()){$("fTitre").focus();return}
-    if(qForm.id){const q=etat.quetes.find(x=>x.id===qForm.id);if(q){const anc=new Map(q.etapes.map(e=>[e.txt,e.fait]));
-      Object.assign(q,{titre:f.titre.trim(),desc:f.desc.trim(),type:f.type,stat:f.stat,rang:f.rang,echeance:f.echeance,xp:Math.round(XP_RANG[f.rang]*(f.type==="principale"?1.5:1)),
-        etapes:f.etapes.split("\n").map(x=>x.trim()).filter(Boolean).map(t=>({txt:t,fait:!!anc.get(t)})),maj:Date.now()});sauver();notif("[ QUÊTE ]","Quête modifiée.")}}
-    else creerQuete(f);qForm=null;rendreSys();return}
-  if(t=g("[data-qmod]")){const q=etat.quetes.find(x=>x.id===t.dataset.qmod);if(q)qForm={id:q.id,titre:q.titre,desc:q.desc,type:q.type,stat:q.stat,rang:q.rang,echeance:q.echeance,etapes:q.etapes.map(e=>e.txt).join("\n")};rendreSys();return}
-  if(t=g("[data-qsup]")){const q=etat.quetes.find(x=>x.id===t.dataset.qsup);if(q&&confirm(`Supprimer définitivement « ${q.titre} » ? Elle disparaîtra sans être comptée comme échouée.`)){q.statut="supprimee";q.maj=Date.now();sauver();rendreSys()}return}
+  if(t=g("[data-qaccept]")){const o=etat.offres.find(x=>x.id===t.dataset.qaccept);if(o)accepterOffre(o);rendreSys();majDock();return}
+  if(t=g("[data-qrefus]")){const o=etat.offres.find(x=>x.id===t.dataset.qrefus);if(o)refuserOffre(o);rendreSys();majDock();return}
   if(t=g("[data-qetape]")){const [id,i]=t.dataset.qetape.split("|"),q=etat.quetes.find(x=>x.id===id);if(!q)return;const et=q.etapes[+i];et.fait=!et.fait;q.maj=Date.now();sauver();sfx(et.fait?"valide":"clic");rendreSys();return}
   if(t=g("[data-qacc]")){const q=etat.quetes.find(x=>x.id===t.dataset.qacc);if(q)accomplirQuete(q);rendreSys();return}
   if(t=g("[data-qabd]")){const q=etat.quetes.find(x=>x.id===t.dataset.qabd);if(q&&confirm(`Abandonner « ${q.titre} » ? Aucune XP ne sera gagnée.`)){q.statut="echouee";q.fini=auj();q.maj=Date.now();sauver();rendreSys()}return}
@@ -2103,12 +2174,12 @@ document.addEventListener("keydown",e=>{if(e.key==="Escape"&&sysVue)fermerSys()}
 /* ---------- DÉMARRAGE ---------- */
 let _penal=false;
 const BOOT=2700,_debut=Date.now();
-function demarrageJour(){verifDonjons();_penal=verifJour();if(etat.penal&&!etat.penal.fait)document.body.classList.add("penalite")}
+function demarrageJour(){verifDonjons();_penal=verifJour();verifQuetes();genererOffres();majDock();if(etat.penal&&!etat.penal.fait)document.body.classList.add("penalite")}
 function apresDemarrage(){demarrageJour();rendre();setTimeout(()=>{
   if(etat.penal&&!etat.penal.fait){ouvrirSys("penalite");if(_penal)notif("[ PÉNALITÉ ]","Quête quotidienne échouée. Discipline −, Vitalité −, série perdue.")}
   else if(etat.qj&&!etat.qj.vu&&etat.qj.statut!=="reussie"){etat.qj.vu=true;sauver();ouvrirSys("quete")}
 },Math.max(300,BOOT+300-(Date.now()-_debut)))}
-setInterval(async()=>{if(etat.qj&&etat.qj.date<auj()){if(window.syncAvantJour)await syncAvantJour();if(!(etat.qj&&etat.qj.date<auj()))return;verifDonjons();if(verifJour()){document.body.classList.add("penalite");ouvrirSys("penalite")}else ouvrirSys("quete")}},60000);
+setInterval(async()=>{if(etat.qj&&etat.qj.date<auj()){if(window.syncAvantJour)await syncAvantJour();if(!(etat.qj&&etat.qj.date<auj()))return;verifDonjons();verifQuetes();genererOffres();if(verifJour()){document.body.classList.add("penalite");ouvrirSys("penalite")}else ouvrirSys("quete")}},60000);
 
 if(!etat.majTitreOmbre){etat.titrePerso="Homme de l'Ombre";etat.majTitreOmbre=true;sauver()}
 if(!etat.majEval2){etat.base=Object.assign({},etat.base,EVAL2);etat.majEval2=true;etat.majAura10=true;sauver()}
@@ -2168,7 +2239,7 @@ function fusion(loc,dist){
   const finis=[...fin.values()];
   // quêtes et séances : fusion élément par élément (la version la plus récente de chacune)
   const parId=(x,y)=>{const m=new Map();for(const e of [...(x||[]),...(y||[])]){const p=m.get(e.id);if(!p||(e.maj||0)>(p.maj||0))m.set(e.id,e)}return[...m.values()]};
-  r.quetes=parId(loc.quetes,dist.quetes);r.seances=parId(loc.seances,dist.seances).slice(-400);
+  r.quetes=parId(loc.quetes,dist.quetes);r.offres=parId(loc.offres,dist.offres);r.seances=parId(loc.seances,dist.seances).slice(-400);
   if(loc.programme||dist.programme)r.programme=JSON.parse(JSON.stringify(((loc.programme||{})._maj||0)>=((dist.programme||{})._maj||0)?loc.programme:dist.programme));
   r.donjons={finis,actifs:[...act.values()].filter(x=>!finis.some(f=>f.id===x.id&&f.date>=x.debut)).slice(0,2)};
   if(loc.qj&&dist.qj&&loc.qj.date===dist.qj.date){const f=q=>(q.statut==="reussie"?100:0)+q.taches.filter(t=>t.fait).length;r.qj=JSON.parse(JSON.stringify(f(loc.qj)>=f(dist.qj)?loc.qj:dist.qj))}
@@ -2197,7 +2268,7 @@ function appliquerDistant(m){
   if(!etat.son)etat.son={sfx:true,mus:false};
   if(!etat.equip)etat.equip={};
   if(!etat.programme){etat.programme=JSON.parse(JSON.stringify(PROG_DEFAUT));etat.programme._maj=1}
-  if(!etat.seances)etat.seances=[];if(!etat.quetes)etat.quetes=[];
+  if(!etat.seances)etat.seances=[];if(!etat.quetes)etat.quetes=[];if(!etat.offres)etat.offres=[];
   try{localStorage.setItem(KEY,JSON.stringify(etat))}catch(e){}
   invalider();_nAura=-1;
   document.body.classList.toggle("penalite",!!(etat.penal&&!etat.penal.fait));
