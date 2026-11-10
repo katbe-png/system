@@ -657,6 +657,59 @@ body{padding-bottom:env(safe-area-inset-bottom)}
 
 .cleSante{margin-top:10px;padding:10px;border:1px dashed var(--glow);font:600 13px ui-monospace,Menlo,monospace;word-break:break-all;user-select:all;background:rgba(var(--glowRGB),.08)}
 
+/* ---------- QUÊTES ---------- */
+.qOnglets{display:flex;border:1px solid rgba(var(--glowRGB),.35);margin-bottom:16px}
+.qOnglets button{flex:1;background:none;border:none;color:var(--dim);padding:10px 6px;font:700 13px Rajdhani,sans-serif;letter-spacing:.22em;cursor:pointer}
+.qOnglets button+button{border-left:1px solid rgba(var(--glowRGB),.25)}
+.qOnglets button.on{background:rgba(var(--glowRGB),.2);color:#fff;text-shadow:0 0 8px var(--glow)}
+.qJours{display:grid;grid-template-columns:repeat(7,1fr);gap:5px;margin-bottom:14px}
+.qJours button{background:rgba(3,8,20,.55);border:1px solid rgba(var(--glowRGB),.25);color:var(--dim);padding:7px 2px;font:700 12px Rajdhani,sans-serif;letter-spacing:.15em;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:2px;min-width:0}
+.qJours button small{font:500 9.5px Montserrat,sans-serif;letter-spacing:0;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;opacity:.8}
+.qJours button.auj{border-color:rgba(var(--glowRGB),.7)}
+.qJours button.on{background:rgba(var(--glowRGB),.22);color:#fff;border-color:var(--glow);box-shadow:0 0 10px rgba(var(--glowRGB),.4)}
+.qCarte{position:relative;border:1px solid rgba(var(--glowRGB),.35);background:rgba(3,8,22,.6);padding:14px 16px;margin-bottom:12px}
+.qCarte.active{border-color:var(--glow);box-shadow:0 0 16px rgba(var(--glowRGB),.3)}
+.qCarte.principale{border-color:var(--gold);box-shadow:0 0 16px rgba(255,211,107,.25)}
+.qCarte.principale .qType{color:var(--gold)}
+.qCarte h3{font:800 19px Montserrat,sans-serif;margin:4px 0}
+.qTete{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.qType{font:700 11px Rajdhani,sans-serif;letter-spacing:.32em;color:var(--glow)}
+.qFait{font:700 11px Rajdhani,sans-serif;letter-spacing:.2em;color:var(--green)}
+.rgQ{font:800 15px Rajdhani,sans-serif;color:var(--rc);border:1.5px solid var(--rc);padding:0 8px;text-shadow:0 0 8px var(--rc)}
+.qDesc{color:var(--dim);font-size:13px;margin-bottom:10px}
+.exos{display:flex;flex-direction:column;gap:6px;margin:10px 0}
+.exo{display:flex;align-items:center;gap:12px;padding:9px 12px;border:1px solid rgba(var(--glowRGB),.2);background:rgba(3,8,22,.5)}
+.exo.fait{border-color:rgba(93,255,155,.55);background:rgba(93,255,155,.06)}
+.exo .cb{width:22px;height:22px;flex:none;border:2px solid rgba(230,238,255,.75);display:flex;align-items:center;justify-content:center;font:800 14px Montserrat,sans-serif;color:#03150a;cursor:pointer}
+.exo.fait .cb{background:var(--green);border-color:var(--green);box-shadow:0 0 8px var(--green)}
+.exoTx{flex:1;min-width:0;display:flex;flex-direction:column}
+.exoTx b{font:600 14.5px Montserrat,sans-serif}
+.exoTx small{font-size:12px;color:var(--dim)}
+.exoTx small i{color:var(--clair);font-style:normal}
+.exoTx em{font:700 10.5px Rajdhani,sans-serif;letter-spacing:.15em;color:var(--glow);font-style:normal;margin-top:2px}
+.perf{width:110px;flex:none;background:rgba(3,8,22,.85);border:1px solid var(--line);color:var(--txt);padding:8px;font:600 14px Montserrat,sans-serif;text-align:center}
+.qVide{text-align:center;padding:26px 10px;font:700 15px Rajdhani,sans-serif;letter-spacing:.3em;color:var(--dim)}
+.qVide small{display:block;margin-top:8px;font:500 13px Montserrat,sans-serif;letter-spacing:0}
+.qListe{display:flex;flex-direction:column;gap:4px}
+.qLigne{display:grid;grid-template-columns:70px 1fr auto 80px;gap:10px;align-items:center;padding:8px 10px;border:1px solid rgba(var(--glowRGB),.18);background:rgba(3,8,22,.45);font-size:13px}
+.qLigne span{color:var(--dim);font:600 11px Rajdhani,sans-serif;letter-spacing:.12em}
+.qLigne .xpq{text-align:right;color:var(--gold);font:700 13px Montserrat,sans-serif;letter-spacing:0}
+.qLigne.rate{opacity:.6}.qLigne.rate .xpq{color:#ff8a9c;font-size:11px}
+.qBar{margin:10px 0 6px}
+.qPied{display:flex;justify-content:space-between;gap:10px;font-size:13px;color:var(--dim);margin:6px 0}
+.qPied b{color:var(--gold)}.qPied .urgent{color:#ff8a9c;font-weight:700}
+.qCarte label{display:block;font:700 11px Rajdhani,sans-serif;letter-spacing:.25em;color:var(--dim);margin:10px 0 5px}
+.qCarte input:not(.perf),.qCarte select,.qCarte textarea{width:100%;background:rgba(3,8,22,.85);border:1px solid var(--line);color:var(--txt);padding:9px;font:500 14px Montserrat,sans-serif}
+.qCarte .deux{display:grid;grid-template-columns:1fr 1fr;gap:0 12px}
+.exosEdit{display:flex;flex-direction:column;gap:6px}
+.exoEdit{display:grid;grid-template-columns:1fr 1fr auto;gap:6px}
+.btn.mini{padding:6px 10px}
+@media(max-width:700px){.qCarte .deux{grid-template-columns:1fr}.exo{flex-wrap:wrap}.perf{width:100%}.exoEdit{grid-template-columns:1fr auto}.exoEdit input[data-pdet]{grid-column:1}.qLigne{grid-template-columns:56px 1fr 70px}.qLigne span:nth-child(3){display:none}}
+.qCarte .taches{max-width:none;margin:8px 0}
+.qCarte .tache{padding:9px 12px}
+#sysCorps .outils{display:flex;flex-wrap:wrap;gap:8px}
+#sysCorps .outils .btn{width:auto;flex:0 0 auto;margin:0}
+
 </style>
 </head>
 <body>
@@ -684,6 +737,7 @@ body{padding-bottom:env(safe-area-inset-bottom)}
   <div class="joueurB" id="joueurB"></div>
   <div class="dock">
     <button class="dockB" id="btnQuete" title="Quête du jour (Q)"><svg class="ic" viewBox="0 0 24 24"><path d="M12 2.5 21.5 12 12 21.5 2.5 12Z"/><path d="M12 7.5v6M12 16.3v.4"/></svg><span class="lb">QUÊTE DU JOUR</span><span class="pastille" id="pastQ" style="display:none"></span></button>
+    <button class="dockB" id="btnQuetes" title="Quêtes"><svg class="ic" viewBox="0 0 24 24"><path d="M6 3h11a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6"/><path d="M6 3a2 2 0 0 0-2 2v1h4V5a2 2 0 0 0-2-2Zm0 18a2 2 0 0 1-2-2v-1h4v1a2 2 0 0 1-2 2Z"/><path d="M10 8h6M10 12h6M10 16h4"/></svg><span class="lb">QUÊTES</span><span class="pastille" id="pastQs" style="display:none"></span></button>
     <button class="dockB" id="btnDonjons" title="Donjons (D)"><svg class="ic" viewBox="0 0 24 24"><ellipse cx="12" cy="11" rx="7" ry="8.5"/><ellipse cx="12" cy="11" rx="3.2" ry="4.4"/><path d="M3 21.5h18"/></svg><span class="lb">DONJONS</span><span class="pastille" id="pastD" style="display:none"></span></button>
     <button class="dockB" id="btnHisto" title="Historique (H)"><svg class="ic" viewBox="0 0 24 24"><path d="M3 3v18h18"/><path d="m6.5 15 4-5 3.5 3 6-7"/></svg><span class="lb">HISTORIQUE</span></button>
     <span class="sepD"></span>
@@ -1591,9 +1645,9 @@ function fermerSys(){if(!sysVue)return;if(sysVue==="penalite"&&etat.penal&&!etat
   sysVue=null;clearInterval(sysTimer);$("sysWin").classList.remove("on");majDock()}
 function rendreSys(){
   const w=$("sysWin");w.classList.toggle("rouge",sysVue==="penalite");
-  const T={quete:"QUÊTE QUOTIDIENNE",penalite:"ZONE DE PÉNALITÉ",donjons:"DONJONS",histo:"HISTORIQUE"};
+  const T={quete:"QUÊTE QUOTIDIENNE",penalite:"ZONE DE PÉNALITÉ",donjons:"DONJONS",histo:"HISTORIQUE",quetes:"QUÊTES"};
   $("sysTitre").textContent=T[sysVue]||"";
-  $("sysCorps").innerHTML=sysVue==="quete"?vueQuete():sysVue==="penalite"?vuePenalite():sysVue==="donjons"?vueDonjons():sysVue==="histo"?vueHisto():"";
+  $("sysCorps").innerHTML=sysVue==="quete"?vueQuete():sysVue==="penalite"?vuePenalite():sysVue==="donjons"?vueDonjons():sysVue==="histo"?vueHisto():sysVue==="quetes"?vueQuetes():"";
 }
 function glitchOuvre(el){try{el.animate([
     {clipPath:"inset(49% -40px 49% -40px)",filter:"brightness(3)",transform:"scaleX(.6)"},
@@ -1806,8 +1860,225 @@ function majDock(){
   else if(q.statut==="reussie"){p.textContent="✓";p.className="pastille ok";p.style.display="block"}
   else{p.textContent=n;p.className="pastille";p.style.display="block"}
   const s=$("btnSon"),m=$("btnMus");if(s){s.classList.toggle("off",!etat.son.sfx);s.innerHTML=etat.son.sfx?ICO_SON1:ICO_SON0}if(m)m.classList.toggle("off",!etat.son.mus);
+  const pq=$("pastQs");if(pq&&etat.quetes){const s=etat.seances.some(x=>x.date===auj()&&x.fini),pr=(etat.programme[jourSem()]||{exos:[]}).exos.length;const n3=etat.quetes.filter(q=>q.statut==="active").length+(pr&&!s?1:0);pq.style.display=n3?"block":"none";pq.textContent=n3}
   const d=$("pastD");if(d){const n2=etat.donjons.actifs.filter(x=>!x.fait.includes(auj())).length;d.style.display=n2?"block":"none";d.textContent=n2}
 }
+
+/* ================= QUÊTES : entraînement (programme importé du Carnet) + quêtes principales / secondaires ================= */
+const JOURS_S=[["lun","Lundi"],["mar","Mardi"],["mer","Mercredi"],["jeu","Jeudi"],["ven","Vendredi"],["sam","Samedi"],["dim","Dimanche"]];
+const jourSem=(d=new Date())=>JOURS_S[(d.getDay()+6)%7][0];
+const uidQ=()=>Math.random().toString(36).slice(2,10);
+const PROG_DEFAUT={"dim": {"title": "Course", "sub": "40 min EF", "exos": [{"id": "jukn9j8k", "name": "Sortie course", "detail": "40 min EF"}]}, "jeu": {"title": "", "sub": "", "exos": []}, "lun": {"title": "Push", "sub": "Pecs, épaules, triceps, avant-bras", "exos": [{"id": "pdo611ep", "name": "Développé couché", "detail": "3x36", "last": "22 x 36"}, {"id": "wxs319ci", "name": "Développé incliné", "detail": "3x34", "last": "22 x 30"}, {"id": "npulfkj8", "name": "Développé militaire", "detail": "3x28", "last": "16 x 28"}, {"id": "0btolc4a", "name": "Dips lestés", "detail": "2x10 + 1x poids du corps · superset avant épaule 15-10", "last": "70 x 30"}, {"id": "odz6bl61", "name": "Élévation latérale poulie", "detail": "2x échec", "last": "4,5 x 36"}, {"id": "bs2ukwi6", "name": "Triceps barre au front", "detail": "30-20 · 2x échec", "last": "10x 20"}, {"id": "8xcp9sfo", "name": "Avant-bras", "detail": "3x échec", "last": "24,8 x 20"}, {"id": "gkxwoaz8", "name": "Pec fly", "detail": "2x86-66 + 7-7-7-7", "last": "45 x 76"}]}, "mar": {"title": "Pull + course", "sub": "Dos, biceps, trapèzes, arrière d'épaule · course : 45 min EF", "exos": [{"id": "g53n88ts", "name": "Deadlift", "detail": "à travailler pour la force", "last": "40 x 14"}, {"id": "aarweaoj", "name": "Traction", "detail": "2x10 + 1x poids du corps", "last": "70 x 19"}, {"id": "xh81m19e", "name": "Tirage vertical", "detail": "2x66-45", "last": "52-38 x 2"}, {"id": "iu93z5jd", "name": "Tirage horizontal", "detail": "2x59-39", "last": "39-25 x 48"}, {"id": "zl1qvnax", "name": "Derrière épaule", "detail": "2x échec dégressif", "last": "24-18 x 36"}, {"id": "om3vh3sc", "name": "Biceps marteau", "detail": "2x16-12", "last": "12-8 x 2"}, {"id": "5osnnkcn", "name": "Biceps curl barre", "detail": "2x30-20", "last": "15-10 x 2"}, {"id": "lf0wfynx", "name": "Derrière épaule", "detail": "2x échec dégressif", "last": "12-8 x 40"}, {"id": "yak07jy1", "name": "Trapèze", "detail": "3x lourd", "last": "18 x 40"}, {"id": "i5hu6ovz", "name": "Course", "detail": "45 min EF"}]}, "mer": {"title": "Legs", "sub": "", "exos": [{"id": "5qf6d03j", "name": "Squat", "detail": "à travailler", "last": "70 x 45"}, {"id": "d8y5pkhu", "name": "Hip thrust", "detail": "3x100", "last": "32 x 20"}, {"id": "u74ibanj", "name": "Leg curl", "detail": "2x64-45", "last": "39 x  34"}, {"id": "ne5o50zm", "name": "Leg extension", "detail": "2x93-66", "last": "45 x 36"}, {"id": "ytij4xq1", "name": "Adducteur", "detail": "2x79-59", "last": "42 x 24"}, {"id": "ih1zg9bp", "name": "Abducteur", "detail": "2x59-39", "last": "42 x 24"}, {"id": "bc1sxyzv", "name": "Mollet", "detail": "3x60", "last": "70 x 60"}, {"id": "g40nvaj4", "name": "Presse", "detail": "", "last": "215 x 8"}]}, "sam": {"title": "Lower", "sub": "", "exos": [{"id": "443vmbuz", "name": "Hack squat", "detail": "3x20"}, {"id": "eecop2fc", "name": "Leg extension", "detail": "3x93-66"}, {"id": "an3d68yt", "name": "Leg curl", "detail": "3x64-44"}, {"id": "zna67bhs", "name": "RDL barre", "detail": "3x50"}, {"id": "qdsxo2u8", "name": "Hip thrust smith", "detail": "3x · charge à préciser"}, {"id": "prha34w3", "name": "Mollets", "detail": "3x60"}]}, "ven": {"title": "Upper + course", "sub": "20 min EF + 4x1 km à S10 R2 min + 5 min EF", "exos": [{"id": "ezv51jkq", "name": "Sortie course", "detail": "20 min EF + 4x1 km à S10 R2 min + 5 min EF"}, {"id": "6gwja0w6", "name": "Développé couché", "detail": "3x36"}, {"id": "3h5zf9je", "name": "Développé incliné smith", "detail": "3x60"}, {"id": "3jlfakln", "name": "Traction", "detail": "2x10 + 1x poids du corps"}, {"id": "cuqhppmp", "name": "Arrière d'épaule", "detail": "3x31"}, {"id": "6thrctg3", "name": "Élévation latérale poulie", "detail": "3 séries · dégressif, superset devant épaule"}, {"id": "8l937cq4", "name": "Dips", "detail": "2x10 + 1x poids du corps"}, {"id": "jdmkxbcl", "name": "Biceps curl poulie", "detail": "3x · charge à préciser"}, {"id": "fun2vll0", "name": "Biceps marteau", "detail": "3x16-12"}]}};
+if(!etat.programme){etat.programme=JSON.parse(JSON.stringify(PROG_DEFAUT));etat.programme._maj=1}
+if(!etat.seances)etat.seances=[];
+if(!etat.quetes)etat.quetes=[];
+
+/* exercice → faisceaux travaillés (part de l'XP) */
+const EXO_MUSCLES=[
+  [/course|sortie|footing|cardio|(^|\s)v[ée]lo(\s|$)|rameur/i,{vit:.7,agi:.3}],
+  [/hip thrust/i,{fess:1}],[/rdl|jambes tendues|roumain/i,{ischio:.6,fess:.4}],
+  [/deadlift|soulev[ée] de terre/i,{lomb:.4,ischio:.3,fess:.3}],
+  [/leg curl|ischio/i,{ischio:1}],[/leg extension/i,{quad:1}],
+  [/abducteur/i,{fess:1}],[/adducteur/i,{addu:1}],[/mollet/i,{mollet:1}],
+  [/squat|presse|fente/i,{quad:.6,fess:.3,addu:.1}],
+  [/inclin/i,{pec_haut:.6,delt_ant:.2,tri_lat:.2}],
+  [/d[ée]velopp[ée] couch|bench/i,{pec_mil:.6,tri_lat:.2,delt_ant:.2}],
+  [/militaire|d[ée]velopp[ée] (assis|épaules)|overhead/i,{delt_ant:.6,delt_lat:.2,tri_long:.2}],
+  [/dips/i,{pec_bas:.5,tri_lat:.5}],[/fly|[ée]cart[ée]|pec deck|butterfly/i,{pec_mil:1}],
+  [/[ée]l[ée]vation lat/i,{delt_lat:1}],[/[ée]l[ée]vation front|avant [ée]paule/i,{delt_ant:1}],
+  [/derri[èe]re [ée]paule|arri[èe]re d.[ée]paule|oiseau|face pull/i,{delt_post:1}],
+  [/front|extension.*triceps|triceps/i,{tri_long:.6,tri_med:.4}],
+  [/marteau/i,{brachial:.7,avb_flex:.3}],[/curl|biceps/i,{bic_court:.5,bic_long:.5}],
+  [/avant-bras|poignet|grip/i,{avb_flex:.6,avb_ext:.4}],
+  [/traction|tirage vertical|pull-?up|lat pull/i,{dorsal:.7,bic_long:.3}],
+  [/tirage horizontal|rowing|row/i,{rhomb:.6,dorsal:.2,delt_post:.2}],
+  [/trap[èe]ze|shrug/i,{trap:1}],
+  [/abdo|gainage|crunch|relev[ée]/i,{abd_droit:.5,abd_trans:.3,abd_obl:.2}],
+  [/pompe/i,{pec_mil:.6,tri_lat:.2,delt_ant:.2}]
+];
+const musclesDe=nom=>{for(const [r,m] of EXO_MUSCLES)if(r.test(nom))return m;return{dis:1}};
+const XP_EXO=15,XP_SEANCE=20,XP_COMPLETE=25;
+
+/* ---------- état de la vue ---------- */
+let qOnglet="entrainement",qJour=jourSem(),qEdit=false,qForm=null;
+function seanceEnCours(){
+  const d=auj();let s=etat.seances.find(x=>x.date===d&&x.jour===qJour&&!x.fini);
+  return s||null;
+}
+function demarrerSeance(){
+  const P=etat.programme[qJour];
+  const s={id:uidQ(),date:auj(),jour:qJour,titre:P.title||"Séance",exos:P.exos.map(e=>({id:e.id,nom:e.name,detail:e.detail||"",perf:"",fait:false})),fini:false,maj:Date.now()};
+  etat.seances.push(s);sauver();sfx("plonge");return s;
+}
+function terminerSeance(s){
+  const faits=s.exos.filter(e=>e.fait);if(!faits.length){notif("[ SYSTÈME ]","Coche au moins un exercice pour terminer la séance.");return}
+  const j0=joueur(),t0=Date.now();let i=0;
+  for(const e of faits){const m=musclesDe(e.nom);for(const [k,p] of Object.entries(m)){const xp=Math.max(1,Math.round(XP_EXO*p));crediter(k,xp,`Entraînement · ${e.nom}${e.perf?" ("+e.perf+")":""}`,"S",t0+(i++))}}
+  crediter("dis",XP_SEANCE,`Séance terminée : ${s.titre}`,"S",t0+(i++));
+  const complet=faits.length===s.exos.length;
+  if(complet)crediter("dis",XP_COMPLETE,`Séance complète : ${s.titre}`,"S",t0+(i++));
+  // « dernière fois » mis à jour dans le programme
+  const P=etat.programme[s.jour];for(const e of s.exos)if(e.perf){const x=P.exos.find(y=>y.id===e.id);if(x)x.last=e.perf}
+  etat.programme._maj=Date.now();
+  s.fini=true;s.finiLe=Date.now();s.xp=etat.journal.filter(j=>j.t>=t0&&j.t<t0+i).reduce((a,j)=>a+j.xp,0);s.maj=Date.now();
+  // la course de la quête du jour se coche si la séance contient une course faite
+  const q=etat.qj;if(q&&q.date===auj()&&faits.some(e=>/course|sortie/i.test(e.nom))){const k=q.taches.findIndex(t=>!t.fait&&/^Course/.test(t.txt));if(k>=0)cocherTache(k)}
+  sauver();sfx("or");notif("[ QUÊTE D'ENTRAÎNEMENT ACCOMPLIE ]",`${s.titre} · +${s.xp} XP${complet?" · séance complète":""}`,true);apresGain(j0);rendre();
+}
+
+/* ---------- quêtes principales / secondaires ---------- */
+const XP_RANG={E:40,D:80,C:150,B:250,A:400,S:700};
+const STATS_QUETE=()=>[...Object.keys(STATS).filter(k=>!STATS[k].grp),...MUSCLES];
+const PROPOSITIONS={
+  int:[["Le Savoir du Vendeur","Maîtriser les fiches techniques des 5 canapés les plus vendus du magasin",["Choisir les 5 modèles","Apprendre matières, dimensions et entretien","Réciter les arguments clés sans notes"]],
+       ["Le Grimoire du BTS","Terminer une fiche de révision complète par matière",["Fiche Relation client","Fiche Gestion","Fiche Culture éco","Se faire interroger"]]],
+  elo:[["La Voix du Monarque","Enregistrer et améliorer un pitch de vente de 2 minutes",["Écrire le pitch","S'enregistrer","Corriger les tics de langage","Le refaire devant quelqu'un"]]],
+  cha:[["L'Aura du Chef de Rayon","Conclure 3 ventes en prenant l'initiative de l'accueil",["Vente 1","Vente 2","Vente 3"]]],
+  dsc:[["Le Réseau de l'Ombre","Avoir une vraie conversation avec 3 personnes nouvelles",["Personne 1","Personne 2","Personne 3"]]],
+  men:[["Le Calme de l'Ombre","7 jours de méditation de 10 minutes",["Jour 1","Jour 2","Jour 3","Jour 4","Jour 5","Jour 6","Jour 7"]]],
+  dis:[["Le Rituel du Matin","Une semaine de réveil fixe et de lit fait",["Lundi","Mardi","Mercredi","Jeudi","Vendredi","Samedi","Dimanche"]]],
+  aur:[["L'Allure du Monarque","Construire 3 tenues complètes et soignées pour la semaine",["Tenue 1","Tenue 2","Tenue 3","Photo de validation"]]],
+  fin:[["Le Trésor Scellé","Mettre de côté une somme fixe pendant 4 semaines",["Semaine 1","Semaine 2","Semaine 3","Semaine 4"]]],
+  vit:[["Le Souffle du Chasseur","Courir 5 km d'une traite",["Courir 2 km","Courir 3 km","Courir 4 km","Courir 5 km"]]],
+  agi:[["Le Corps Libéré","10 séances de mobilité de 10 minutes",["1","2","3","4","5","6","7","8","9","10"]]]
+};
+function proposerQuete(){
+  const cands=Object.keys(PROPOSITIONS).sort((a,b)=>val(a)-val(b));
+  for(const k of cands)for(const [titre,desc,et] of PROPOSITIONS[k])if(!etat.quetes.some(q=>q.titre===titre&&q.statut!=="echouee"&&q.statut!=="supprimee"))
+    return{titre,desc,stat:k,type:"secondaire",rang:"C",echeance:ajJours(auj(),14),etapes:et.join("\n"),propose:true};
+  return null;
+}
+function creerQuete(f){
+  const q={id:uidQ(),titre:f.titre.trim(),desc:(f.desc||"").trim(),type:f.type,stat:f.stat,rang:f.rang,
+    xp:Math.round(XP_RANG[f.rang]*(f.type==="principale"?1.5:1)),echeance:f.echeance||"",cree:auj(),statut:"active",
+    etapes:(f.etapes||"").split("\n").map(x=>x.trim()).filter(Boolean).map(t=>({txt:t,fait:false})),maj:Date.now()};
+  etat.quetes.push(q);sauver();sfx("plonge");notif(q.type==="principale"?"[ NOUVELLE QUÊTE PRINCIPALE ]":"[ NOUVELLE QUÊTE ]",q.titre);
+}
+function accomplirQuete(q){
+  if(q.statut!=="active")return;const j0=joueur();
+  crediter(q.stat,q.xp,`Quête ${q.type} : ${q.titre}`,q.rang);q.statut="accomplie";q.fini=auj();q.maj=Date.now();
+  sauver();sfx("or");notif(q.type==="principale"?"[ QUÊTE PRINCIPALE ACCOMPLIE ]":"[ QUÊTE ACCOMPLIE ]",`${q.titre} · +${q.xp} XP ${info(q.stat).nom}`,true);apresGain(j0);rendre();
+}
+function verifQuetes(){
+  let ch=false;for(const q of etat.quetes)if(q.statut==="active"&&q.echeance&&q.echeance<auj()){q.statut="echouee";q.fini=auj();q.maj=Date.now();ch=true;
+    setTimeout(()=>notif("[ QUÊTE ÉCHOUÉE ]",`${q.titre} : l'échéance est dépassée.`),1200)}
+  if(ch)sauver();
+}
+
+/* ---------- vues ---------- */
+function vueQuetes(){
+  verifQuetes();
+  const nbA=etat.quetes.filter(q=>q.statut==="active").length;
+  const ong=[["entrainement","ENTRAÎNEMENT"],["quetes",`QUÊTES${nbA?` · ${nbA}`:""}`],["journal","TERMINÉES"]];
+  return `<div class="qOnglets">${ong.map(([k,l])=>`<button class="${qOnglet===k?"on":""}" data-qonglet="${k}">${l}</button>`).join("")}</div>
+    ${qOnglet==="entrainement"?vueEntrainement():qOnglet==="quetes"?vueMesQuetes():vueQJournal()}`;
+}
+function vueEntrainement(){
+  const P=etat.programme[qJour]||{title:"",exos:[]},s=seanceEnCours(),aujS=jourSem();
+  const faiteAuj=etat.seances.find(x=>x.date===auj()&&x.jour===qJour&&x.fini);
+  const jours=`<div class="qJours">${JOURS_S.map(([k,n])=>`<button class="${k===qJour?"on":""} ${k===aujS?"auj":""}" data-qjour="${k}" title="${n}">${n.slice(0,3).toUpperCase()}<small>${esc((etat.programme[k]||{}).title||"Repos")}</small></button>`).join("")}</div>`;
+  if(qEdit)return jours+vueEditProg();
+  if(!P.exos.length)return jours+`<div class="qVide">JOUR DE REPOS<br><small>Aucune séance prévue ${JOURS_S.find(x=>x[0]===qJour)[1].toLowerCase()}.</small></div>
+    <div class="outils" style="justify-content:center"><button class="btn" data-qedit="1">MODIFIER LE PROGRAMME</button></div>`;
+  const ex=s?s.exos:P.exos.map(e=>({id:e.id,nom:e.name,detail:e.detail,perf:"",fait:false}));
+  const last=id=>(P.exos.find(e=>e.id===id)||{}).last||"";
+  const nb=ex.filter(e=>e.fait).length,xpPrev=nb*XP_EXO+XP_SEANCE+(nb===ex.length?XP_COMPLETE:0);
+  return jours+`<div class="qCarte ${s?"active":""}">
+    <div class="qTete"><span class="qType">QUÊTE D'ENTRAÎNEMENT</span>${faiteAuj?`<span class="qFait">✓ ACCOMPLIE AUJOURD'HUI</span>`:""}</div>
+    <h3>${esc(P.title)}</h3>${P.sub?`<p class="qDesc">${esc(P.sub)}</p>`:""}
+    <div class="exos">${ex.map(e=>{const m=Object.keys(musclesDe(e.nom)).map(k=>info(k).ab).join(" · ");return `<div class="exo ${e.fait?"fait":""}">
+      <span class="cb" ${s?`data-qexo="${e.id}"`:""}>${e.fait?"✓":""}</span>
+      <div class="exoTx"><b>${esc(e.nom)}</b><small>${esc(e.detail||"")}${last(e.id)?` · <i>dernière fois : ${esc(last(e.id))}</i>`:""}</small><em>${m}</em></div>
+      ${s?`<input class="perf" data-qperf="${e.id}" value="${esc(e.perf)}" placeholder="kg × reps" inputmode="text">`:""}</div>`}).join("")}</div>
+    ${s?`<p class="recomp">Récompense : <b>+${XP_EXO} XP</b> par exercice (répartis sur les muscles travaillés), <b>+${XP_SEANCE} XP</b> de Discipline, <b>+${XP_COMPLETE}</b> si tout est fait · prévu : <b>+${xpPrev} XP</b></p>
+      <div class="outils" style="justify-content:center"><button class="btn valider" data-qfinir="1">TERMINER LA SÉANCE</button><button class="btn" data-qabandon="1">ANNULER</button></div>`
+     :`<div class="outils" style="justify-content:center"><button class="btn valider" data-qcommencer="1">${faiteAuj?"REFAIRE CETTE SÉANCE":"COMMENCER LA SÉANCE"}</button><button class="btn" data-qedit="1">MODIFIER LE PROGRAMME</button></div>`}
+  </div>${vueDernieres()}`;
+}
+function vueDernieres(){
+  const l=etat.seances.filter(x=>x.fini).sort((a,b)=>b.finiLe-a.finiLe).slice(0,5);
+  if(!l.length)return"";
+  return `<div class="sec">DERNIÈRES SÉANCES</div><div class="qListe">${l.map(x=>`<div class="qLigne"><span>${new Date(x.date+"T12:00").toLocaleDateString("fr-FR",{weekday:"short",day:"numeric",month:"short"})}</span><b>${esc(x.titre)}</b><span>${x.exos.filter(e=>e.fait).length}/${x.exos.length} exos</span><span class="xpq">+${x.xp||0} XP</span></div>`).join("")}</div>`;
+}
+function vueEditProg(){
+  const P=etat.programme[qJour];
+  return `<div class="qCarte"><div class="qTete"><span class="qType">MODIFIER · ${JOURS_S.find(x=>x[0]===qJour)[1].toUpperCase()}</span></div>
+    <div class="deux"><div><label>NOM DE LA SÉANCE</label><input id="pTitre" value="${esc(P.title||"")}" placeholder="Repos"></div><div><label>DESCRIPTION</label><input id="pSous" value="${esc(P.sub||"")}"></div></div>
+    <label>EXERCICES</label><div class="exosEdit">${P.exos.map((e,i)=>`<div class="exoEdit"><input data-pnom="${i}" value="${esc(e.name)}" placeholder="Exercice"><input data-pdet="${i}" value="${esc(e.detail||"")}" placeholder="Objectif (ex : 3x12)"><button class="btn mini" data-psuppr="${i}" title="Supprimer">✕</button></div>`).join("")}</div>
+    <div class="outils"><button class="btn" data-pajout="1">+ AJOUTER UN EXERCICE</button></div>
+    <div class="outils" style="justify-content:center;margin-top:14px"><button class="btn valider" data-pok="1">ENREGISTRER</button><button class="btn" data-qedit="0">ANNULER</button></div></div>`;
+}
+function lireEditProg(){
+  const P=etat.programme[qJour];P.title=$("pTitre").value.trim();P.sub=$("pSous").value.trim();
+  P.exos.forEach((e,i)=>{const n=document.querySelector(`[data-pnom="${i}"]`),d=document.querySelector(`[data-pdet="${i}"]`);if(n)e.name=n.value.trim();if(d)e.detail=d.value.trim()});
+}
+function vueMesQuetes(){
+  if(qForm)return vueFormQuete();
+  const act=etat.quetes.filter(q=>q.statut==="active").sort((a,b)=>(a.type==="principale"?0:1)-(b.type==="principale"?0:1)||((a.echeance||"9")<(b.echeance||"9")?-1:1));
+  const carte=q=>{const n=q.etapes.filter(e=>e.fait).length,t=q.etapes.length,rc=COUL_RANG[q.rang],jr=q.echeance?joursEntre(auj(),q.echeance):null;
+    return `<div class="qCarte ${q.type}" style="--rc:${rc}">
+      <div class="qTete"><span class="qType">${q.type==="principale"?"QUÊTE PRINCIPALE":"QUÊTE SECONDAIRE"}</span><span class="rgQ">${q.rang}</span></div>
+      <h3>${esc(q.titre)}</h3>${q.desc?`<p class="qDesc">${esc(q.desc)}</p>`:""}
+      ${t?`<div class="taches">${q.etapes.map((e,i)=>`<div class="tache ${e.fait?"fait":""}" data-qetape="${q.id}|${i}"><span class="cb">${e.fait?"✓":""}</span><span class="tx">${esc(e.txt)}</span></div>`).join("")}</div>
+        <div class="barre qBar"><i style="width:${n/t*100}%"></i></div>`:""}
+      <div class="qPied"><span>Récompense <b>+${q.xp} XP ${info(q.stat).nom}</b></span>${jr!==null?`<span class="${jr<=2?"urgent":""}">${jr<0?"Échue":jr===0?"Dernier jour":`${jr} j restant${jr>1?"s":""}`}</span>`:"<span>Sans échéance</span>"}</div>
+      <div class="outils">${!t||n===t?`<button class="btn valider" data-qacc="${q.id}">ACCOMPLIR</button>`:""}<button class="btn" data-qmod="${q.id}">MODIFIER</button><button class="btn" data-qabd="${q.id}">ABANDONNER</button><button class="btn" data-qsup="${q.id}">SUPPRIMER</button></div></div>`};
+  return `<div class="outils" style="justify-content:center;margin-bottom:14px"><button class="btn valider" data-qnew="1">+ NOUVELLE QUÊTE</button><button class="btn" data-qprop="1">LE SYSTÈME PROPOSE</button></div>
+    ${act.length?act.map(carte).join(""):`<div class="qVide">AUCUNE QUÊTE EN COURS<br><small>Crée ta propre quête ou laisse le Système t'en proposer une selon tes points faibles.</small></div>`}`;
+}
+function vueFormQuete(){
+  const f=qForm,opts=STATS_QUETE().map(k=>`<option value="${k}" ${f.stat===k?"selected":""}>${info(k).nom}</option>`).join("");
+  return `<div class="qCarte">${f.id?`<div class="qTete"><span class="qType">MODIFIER LA QUÊTE</span></div>`:""}${f.propose?`<div class="qTete"><span class="qType">[ LE SYSTÈME PROPOSE UNE QUÊTE ]</span></div>`:""}
+    <label>TITRE</label><input id="fTitre" value="${esc(f.titre||"")}" placeholder="Ex : Le Grimoire du BTS">
+    <label>DESCRIPTION</label><input id="fDesc" value="${esc(f.desc||"")}" placeholder="L'objectif à atteindre">
+    <div class="deux"><div><label>TYPE</label><select id="fType"><option value="secondaire" ${f.type!=="principale"?"selected":""}>Secondaire</option><option value="principale" ${f.type==="principale"?"selected":""}>Principale (×1,5 XP)</option></select></div>
+      <div><label>STAT RÉCOMPENSÉE</label><select id="fStat">${opts}</select></div></div>
+    <div class="deux"><div><label>DIFFICULTÉ (RANG)</label><select id="fRang">${Object.entries(XP_RANG).map(([r,x])=>`<option value="${r}" ${f.rang===r?"selected":""}>Rang ${r} · ${x} XP</option>`).join("")}</select></div>
+      <div><label>ÉCHÉANCE (OPTIONNELLE)</label><input type="date" id="fEch" value="${f.echeance||""}"></div></div>
+    <label>ÉTAPES (UNE PAR LIGNE, OPTIONNEL)</label><textarea id="fEtapes" rows="5" placeholder="Étape 1&#10;Étape 2">${esc(f.etapes||"")}</textarea>
+    <div class="outils" style="justify-content:center;margin-top:14px"><button class="btn valider" data-qcreer="1">${f.id?"ENREGISTRER":f.propose?"ACCEPTER LA QUÊTE":"CRÉER LA QUÊTE"}</button>${f.propose?`<button class="btn" data-qprop="1">AUTRE PROPOSITION</button>`:""}<button class="btn" data-qannul="1">ANNULER</button></div></div>`;
+}
+function vueQJournal(){
+  const l=[...etat.quetes.filter(q=>q.statut!=="active"&&q.statut!=="supprimee").map(q=>({d:q.fini,txt:q.titre,type:q.type==="principale"?"PRINCIPALE":"SECONDAIRE",ok:q.statut==="accomplie",xp:q.statut==="accomplie"?q.xp:0,rang:q.rang})),
+    ...etat.seances.filter(x=>x.fini).map(x=>({d:x.date,txt:x.titre,type:"ENTRAÎNEMENT",ok:true,xp:x.xp||0,rang:"S"}))].sort((a,b)=>(b.d||"").localeCompare(a.d||"")).slice(0,60);
+  if(!l.length)return `<div class="qVide">AUCUNE QUÊTE TERMINÉE POUR L'INSTANT</div>`;
+  return `<div class="qListe">${l.map(x=>`<div class="qLigne ${x.ok?"":"rate"}"><span>${x.d?new Date(x.d+"T12:00").toLocaleDateString("fr-FR",{day:"numeric",month:"short"}):""}</span><b>${esc(x.txt)}</b><span>${x.type}</span><span class="xpq">${x.ok?`+${x.xp} XP`:"ÉCHOUÉE"}</span></div>`).join("")}</div>`;
+}
+
+/* ---------- interactions ---------- */
+document.addEventListener("click",e=>{
+  if(sysVue!=="quetes")return;
+  const g=s=>e.target.closest(s);let t;
+  if(t=g("[data-qonglet]")){qOnglet=t.dataset.qonglet;qEdit=false;qForm=null;sfx("clic");rendreSys();return}
+  if(t=g("[data-qjour]")){qJour=t.dataset.qjour;qEdit=false;sfx("clic");rendreSys();return}
+  if(g("[data-qcommencer]")){demarrerSeance();rendreSys();return}
+  if(t=g("[data-qexo]")){const s=seanceEnCours();if(!s)return;const x=s.exos.find(y=>y.id===t.dataset.qexo);x.fait=!x.fait;s.maj=Date.now();sauver();sfx(x.fait?"valide":"clic");rendreSys();return}
+  if(g("[data-qfinir]")){const s=seanceEnCours();if(s)terminerSeance(s);rendreSys();return}
+  if(g("[data-qabandon]")){const s=seanceEnCours();if(s&&confirm("Annuler la séance en cours ? Rien ne sera crédité.")){etat.seances=etat.seances.filter(x=>x!==s);sauver();rendreSys()}return}
+  if(t=g("[data-qedit]")){if(t.dataset.qedit==="1"&&seanceEnCours()){notif("[ SYSTÈME ]","Termine ou annule la séance en cours avant de modifier le programme.");return}qEdit=t.dataset.qedit==="1";rendreSys();return}
+  if(g("[data-pajout]")){lireEditProg();etat.programme[qJour].exos.push({id:uidQ(),name:"",detail:""});rendreSys();return}
+  if(t=g("[data-psuppr]")){lireEditProg();etat.programme[qJour].exos.splice(+t.dataset.psuppr,1);rendreSys();return}
+  if(g("[data-pok]")){lireEditProg();const P=etat.programme[qJour];P.exos=P.exos.filter(x=>x.name);etat.programme._maj=Date.now();qEdit=false;sauver();notif("[ PROGRAMME ]","Séance enregistrée.");rendreSys();return}
+  if(g("[data-qnew]")){qForm={type:"secondaire",stat:"dis",rang:"C",etapes:""};rendreSys();return}
+  if(g("[data-qprop]")){const p=proposerQuete();if(!p){notif("[ SYSTÈME ]","Aucune nouvelle proposition pour l'instant.");return}qForm=p;sfx("verre");rendreSys();return}
+  if(g("[data-qannul]")){qForm=null;rendreSys();return}
+  if(g("[data-qcreer]")){const f={titre:$("fTitre").value,desc:$("fDesc").value,type:$("fType").value,stat:$("fStat").value,rang:$("fRang").value,echeance:$("fEch").value,etapes:$("fEtapes").value};
+    if(!f.titre.trim()){$("fTitre").focus();return}
+    if(qForm.id){const q=etat.quetes.find(x=>x.id===qForm.id);if(q){const anc=new Map(q.etapes.map(e=>[e.txt,e.fait]));
+      Object.assign(q,{titre:f.titre.trim(),desc:f.desc.trim(),type:f.type,stat:f.stat,rang:f.rang,echeance:f.echeance,xp:Math.round(XP_RANG[f.rang]*(f.type==="principale"?1.5:1)),
+        etapes:f.etapes.split("\n").map(x=>x.trim()).filter(Boolean).map(t=>({txt:t,fait:!!anc.get(t)})),maj:Date.now()});sauver();notif("[ QUÊTE ]","Quête modifiée.")}}
+    else creerQuete(f);qForm=null;rendreSys();return}
+  if(t=g("[data-qmod]")){const q=etat.quetes.find(x=>x.id===t.dataset.qmod);if(q)qForm={id:q.id,titre:q.titre,desc:q.desc,type:q.type,stat:q.stat,rang:q.rang,echeance:q.echeance,etapes:q.etapes.map(e=>e.txt).join("\n")};rendreSys();return}
+  if(t=g("[data-qsup]")){const q=etat.quetes.find(x=>x.id===t.dataset.qsup);if(q&&confirm(`Supprimer définitivement « ${q.titre} » ? Elle disparaîtra sans être comptée comme échouée.`)){q.statut="supprimee";q.maj=Date.now();sauver();rendreSys()}return}
+  if(t=g("[data-qetape]")){const [id,i]=t.dataset.qetape.split("|"),q=etat.quetes.find(x=>x.id===id);if(!q)return;const et=q.etapes[+i];et.fait=!et.fait;q.maj=Date.now();sauver();sfx(et.fait?"valide":"clic");rendreSys();return}
+  if(t=g("[data-qacc]")){const q=etat.quetes.find(x=>x.id===t.dataset.qacc);if(q)accomplirQuete(q);rendreSys();return}
+  if(t=g("[data-qabd]")){const q=etat.quetes.find(x=>x.id===t.dataset.qabd);if(q&&confirm(`Abandonner « ${q.titre} » ? Aucune XP ne sera gagnée.`)){q.statut="echouee";q.fini=auj();q.maj=Date.now();sauver();rendreSys()}return}
+},true);
+document.addEventListener("input",e=>{
+  const t=e.target.closest("[data-qperf]");if(!t)return;const s=seanceEnCours();if(!s)return;
+  const x=s.exos.find(y=>y.id===t.dataset.qperf);x.perf=t.value;if(t.value&&!x.fait){x.fait=true;const cb=t.parentElement.querySelector(".cb");cb.textContent="✓";t.parentElement.classList.add("fait")}
+  s.maj=Date.now();clearTimeout(window._tPerf);window._tPerf=setTimeout(sauver,600);
+});
 
 /* ---------- INTERACTIONS ---------- */
 document.addEventListener("click",e=>{
@@ -1815,6 +2086,7 @@ document.addEventListener("click",e=>{
   if(g("#btnQuete")){ouvrirSys(etat.penal&&!etat.penal.fait?"penalite":"quete");return}
   if(g("#btnDonjons")){verifDonjons();ouvrirSys("donjons");return}
   if(g("#btnHisto")){ouvrirSys("histo");return}
+  if(g("#btnQuetes")){ouvrirSys("quetes");return}
   if(g("#btnSon")){etat.son.sfx=!etat.son.sfx;sauver();majDock();ac();sfx("clic");return}
   if(g("#btnMus")){etat.son.mus=!etat.son.mus;sauver();musique(etat.son.mus);majDock();return}
   if(g("#fermerSys")||e.target.id==="sysWin"){fermerSys();return}
@@ -1894,6 +2166,10 @@ function fusion(loc,dist){
   const act=new Map();for(const x of [...(dl.actifs||[]),...(dd.actifs||[])]){const k=x.id+"|"+x.debut,p=act.get(k);
     act.set(k,p?{...p,fait:[...new Set([...(p.fait||[]),...(x.fait||[])])].sort()}:JSON.parse(JSON.stringify(x)))}
   const finis=[...fin.values()];
+  // quêtes et séances : fusion élément par élément (la version la plus récente de chacune)
+  const parId=(x,y)=>{const m=new Map();for(const e of [...(x||[]),...(y||[])]){const p=m.get(e.id);if(!p||(e.maj||0)>(p.maj||0))m.set(e.id,e)}return[...m.values()]};
+  r.quetes=parId(loc.quetes,dist.quetes);r.seances=parId(loc.seances,dist.seances).slice(-400);
+  if(loc.programme||dist.programme)r.programme=JSON.parse(JSON.stringify(((loc.programme||{})._maj||0)>=((dist.programme||{})._maj||0)?loc.programme:dist.programme));
   r.donjons={finis,actifs:[...act.values()].filter(x=>!finis.some(f=>f.id===x.id&&f.date>=x.debut)).slice(0,2)};
   if(loc.qj&&dist.qj&&loc.qj.date===dist.qj.date){const f=q=>(q.statut==="reussie"?100:0)+q.taches.filter(t=>t.fait).length;r.qj=JSON.parse(JSON.stringify(f(loc.qj)>=f(dist.qj)?loc.qj:dist.qj))}
   return{...r,journal:[...m.values()].sort((x,y)=>y.t-x.t).slice(0,3000),_suppr:[...suppr].slice(-500),_maj:Math.max(a,b)};
@@ -1920,6 +2196,8 @@ function appliquerDistant(m){
   if(!etat.donjons)etat.donjons={actifs:[],finis:[]};
   if(!etat.son)etat.son={sfx:true,mus:false};
   if(!etat.equip)etat.equip={};
+  if(!etat.programme){etat.programme=JSON.parse(JSON.stringify(PROG_DEFAUT));etat.programme._maj=1}
+  if(!etat.seances)etat.seances=[];if(!etat.quetes)etat.quetes=[];
   try{localStorage.setItem(KEY,JSON.stringify(etat))}catch(e){}
   invalider();_nAura=-1;
   document.body.classList.toggle("penalite",!!(etat.penal&&!etat.penal.fait));
@@ -2119,7 +2397,7 @@ syncDemarrer().then(apresDemarrage);
   b.addEventListener("click",fin);setTimeout(fin,BOOT);
 })();
 document.addEventListener("keydown",e=>{if(/INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName)||e.metaKey||e.ctrlKey||$("modal").classList.contains("on"))return;
-  const k=e.key.toLowerCase();if(k==="q")$("btnQuete").click();else if(k==="d")$("btnDonjons").click();else if(k==="h")$("btnHisto").click()});
+  const k=e.key.toLowerCase();if(k==="q")$("btnQuete").click();else if(k==="d")$("btnDonjons").click();else if(k==="h")$("btnHisto").click();else if(k==="e")$("btnQuetes").click()});
 </script>
 </body>
 </html>
