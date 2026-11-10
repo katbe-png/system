@@ -1948,6 +1948,8 @@ const XP_EXO=15,XP_SEANCE=20,XP_COMPLETE=25;
 let qOnglet="entrainement",qJour=jourSem(),qEdit=false;
 function seanceEnCours(){
   const d=auj();let s=etat.seances.find(x=>x.date===d&&x.jour==="fb"&&!x.fini);
+  // séance commencée avant l'ajout d'un exercice : on l'y ajoute à sa place
+  if(s&&etat.fullbody)etat.fullbody.exos.forEach((e,i)=>{if(!s.exos.some(x=>x.id===e.id))s.exos.splice(Math.min(i,s.exos.length),0,{id:e.id,nom:e.name,detail:e.detail||"",perf:"",fait:false,pdc:e.rec?!!e.rec.pdc:!!e.pdc})});
   return s||null;
 }
 const estCardio=nom=>/course|sortie|footing|cardio|(^|\s)v[ée]lo(\s|$)|rameur|marche/i.test(nom);
