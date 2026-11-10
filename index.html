@@ -1888,6 +1888,13 @@ function fusion(loc,dist){
   for(const j of [...(loc.journal||[]),...(dist.journal||[])])if(!suppr.has(j.t))m.set(j.t+"|"+j.stat,j);
   const r={...JSON.parse(JSON.stringify(base))};if(!(loc._vierge&&dist._vierge))delete r._vierge;
   r.qjHist=[...new Set([...(loc.qjHist||[]),...(dist.qjHist||[])])];
+  // donjons : réunis des deux appareils (un donjon accepté sur l'un n'est jamais perdu par l'autre)
+  const dl=loc.donjons||{actifs:[],finis:[]},dd=dist.donjons||{actifs:[],finis:[]};
+  const fin=new Map();for(const f of [...(dl.finis||[]),...(dd.finis||[])])fin.set(f.id+"|"+f.date,f);
+  const act=new Map();for(const x of [...(dl.actifs||[]),...(dd.actifs||[])]){const k=x.id+"|"+x.debut,p=act.get(k);
+    act.set(k,p?{...p,fait:[...new Set([...(p.fait||[]),...(x.fait||[])])].sort()}:JSON.parse(JSON.stringify(x)))}
+  const finis=[...fin.values()];
+  r.donjons={finis,actifs:[...act.values()].filter(x=>!finis.some(f=>f.id===x.id&&f.date>=x.debut)).slice(0,2)};
   if(loc.qj&&dist.qj&&loc.qj.date===dist.qj.date){const f=q=>(q.statut==="reussie"?100:0)+q.taches.filter(t=>t.fait).length;r.qj=JSON.parse(JSON.stringify(f(loc.qj)>=f(dist.qj)?loc.qj:dist.qj))}
   return{...r,journal:[...m.values()].sort((x,y)=>y.t-x.t).slice(0,3000),_suppr:[...suppr].slice(-500),_maj:Math.max(a,b)};
 }
