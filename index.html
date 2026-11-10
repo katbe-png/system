@@ -1904,6 +1904,7 @@ const FB_DEFAUT={title:"Full Body",sub:"La même séance à chaque entraînement
   {id:"fb1",name:"Squat",detail:"3 séries × 8–10 reps",depart:"60"},
   {id:"fb2",name:"Développé couché",detail:"3 × 10–12",depart:"18"},
   {id:"fb3",name:"Tractions",detail:"3 × max",pdc:true},
+  {id:"fb12",name:"Dips",detail:"3 × max",pdc:true},
   {id:"fb4",name:"Soulevé de terre jambes tendues (RDL)",detail:"3 × 10",depart:"32"},
   {id:"fb5",name:"Développé militaire",detail:"3 × 10",depart:"12"},
   {id:"fb6",name:"Tirage horizontal",detail:"3 × 12",depart:"32"},
@@ -1911,7 +1912,7 @@ const FB_DEFAUT={title:"Full Body",sub:"La même séance à chaque entraînement
   {id:"fb8",name:"Curl marteau",detail:"2 × 12 · enchaîné avec l'extension triceps",depart:"10"},
   {id:"fb9",name:"Extension triceps poulie",detail:"2 × 12 · enchaînée avec le curl marteau",depart:"10"},
   {id:"fb10",name:"Mollets",detail:"3 × 15",depart:"55"},
-  {id:"fb11",name:"Relevés de jambes suspendu",detail:"3 × 12",pdc:true}],_maj:1};
+  {id:"fb11",name:"Relevés de jambes suspendu",detail:"3 × 12",pdc:true}],_maj:1,_dips:1};
 if(!etat.fullbody)etat.fullbody=JSON.parse(JSON.stringify(FB_DEFAUT));
 
 /* exercice → faisceaux travaillés : 1 = muscle principal (toute l'XP), moins = muscles qui aident */
@@ -2069,8 +2070,12 @@ function tirer(type,n,graine){
   const r=hasardJour(graine),l=candidats(type).map(c=>({c,p:(100-val(c[2]))*(0.6+r())})).sort((x,y)=>y.p-x.p);
   return l.slice(0,n).map(x=>x.c);
 }
+/* ajoute à la séance existante les exercices arrivés après coup (une seule fois) */
+function migrerFB(){const P=etat.fullbody;if(!P||P._dips)return false;
+  if(!P.exos.some(e=>e.id==="fb12"||/dips/i.test(e.name))){const i=P.exos.findIndex(e=>e.id==="fb3");P.exos.splice(i<0?P.exos.length:i+1,0,{id:"fb12",name:"Dips",detail:"3 × max",pdc:true})}
+  P._dips=1;P._maj=Date.now();return true}
 function genererOffres(){
-  const a=auj();let ch=migrerBTS();
+  const a=auj();let ch=migrerBTS();if(migrerFB())ch=true;
   // les offres secondaires durent la journée, l'offre principale 3 jours
   for(const o of etat.offres)if(o.statut==="ouverte"&&o.expire<a){o.statut="expiree";o.maj=Date.now();ch=true}
   const actSec=etat.quetes.filter(q=>q.statut==="active"&&q.type==="secondaire").length;
