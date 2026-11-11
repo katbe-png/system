@@ -1767,18 +1767,23 @@ const DONJONS=[
 if(!etat.donjons)etat.donjons={actifs:[],finis:[]};
 const donjon=id=>DONJONS.find(d=>d.id===id);
 function verifDonjons(){
-  const a=auj(),reste=[];
+  const a=auj(),reste=[];let decal=false;
+  // réparation unique : donjons effondrés à minuit le 12/11 parce que le jour d'acceptation n'avait pas été validé
+  if(!etat._repDonj){etat._repDonj=1;decal=true;
+    for(const f of etat.donjons.finis)if(!f.ok&&!f.rep&&f.date==="2026-11-12"&&!etat.donjons.actifs.some(x=>x.id===f.id)&&etat.donjons.actifs.length<2&&donjon(f.id)){f.rep=1;etat.donjons.actifs.push({id:f.id,debut:f.date,fait:[],decale:1})}}
   for(const x of etat.donjons.actifs){const D=donjon(x.id);if(!D)continue;
+    // accepté un jour sans le valider ce jour-là : le donjon commence simplement le lendemain
+    if(!x.decale&&!x.fait.includes(x.debut)&&joursEntre(x.debut,a)>=1&&!x.fait.some(d=>d>x.debut)){x.debut=ajJours(x.debut,1);x.decale=1;decal=true}
     const passe=Math.min(D.jours,joursEntre(x.debut,a));let rate=false;
     for(let i=0;i<passe;i++)if(!x.fait.includes(ajJours(x.debut,i))){rate=true;break}
     if(rate){etat.donjons.finis.push({id:x.id,date:a,ok:false});setTimeout(()=>{sfx("alerte");notif("[ DONJON EFFONDRÉ ]",`${D.nom} : un jour a été manqué.`)},1500)}
     else reste.push(x)}
-  if(reste.length!==etat.donjons.actifs.length){etat.donjons.actifs=reste;sauver()}
+  if(reste.length!==etat.donjons.actifs.length||decal){etat.donjons.actifs=reste;sauver()}
 }
 function entrerDonjon(id){
   const D=donjon(id);if(etat.donjons.actifs.length>=2){notif("[ SYSTÈME ]","Deux donjons au maximum en même temps.");return}
   if(etat.donjons.actifs.some(x=>x.id===id))return;
-  if(!confirm(`Entrer dans « ${D.nom} » (rang ${D.rang}) ?\n${D.jours} jours : ${D.obj}.\nUn seul jour manqué et le donjon s'effondre.`))return;
+  if(!confirm(`Entrer dans « ${D.nom} » (rang ${D.rang}) ?\n${D.jours} jours : ${D.obj}.\nIl commence aujourd'hui si tu le valides ce soir, sinon demain. Ensuite, un seul jour manqué et le donjon s'effondre.`))return;
   etat.donjons.actifs.push({id,debut:auj(),fait:[]});sauver();sfx("plonge");notif("[ PORTAIL FRANCHI ]",`${D.nom} · rang ${D.rang}`);rendreSys();
 }
 function validerDonjon(id){
@@ -2315,16 +2320,18 @@ function fusion(loc,dist){
   r.qjHist=[...new Set([...(loc.qjHist||[]),...(dist.qjHist||[])])];
   // donjons : réunis des deux appareils (un donjon accepté sur l'un n'est jamais perdu par l'autre)
   const dl=loc.donjons||{actifs:[],finis:[]},dd=dist.donjons||{actifs:[],finis:[]};
-  const fin=new Map();for(const f of [...(dl.finis||[]),...(dd.finis||[])])fin.set(f.id+"|"+f.date,f);
-  const act=new Map();for(const x of [...(dl.actifs||[]),...(dd.actifs||[])]){const k=x.id+"|"+x.debut,p=act.get(k);
-    act.set(k,p?{...p,fait:[...new Set([...(p.fait||[]),...(x.fait||[])])].sort()}:JSON.parse(JSON.stringify(x)))}
+  const fin=new Map();for(const f of [...(dl.finis||[]),...(dd.finis||[])]){const k=f.id+"|"+f.date,p=fin.get(k);fin.set(k,p&&p.rep?p:f)}
+  // un même donjon : on garde le départ le plus récent (il peut avoir été décalé au lendemain) et on réunit les jours validés
+  const act=new Map();for(const x of [...(dl.actifs||[]),...(dd.actifs||[])]){const p=act.get(x.id);
+    if(!p){act.set(x.id,JSON.parse(JSON.stringify(x)));continue}
+    const debut=p.debut>x.debut?p.debut:x.debut;act.set(x.id,{...p,debut,...((p.decale||x.decale)?{decale:1}:{}),fait:[...new Set([...(p.fait||[]),...(x.fait||[])])].filter(d=>d>=debut).sort()})}
   const finis=[...fin.values()];
   // quêtes et séances : fusion élément par élément (la version la plus récente de chacune)
   const parId=(x,y)=>{const m=new Map();for(const e of [...(x||[]),...(y||[])]){const p=m.get(e.id);if(!p||(e.maj||0)>(p.maj||0))m.set(e.id,e)}return[...m.values()]};
   r.quetes=parId(loc.quetes,dist.quetes);r.offres=parId(loc.offres,dist.offres);r.seances=parId(loc.seances,dist.seances).slice(-400);
   if(loc.fullbody||dist.fullbody)r.fullbody=JSON.parse(JSON.stringify(((loc.fullbody||{})._maj||0)>=((dist.fullbody||{})._maj||0)?loc.fullbody:dist.fullbody));
   if(loc.programme||dist.programme)r.programme=JSON.parse(JSON.stringify(((loc.programme||{})._maj||0)>=((dist.programme||{})._maj||0)?loc.programme:dist.programme));
-  r.donjons={finis,actifs:[...act.values()].filter(x=>!finis.some(f=>f.id===x.id&&f.date>=x.debut)).slice(0,2)};
+  r.donjons={finis,actifs:[...act.values()].filter(x=>!finis.some(f=>!f.rep&&f.id===x.id&&f.date>=x.debut)).slice(0,2)};
   if(loc.qj&&dist.qj&&loc.qj.date===dist.qj.date){const f=q=>(q.statut==="reussie"?100:0)+q.taches.filter(t=>t.fait).length;r.qj=JSON.parse(JSON.stringify(f(loc.qj)>=f(dist.qj)?loc.qj:dist.qj))}
   return{...r,journal:[...m.values()].sort((x,y)=>y.t-x.t).slice(0,3000),_suppr:[...suppr].slice(-500),_maj:Math.max(a,b)};
 }
