@@ -1771,6 +1771,10 @@ function verifDonjons(){
   // réparation unique : donjons effondrés à minuit le 12/11 parce que le jour d'acceptation n'avait pas été validé
   if(!etat._repDonj){etat._repDonj=1;decal=true;
     for(const f of etat.donjons.finis)if(!f.ok&&!f.rep&&f.date==="2026-11-12"&&!etat.donjons.actifs.some(x=>x.id===f.id)&&etat.donjons.actifs.length<2&&donjon(f.id)){f.rep=1;etat.donjons.actifs.push({id:f.id,debut:f.date,fait:[],decale:1})}}
+  // réparation unique : Trône du Monarque (rang A) effondré le 12/11 alors que 3 jours étaient validés
+  if(!etat._repTrone){etat._repTrone=1;decal=true;const T=etat.donjons.actifs.find(x=>x.id==="trone");
+    if(!T||T.fait.length<3){etat.donjons.finis.forEach(f=>{if(f.id==="trone"&&!f.ok&&f.date==="2026-11-12")f.rep=1});
+      etat.donjons.actifs=[{id:"trone",debut:"2026-11-09",fait:["2026-11-09","2026-11-10","2026-11-11"],decale:1},...etat.donjons.actifs.filter(x=>x.id!=="trone")].slice(0,2)}}
   for(const x of etat.donjons.actifs){const D=donjon(x.id);if(!D)continue;
     // accepté un jour sans le valider ce jour-là : le donjon commence simplement le lendemain
     if(!x.decale&&!x.fait.includes(x.debut)&&joursEntre(x.debut,a)>=1&&!x.fait.some(d=>d>x.debut)){x.debut=ajJours(x.debut,1);x.decale=1;decal=true}
