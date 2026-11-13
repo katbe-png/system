@@ -1738,6 +1738,7 @@ function cocherTache(i){
     const j0=joueur();q.statut="reussie";q.taches.forEach(x=>crediter(x.stat,25,"Quête quotidienne : "+x.txt,"Q"));crediter("dis",50,"Bonus de quête quotidienne","Q");
     etat.serie=(etat.serie||0)+1;etat.serieMax=Math.max(etat.serieMax||0,etat.serie);etat.qjHist=[...(etat.qjHist||[]),q.date].slice(-400);
     sauver();sfx("or");notif("[ QUÊTE QUOTIDIENNE ACCOMPLIE ]",`Série : ${etat.serie} jour${etat.serie>1?"s":""}`,true);apresGain(j0);rendre();
+    autoDonjonsQJ();
   }else sauver();
   rendreSys();majDock();
 }
@@ -1774,6 +1775,10 @@ function verifDonjons(){
   // Trône du Monarque (rang A) : effondré à tort le 12/11 alors que 3 jours étaient validés.
   // Rétabli à chaque vérification tant qu'il n'a pas vraiment échoué ensuite (résiste aux synchronisations).
   {const base=["2026-11-09","2026-11-10","2026-11-11"],L=etat.donjons;
+   // un effondrement est injuste si chaque jour depuis le 12/11 a quand même vu la quête quotidienne réussie
+   const T0=L.actifs.find(x=>x.id==="trone"),okJ=d=>jourReussi(d)||(T0&&T0.fait.includes(d));
+   const injuste=f=>{for(let d="2026-11-12";d<f.date;d=ajJours(d,1))if(!okJ(d))return false;return true};
+   L.finis.forEach(f=>{if(f.id==="trone"&&!f.ok&&!f.rep&&f.date>"2026-11-12"&&injuste(f)){f.rep=1;decal=true}});
    const echec=L.finis.some(f=>f.id==="trone"&&(f.ok||(f.date>"2026-11-12"&&!f.rep)));
    if(!echec&&a<="2026-12-08"){
      L.finis.forEach(f=>{if(f.id==="trone"&&!f.ok&&f.date==="2026-11-12"&&!f.rep){f.rep=1;decal=true}});
@@ -1781,6 +1786,7 @@ function verifDonjons(){
      const T=L.actifs.find(x=>x.id==="trone");
      if(!T){L.actifs=[{id:"trone",debut:base[0],fait:base.slice(),decale:1},...L.actifs].slice(0,2);decal=true}
      else if(T.debut!==base[0]||base.some(d=>!T.fait.includes(d))){T.debut=base[0];T.fait=[...new Set([...T.fait,...base])].filter(d=>d>=base[0]).sort();T.decale=1;decal=true}}}
+  for(const x of etat.donjons.actifs)if(DONJ_AUTO_QJ.includes(x.id))for(let d=x.debut;d<a;d=ajJours(d,1))if(jourReussi(d)&&!x.fait.includes(d)){x.fait.push(d);x.fait.sort();decal=true}
   for(const x of etat.donjons.actifs){const D=donjon(x.id);if(!D)continue;
     // accepté un jour sans le valider ce jour-là : le donjon commence simplement le lendemain
     if(!x.decale&&!x.fait.includes(x.debut)&&joursEntre(x.debut,a)>=1&&!x.fait.some(d=>d>x.debut)){x.debut=ajJours(x.debut,1);x.decale=1;decal=true}
@@ -1796,6 +1802,14 @@ function entrerDonjon(id){
   if(!confirm(`Entrer dans « ${D.nom} » (rang ${D.rang}) ?\n${D.jours} jours : ${D.obj}.\nIl commence aujourd'hui si tu le valides ce soir, sinon demain. Ensuite, un seul jour manqué et le donjon s'effondre.`))return;
   etat.donjons.actifs.push({id,debut:auj(),fait:[]});sauver();sfx("plonge");notif("[ PORTAIL FRANCHI ]",`${D.nom} · rang ${D.rang}`);rendreSys();
 }
+// donjons dont l'objectif est la quête quotidienne : chaque jour réussi est validé tout seul
+const DONJ_AUTO_QJ=["trone"];
+function autoDonjonsQJ(){const a=auj();let ch=false;
+  for(const x of etat.donjons.actifs){if(!DONJ_AUTO_QJ.includes(x.id))continue;
+    for(let d=x.debut;d<a;d=ajJours(d,1))if(jourReussi(d)&&!x.fait.includes(d)){x.fait.push(d);x.fait.sort();ch=true}}
+  if(ch)sauver();
+  const x=etat.donjons.actifs.find(y=>DONJ_AUTO_QJ.includes(y.id)&&!y.fait.includes(a));
+  if(x&&etat.qj&&etat.qj.date===a&&etat.qj.statut==="reussie")setTimeout(()=>validerDonjon(x.id),1200)}
 function validerDonjon(id){
   const x=etat.donjons.actifs.find(y=>y.id===id),D=donjon(id),a=auj();if(!x||x.fait.includes(a))return;
   x.fait.push(a);
@@ -2290,6 +2304,20 @@ appliquerTheme(true);majVue();rendre();
    Fusion : le journal des quêtes est réuni des deux côtés, le reste suit la version la plus récente. */
 const SB={url:"https://vildzxdbiayignkshcca.supabase.co",cle:"sb_publishable_NMxVL7Y8y3W8dvAnVHOcqg_k6lERTt-"};
 const URL_WEB="https://katbe-png.github.io/system/";
+const VERSION_APP="1794596808";
+/* App Mac : si une nouvelle version est en ligne, la page se recharge d'elle-même
+   dès que la fenêtre n'est pas utilisée (l'app Mac a déjà téléchargé le fichier). */
+function verifVersion(){if(!/Electron/.test(navigator.userAgent))return;
+  fetch(URL_WEB+"index.html?v="+Date.now(),{cache:"no-store"}).then(r=>r.ok?r.text():"").then(t=>{
+    const m=t.match(/const VERSION_APP="(\d+)"/);if(!m||m[1]===VERSION_APP||+m[1]<+VERSION_APP)return;
+    let d={};try{d=JSON.parse(localStorage.getItem("_majTent")||"{}")}catch(e){}
+    if(d.v===m[1]&&Date.now()-d.t<3.2*3600e3)return;
+    const go=()=>{try{localStorage.setItem("_majTent",JSON.stringify({v:m[1],t:Date.now()}))}catch(e){}location.reload()};
+    if(!document.hasFocus()||Date.now()-(window._derniereAction||0)>5*60e3)go();
+    else addEventListener("blur",go,{once:true});
+  }).catch(()=>{})}
+addEventListener("pointerdown",()=>window._derniereAction=Date.now(),true);
+setTimeout(verifVersion,60e3);setInterval(verifVersion,15*60e3);
 const SB_OK=/^https:\/\//.test(SB.url)&&SB.cle.length>20;
 const SYNC={sess:null,statut:"off",timer:null,file:Promise.resolve(),der:0,mode:"connexion",recup:null};
 try{SYNC.sess=JSON.parse(localStorage.getItem("systeme_sess"))}catch(e){}
