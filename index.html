@@ -1239,7 +1239,7 @@ function jauges(){
     <div class="jg mp"><span>MP</span><div class="jt"><i style="width:${mp/550*100}%"></i></div><b>${mp}</b></div></div>`;
 }
 function piedPts(n,c){
-  return `<div class="pied">${n>0?`<div class="ptsDispo"><b>${n}</b> point${n>1?"s":""} à attribuer · ${c}</div>`:`<p class="petit">Monte de niveau pour gagner des points à attribuer.</p>`}
+  return `<div class="pied">${n>0?`<div class="ptsDispo"><b>${n}</b> point${n>1?"s":""} en cours d'attribution · ${c}</div>`:`<p class="petit">Les points de niveau vont automatiquement aux statistiques que tu travailles.</p>`}
     <button class="btn btnSys" data-panneau="reglages">${ICO_SYS}SYSTÈME</button></div>`;
 }
 function vueStatusCorps(){
@@ -2262,6 +2262,32 @@ document.addEventListener("input",e=>{
   s.maj=Date.now();clearTimeout(window._tPerf);window._tPerf=setTimeout(sauver,600);
 });
 
+/* ---------- POINTS ATTRIBUÉS AUTOMATIQUEMENT ----------
+   Les points gagnés en montant de niveau vont aux statistiques qui ont réellement été travaillées :
+   répartis au prorata de l'XP gagnée par chaque statistique depuis la dernière attribution. */
+function feuille(k){if(MEMBRES[k])return MEMBRES[k].reduce((a,x)=>val(x)<val(a)?x:a);return STATS[k]?k:null}
+function autoPoints(){
+  const p=points();if(p.corps<=0&&p.esprit<=0)return;
+  const depuis=etat.autoDepuis||0,bilan=[];
+  for(const cote of ["corps","esprit"]){
+    let n=p[cote];if(n<=0)continue;
+    const xp={};
+    for(const j of etat.journal){if(j.t<=depuis||!(j.xp>0)||j.rang==="P")continue;
+      const f=feuille(j.stat);if(!f||coteDe(f)!==cote)continue;xp[f]=(xp[f]||0)+j.xp}
+    let cles=Object.keys(xp);
+    if(!cles.length){ // rien de travaillé de ce côté : les points renforcent les statistiques les plus faibles
+      cles=Object.keys(STATS).filter(k=>!MEMBRES[k]&&coteDe(k)===cote).sort((a,b)=>val(a)-val(b)).slice(0,n);cles.forEach(k=>xp[k]=1)}
+    const tot=cles.reduce((a,k)=>a+xp[k],0),parts=cles.map(k=>({k,e:n*xp[k]/tot}));
+    parts.forEach(x=>x.n=Math.floor(x.e));let reste=n-parts.reduce((a,x)=>a+x.n,0);
+    parts.sort((a,b)=>(b.e-b.n)-(a.e-a.n)).forEach(x=>{if(reste>0){x.n++;reste--}});
+    for(const x of parts)if(x.n>0){etat.alloc[x.k]=(etat.alloc[x.k]||0)+x.n;bilan.push([x.k,x.n])}
+  }
+  etat.autoDepuis=Date.now();sauver();verifTitres();rendre();
+  if(bilan.length)notif("[ POINTS ATTRIBUÉS ]",bilan.sort((a,b)=>b[1]-a[1]).slice(0,4).map(([k,n])=>`${info(k).nom} +${n}`).join(" · "),true);
+}
+// à chaque montée de niveau, les nouveaux points sont attribués juste après l'animation
+{const _lu=levelUp;levelUp=function(...a){_lu.apply(this,a);setTimeout(autoPoints,4200)}}
+
 /* ---------- INTERACTIONS ---------- */
 document.addEventListener("click",e=>{
   const g=s=>e.target.closest(s);let t;
@@ -2285,7 +2311,7 @@ document.addEventListener("keydown",e=>{if(e.key==="Escape"&&sysVue)fermerSys()}
 /* ---------- DÉMARRAGE ---------- */
 let _penal=false;
 const BOOT=2700,_debut=Date.now();
-function demarrageJour(){verifDonjons();_penal=verifJour();verifQuetes();genererOffres();majDock();if(etat.penal&&!etat.penal.fait)document.body.classList.add("penalite")}
+function demarrageJour(){verifDonjons();_penal=verifJour();verifQuetes();genererOffres();majDock();setTimeout(autoPoints,4000);if(etat.penal&&!etat.penal.fait)document.body.classList.add("penalite")}
 function apresDemarrage(){demarrageJour();rendre();setTimeout(()=>{
   if(etat.penal&&!etat.penal.fait){ouvrirSys("penalite");if(_penal)notif("[ PÉNALITÉ ]","Quête quotidienne échouée. Discipline −, Vitalité −, série perdue.")}
   else if(etat.qj&&!etat.qj.vu&&etat.qj.statut!=="reussie"){etat.qj.vu=true;sauver();ouvrirSys("quete")}
@@ -2304,7 +2330,7 @@ appliquerTheme(true);majVue();rendre();
    Fusion : le journal des quêtes est réuni des deux côtés, le reste suit la version la plus récente. */
 const SB={url:"https://vildzxdbiayignkshcca.supabase.co",cle:"sb_publishable_NMxVL7Y8y3W8dvAnVHOcqg_k6lERTt-"};
 const URL_WEB="https://katbe-png.github.io/system/";
-const VERSION_APP="1794611261";
+const VERSION_APP="1794765472";
 /* App Mac : si une nouvelle version est en ligne, la page se recharge d'elle-même
    dès que la fenêtre n'est pas utilisée (l'app Mac a déjà téléchargé le fichier). */
 function verifVersion(){if(!/Electron/.test(navigator.userAgent))return;
