@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 300">
+<defs>
+<filter id="g" filterUnits="userSpaceOnUse" x="0" y="0" width="300" height="300"><feGaussianBlur stdDeviation="5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+<filter id="g2" filterUnits="userSpaceOnUse" x="0" y="0" width="300" height="300"><feGaussianBlur stdDeviation="8" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+<linearGradient id="c1" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffffff"/><stop offset="1" stop-color="#9cc8ff"/></linearGradient>
+<linearGradient id="c2" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#7fb6ff"/><stop offset="1" stop-color="#3d8bff"/></linearGradient>
+<linearGradient id="c3" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#2f6fd6"/><stop offset="1" stop-color="#1b3f8a"/></linearGradient>
+<linearGradient id="hx" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#8fc0ff"/><stop offset="1" stop-color="#1b3f8a"/></linearGradient>
+<linearGradient id="gold" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff2c4"/><stop offset="1" stop-color="#ffb347"/></linearGradient>
+</defs>
+<path d="M118 60 L55 96 V204 L150 259 L245 204 V96 L182 60" fill="none" stroke="url(#hx)" stroke-width="6" stroke-linecap="round" stroke-linejoin="round" filter="url(#g)"/>
+<path d="M126 70 L69 103 V197 L150 244 L231 197 V103 L174 70" fill="none" stroke="#2c5fae" stroke-width="1.5" opacity=".6"/>
+<g fill="#bcdcff" filter="url(#g)"><path d="M124 44 l10 -7 l3 11 z"/><path d="M170 40 l11 3 l-7 8 z"/><path d="M146 26 l7 -5 l2 9 z"/><path d="M106 52 l6 -1 l-2 6 z"/><path d="M193 52 l5 2 l-5 4 z"/></g>
+<g filter="url(#g)" stroke-linejoin="miter" fill="none">
+<path d="M96 222 L150 191 L204 222" stroke="url(#c3)" stroke-width="16"/>
+<path d="M96 179 L150 148 L204 179" stroke="url(#c2)" stroke-width="16"/>
+<path d="M96 136 L150 105 L204 136" stroke="url(#c1)" stroke-width="16"/></g>
+<path d="M112 92 L150 64 L188 92" fill="none" stroke="url(#gold)" stroke-width="13" stroke-linejoin="miter" filter="url(#g2)"/>
+</svg>
