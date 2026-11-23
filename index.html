@@ -2555,7 +2555,7 @@ appliquerTheme(true);majVue();rendre();
    Fusion : le journal des quêtes est réuni des deux côtés, le reste suit la version la plus récente. */
 const SB={url:"https://vildzxdbiayignkshcca.supabase.co",cle:"sb_publishable_NMxVL7Y8y3W8dvAnVHOcqg_k6lERTt-"};
 const URL_WEB="https://katbe-png.github.io/system/";
-const VERSION_APP="1795429241";
+const VERSION_APP="1795429564";
 /* App Mac : si une nouvelle version est en ligne, la page se recharge d'elle-même
    dès que la fenêtre n'est pas utilisée (l'app Mac a déjà téléchargé le fichier). */
 function verifVersion(){if(!/Electron/.test(navigator.userAgent))return;
@@ -2627,7 +2627,7 @@ function fusion(loc,dist){
     for(const x of [...(al.mouv||[]),...(ad.mouv||[])])if(!sup.has(x.id))mv.set(x.id,x);
     const rec=k=>{const x=al[k],y=ad[k];return !x?y:!y?x:((x._maj||0)>=(y._maj||0)?x:y)};
     const lv=new Map();for(const l of [...(al.livrets||[]),...(ad.livrets||[])]){const p=lv.get(l.id);if(!p||(l._maj||0)>(p._maj||0))lv.set(l.id,l)}
-    r.argent=JSON.parse(JSON.stringify({mouv:[...mv.values()].sort((x,y)=>x.t-y.t),suppr:[...sup].slice(-500),la:rec("la"),btc:rec("btc"),cc:rec("cc"),...(lv.size?{livrets:[...lv.values()]}:{}),importNov26:al.importNov26||ad.importNov26,
+    r.argent=JSON.parse(JSON.stringify({mouv:[...mv.values()].sort((x,y)=>x.t-y.t),suppr:[...sup].slice(-500),la:rec("la"),btc:rec("btc"),cc:rec("cc"),...(lv.size?{livrets:[...lv.values()]}:{}),importNov26:al.importNov26||ad.importNov26,importBTC1:al.importBTC1||ad.importBTC1,
       budget:((al.budMaj||0)>=(ad.budMaj||0)?al:ad).budget,budMaj:Math.max(al.budMaj||0,ad.budMaj||0)}))}
   return{...r,journal:[...m.values()].sort((x,y)=>y.t-x.t).slice(0,3000),_suppr:[...suppr].slice(-500),_maj:Math.max(a,b)};
 }
@@ -2938,6 +2938,8 @@ function importNov26(){const A=(agMv(),etat.argent);if(A.importNov26)return;cons
   if(!sb._maj){sb.solde=0.83;sb.hist=[{t:now,solde:0.83}];sb._maj=now}
   const cc=agCC();if(!cc._maj){cc.solde=28.51;cc._maj=now}
   A.importNov26=1;sauver();invalider()}
+// portefeuille Bitstack au 23/11/2026 (capture) : 0,00711471 BTC pour 467,38 € de dépôts nets
+function importBTC1(){const A=(agMv(),etat.argent),B=agBTC();if(A.importBTC1)return;if(!B.qte){B.qte=0.00711471;B.investi=467.38;B._maj=Date.now()}A.importBTC1=1;sauver()}
 
 /* ===== Graphiques ===== */
 function svgAire(mois){const W=640,H=168,top=26,bas=20,gauche=36,droite=8;
@@ -2961,7 +2963,7 @@ function vagues(){return `<svg viewBox="0 0 300 110" preserveAspectRatio="none" 
 
 /* ===== Vue ===== */
 function vueArgent(){
-  if(!agSel)agSel=moisCle();importNov26();chargerBTC();
+  if(!agSel)agSel=moisCle();importNov26();importBTC1();chargerBTC();
   const M=agMois(agSel),Mp=agMois(moisDecale(agSel,-1)),f=val("fin"),bud=+(etat.argent&&etat.argent.budget)||0;
   const mois=[];for(let k=11;k>=0;k--)mois.push(moisDecale(moisCle(),-k));
   const tabs=`<div class="fyTabs">${[["dash","Vue d'ensemble"],["mv","Mouvements"],["cpt","Comptes"]].map(([k,n])=>`<button class="${agOng===k?"on":""}" data-agong="${k}">${n}</button>`).join("")}
