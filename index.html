@@ -2566,7 +2566,7 @@ appliquerTheme(true);majVue();rendre();
    Fusion : le journal des quêtes est réuni des deux côtés, le reste suit la version la plus récente. */
 const SB={url:"https://vildzxdbiayignkshcca.supabase.co",cle:"sb_publishable_NMxVL7Y8y3W8dvAnVHOcqg_k6lERTt-"};
 const URL_WEB="https://katbe-png.github.io/system/";
-const VERSION_APP="1795460750";
+const VERSION_APP="1795461581";
 /* App Mac : si une nouvelle version est en ligne, la page se recharge d'elle-même
    dès que la fenêtre n'est pas utilisée (l'app Mac a déjà téléchargé le fichier). */
 function verifVersion(){if(!/Electron/.test(navigator.userAgent))return;
@@ -2893,7 +2893,7 @@ function delta(a,b,inv){if(!b&&!a)return"";if(!b)return`<em>nouveau ce mois</em>
 
 /* ===== Catégories (couleurs fixes par catégorie, palette validée) ===== */
 const AG_CATC={Nourriture:"#3987e5",Sorties:"#d95926",Abonnements:"#199e70",Sapes:"#c98500",Voiture:"#d55181",Tech:"#0ca30c",Autre:"#9085e9",Essence:"#e66767",Salaire:"#9085e9"};
-const AG_ICO={Salaire:"💼",Sorties:"🍹",Nourriture:"🍔",Essence:"⛽",Sapes:"👕",Abonnements:"📺",Tech:"💻",Voiture:"🚗",Autre:"🧾",Bitcoin:"₿","Livret Jeune":"🏦","Livret Bleu":"🏦","Épargne":"🏦","Retrait d'épargne":"↩️",Virement:"🔁"};
+const AG_ICO={Remboursement:"↩️",Vente:"🏷️",Cadeau:"🎁",Salaire:"💼",Sorties:"🍹",Nourriture:"🍔",Essence:"⛽",Sapes:"👕",Abonnements:"📺",Tech:"💻",Voiture:"🚗",Autre:"🧾",Bitcoin:"₿","Livret Jeune":"🏦","Livret Bleu":"🏦","Épargne":"🏦","Retrait d'épargne":"↩️",Virement:"🔁"};
 AG_CATS.splice(0,AG_CATS.length,"Salaire","Nourriture","Sorties","Abonnements","Sapes","Voiture","Essence","Tech","Bitcoin","Livret Jeune","Livret Bleu","Virement","Autre");
 const pasJoli=mx=>{const b=Math.pow(10,Math.floor(Math.log10(mx/4)));for(const k of [1,2,2.5,5,10])if(b*k*4>=mx)return b*k;return b*10};
 const lisse=(pts,yb)=>{const cl=v=>yb==null?v:Math.min(yb,v);if(pts.length<2)return"";let d=`M${pts[0][0]},${pts[0][1]}`;for(let i=0;i<pts.length-1;i++){const p0=pts[i-1]||pts[i],p1=pts[i],p2=pts[i+1],p3=pts[i+2]||p2,t=.18;
@@ -3010,9 +3010,9 @@ function vueArgent(){
     const lignes=M.l.slice().sort((a,b)=>b.t-a.t).map(m=>`<div class="agTx"><span class="ic">${AG_ICO[m.cat]||"🧾"}</span><div><b>${esc(m.lib||AG_TYPES[m.type])}</b><small>${esc(m.cat||"")} · ${new Date(m.t).toLocaleDateString("fr-FR",{day:"numeric",month:"short"})}</small></div><div class="v"><b class="${sign[m.type][1]}">${sign[m.type][0]} ${eur(m.m)}</b><small>${AG_TYPES[m.type]}</small></div><button class="del" data-agdel="${m.id}" title="Supprimer">✕</button></div>`).join("")||`<div class="agVide">Rien de noté en ${nomMoisC(agSel)}.</div>`;
     return tabs+`<div class="fyCard"><div class="agForm">
       <select id="agT">${Object.entries(AG_TYPES).map(([k,n])=>`<option value="${k}" ${k===agTypeDef?"selected":""}>${n}</option>`).join("")}</select>
-      <input type="number" id="agM" min="0" step="0.01" placeholder="Montant €">
-      <input type="text" id="agL" placeholder="Libellé (facultatif)" maxlength="40">
-      <select id="agC">${AG_CATS.map(c=>`<option>${c}</option>`).join("")}</select>
+      <input type="number" id="agM" min="0" step="0.01" placeholder="Montant €" value="${esc(agBr.m)}">
+      <input type="text" id="agL" placeholder="Libellé (facultatif)" maxlength="40" value="${esc(agBr.l)}">
+      <select id="agC">${agOptsCat(agTypeDef,agBr.c)}</select>
       <button class="fyBtn on" data-agadd="1">Ajouter</button></div>
       <div class="agListe">${lignes}</div></div>`}
   if(agOng==="cpt"){const L=agLivrets(),cc=agCC(),B=agBTC();
@@ -3051,7 +3051,15 @@ function vueArgent(){
 function sparkCarte(v){const W=300,H=90,mn=Math.min(...v),mx=Math.max(...v),P=v.map((x,i)=>[W*i/(v.length-1),10+(H-20)*(1-(x-mn)/((mx-mn)||1))]);
   return `<svg viewBox="0 0 ${W} ${H}" preserveAspectRatio="none" class="vag"><defs><linearGradient id="vg" x1="0" x2="1"><stop offset="0" stop-color="#b8862b"/><stop offset=".55" stop-color="#fff0c2"/><stop offset="1" stop-color="#e0b04a"/></linearGradient></defs><path d="${lisse(P)}" fill="none" stroke="url(#vg)" stroke-width="5" stroke-linecap="round" vector-effect="non-scaling-stroke"/></svg>`}
 const depuisQuand=t=>{const d=(Date.now()-t)/36e5;return d<1?"à l'instant":d<24?`il y a ${Math.floor(d)} h`:d<48?"hier":new Date(t).toLocaleDateString("fr-FR",{day:"numeric",month:"short"})};
-let agTypeDef="in";
+let agTypeDef="in",agBr={m:"",l:"",c:""};
+document.addEventListener("input",ev=>{const i=ev.target&&ev.target.id;if(i==="agM")agBr.m=ev.target.value;else if(i==="agL")agBr.l=ev.target.value});
+document.addEventListener("change",ev=>{if(ev.target&&ev.target.id==="agC")agBr.c=ev.target.value});
+/* catégories proposées selon le type de mouvement */
+const AG_CATS_TYPE={in:["Salaire","Virement","Remboursement","Vente","Cadeau","Autre"],
+  out:["Nourriture","Sorties","Abonnements","Sapes","Voiture","Essence","Tech","Autre"],
+  ep:["Livret Jeune","Livret Bleu","Bitcoin","Autre"],ret:["Livret Jeune","Livret Bleu","Bitcoin","Autre"]};
+const agOptsCat=(t,sel)=>(AG_CATS_TYPE[t]||AG_CATS).map(c=>`<option${c===sel?" selected":""}>${c}</option>`).join("");
+document.addEventListener("change",ev=>{if(ev.target&&ev.target.id==="agT"){agTypeDef=ev.target.value;const c=$("agC");agBr.c="";if(c)c.innerHTML=agOptsCat(agTypeDef)}});
 document.addEventListener("change",ev=>{if(ev.target&&ev.target.id==="agMoisSel"){agSel=ev.target.value;rendreSys()}});
 document.addEventListener("mousemove",ev=>{const w=ev.target.closest&&ev.target.closest(".agAreaW");document.querySelectorAll(".agAreaW").forEach(z=>{if(z!==w){const c=z.querySelector(".agCross"),t=z.querySelector(".agTip");if(c)c.style.display="none";if(t)t.style.display="none"}});if(!w)return;
   const s=w.querySelector("svg"),r=s.getBoundingClientRect(),Wv=+s.dataset.w,g=+s.dataset.g,n=+s.dataset.n,D=JSON.parse(s.dataset.d);
@@ -3076,11 +3084,10 @@ document.addEventListener("click",e=>{
   if(t=e.target.closest("[data-agbud]")){const v=parseFloat($("agB").value);agMv();etat.argent.budget=v>0?Math.round(v):0;etat.argent.budMaj=Date.now();sauver();sfx("valide");notif("[ ARGENT ]",v>0?`Budget mensuel : ${eur(Math.round(v))}`:"Budget mensuel retiré");rendreSys();return}
   if(t=e.target.closest("[data-agadd]")){const m=parseFloat(String($("agM").value).replace(",","."));
     if(!(m>0)){notif("[ SYSTÈME ]","Indique un montant.");return}
-    const type=$("agT").value,mv={id:Math.random().toString(36).slice(2,9),t:Date.now(),d:(agSel&&agSel!==moisCle()?agSel+"-01":new Date().toISOString().slice(0,10)),type,m:Math.round(m*100)/100,lib:$("agL").value.trim(),cat:type==="in"&&$("agC").value==="Autre"?"Salaire":$("agC").value};
-    if(type==="ep"||type==="ret")mv.cat=AG_TYPES[type];
+    const type=$("agT").value,mv={id:Math.random().toString(36).slice(2,9),t:Date.now(),d:(agSel&&agSel!==moisCle()?agSel+"-01":new Date().toISOString().slice(0,10)),type,m:Math.round(m*100)/100,lib:$("agL").value.trim(),cat:$("agC").value||"Autre"};
     const j0=joueur();
     if(type==="ep"){const xp=Math.min(80,Math.max(5,Math.round(m/2)));mv.xpT=mv.t;crediter("fin",xp,`Épargne : +${eur(m)}`,"E",mv.t)}
-    agMv().push(mv);sauver();sfx("valide");
+    agMv().push(mv);agBr={m:"",l:"",c:""};["agM","agL"].forEach(i=>{const x=$(i);if(x)x.value=""});sauver();sfx("valide");
     if(type==="ep"){notif("[ FINANCES ]",`+${eur(m)} mis de côté · XP Finances gagnée`,true);apresGain(j0)}
     majHoloArg();rendreSys();return}
   if(t=e.target.closest("[data-agdel]")){const mv=agMv().find(x=>x.id===t.dataset.agdel);if(!mv)return;
@@ -3092,9 +3099,10 @@ document.addEventListener("click",e=>{
    Les rafraîchissements automatiques (synchro toutes les minutes, cours du Bitcoin, emploi du temps…) redessinent les fenêtres.
    Pendant qu'un champ est en cours de saisie, on garde ce qui a été tapé, le champ actif, le curseur et la position de défilement. */
 const cleChamp=el=>el.id?"#"+el.id:[...el.attributes].filter(a=>a.name.startsWith("data-")||a.name==="name").map(a=>a.name+"="+a.value).join("&");
-function garderSaisie(fn){return function(...a){
+function garderSaisie(fn){const w=function(...a){
   const ae=document.activeElement,enSaisie=ae&&/INPUT|SELECT|TEXTAREA/.test(ae.tagName)&&!ae.closest("#auth")&&cleChamp(ae);
   if(!enSaisie)return fn.apply(this,a);
+  if(ae.tagName==="SELECT"){const self=this;if(!ae._attente){ae._attente=1;const go=()=>{ae.removeEventListener("blur",go);setTimeout(()=>w.apply(self,a),400)};ae.addEventListener("blur",go)}return}
   const sv=new Map();document.querySelectorAll("input,select,textarea").forEach(x=>{if(x.type==="checkbox"||x.type==="radio")return;const k=cleChamp(x);if(k)sv.set(k,x.value)});
   const cle=cleChamp(ae);let car=null;try{car=[ae.selectionStart,ae.selectionEnd]}catch(e){}
   const scr=[...document.querySelectorAll(".sysCorps,#panneau,.invCorps,.invGrille")].map(x=>[x,x.scrollTop]);
@@ -3102,7 +3110,7 @@ function garderSaisie(fn){return function(...a){
   document.querySelectorAll("input,select,textarea").forEach(x=>{if(x.type==="checkbox"||x.type==="radio")return;const k=cleChamp(x);if(k&&sv.has(k)&&x.value!==sv.get(k))x.value=sv.get(k)});
   const f=[...document.querySelectorAll("input,select,textarea")].find(x=>cleChamp(x)===cle);
   if(f&&document.activeElement!==f){f.focus({preventScroll:true});try{if(car&&car[0]!=null)f.setSelectionRange(car[0],car[1])}catch(e){}}
-  scr.forEach(([x,t])=>{if(document.body.contains(x))x.scrollTop=t});return r}}
+  scr.forEach(([x,t])=>{if(document.body.contains(x))x.scrollTop=t});return r};return w}
 rendreSys=garderSaisie(rendreSys);rendre=garderSaisie(rendre);if(typeof rendreInv==="function")rendreInv=garderSaisie(rendreInv);
 setTimeout(majHoloArg,900);
 
