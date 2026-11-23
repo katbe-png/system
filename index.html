@@ -822,7 +822,8 @@ body{padding-bottom:env(safe-area-inset-bottom)}
 #holoArg{position:absolute;top:calc(7% + 235px);right:max(0px,calc(50% - 330px));z-index:4;width:120px;cursor:pointer;perspective:700px;animation:flotte 4.5s ease-in-out infinite;animation-delay:-3.3s;transition:opacity .3s;
   --glow:#ffc857;--glowRGB:255,200,87;--clair:#ffe8b0}
 #holoArg .holoVitre{aspect-ratio:4/4.4;transform:rotateY(-32deg) rotateZ(9deg)}
-#holoArg .ha{position:absolute;left:12%;right:12%;top:26%;bottom:13%;display:flex;align-items:flex-end;gap:8%}
+#holoArg .ha{position:absolute;left:10%;right:10%;top:24%;bottom:10%;display:flex;align-items:center;justify-content:center}
+#holoArg .haIco{width:100%;height:100%;filter:drop-shadow(0 0 4px rgba(255,200,87,.8))}
 #holoArg .ha i{flex:1;border:1px solid rgba(var(--glowRGB),.7);background:repeating-linear-gradient(0deg,rgba(var(--glowRGB),.55) 0 3px,rgba(var(--glowRGB),.15) 3px 6px);box-shadow:0 0 6px rgba(var(--glowRGB),.6)}
 #holoArg .holoLab{margin-top:10px;text-align:center;font:700 10px Rajdhani,sans-serif;letter-spacing:.24em;color:var(--glow);opacity:.8;text-shadow:0 0 6px var(--glow)}
 #holoArg .holoLab small{display:block;margin-top:3px;font-size:9px;letter-spacing:.14em;color:#9effc1;text-shadow:0 0 6px #3dff8b}
@@ -862,6 +863,89 @@ body{padding-bottom:env(safe-area-inset-bottom)}
 .agCat i{height:6px;background:rgba(255,107,107,.15);border-radius:3px;overflow:hidden}.agCat i u{display:block;height:100%;background:#ff7b7b}
 .agCat b{text-align:right;color:#ffb3b3}
 @media(max-width:700px){.agKpi{grid-template-columns:1fr}.agCols{grid-template-columns:1fr}}
+
+/* tableau de bord */
+.agNav{display:flex;align-items:center;gap:10px;margin-bottom:12px;flex-wrap:wrap}
+.agNav>b{font:700 14px Rajdhani,sans-serif;letter-spacing:.2em;color:#fff3d1;min-width:170px;text-align:center}
+.agNav .btn{width:auto;margin:0;padding:5px 12px}
+.agNav .btn[disabled]{opacity:.3;pointer-events:none}
+.agOng{margin-left:auto;display:flex;gap:6px}.agOng .btn.on{border-color:#ffc857;color:#ffe8b0;box-shadow:0 0 10px rgba(255,200,87,.35)}
+.agKpi.k4{grid-template-columns:repeat(4,1fr)}
+.agKpi small i{display:inline-block;width:8px;height:8px;border-radius:2px;margin-right:5px;vertical-align:0}
+.agKpi em.bon{color:#a9d8ff}.agKpi em.mauvais{color:#ffc39a}
+.agGrid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.agCarte{border:1px solid rgba(255,200,87,.22);background:rgba(20,17,12,.55);border-radius:6px;padding:10px 12px;min-width:0}
+.agCarte h4{margin:0 0 6px;font:700 11px Rajdhani,sans-serif;letter-spacing:.2em;color:#e9c77c}
+.agLeg{display:flex;gap:14px;flex-wrap:wrap;font:600 11px Rajdhani,sans-serif;color:#cfc2a3;margin-bottom:4px}
+.agLeg i{display:inline-block;width:8px;height:8px;border-radius:2px;margin-right:5px}.agLeg b{color:#fff3d1}
+.agSvg{width:100%;height:auto;display:block}
+.agSvg .grille{stroke:rgba(255,232,176,.08);stroke-width:1}.agSvg .base{stroke:rgba(255,232,176,.35);stroke-width:1}
+.agSvg .ax{fill:#a8997a;font:600 12px Rajdhani,sans-serif}.agSvg .axSel{fill:#fff3d1;font-weight:700}
+.agSvg .lbl{fill:#fff3d1;font:700 13px Rajdhani,sans-serif}
+.agSvg .barre{opacity:.55;transition:opacity .2s}.agSvg .barre.sel,.agSvg .barre:hover{opacity:1}
+.agCat i u{background:#d9773f}.agCat b{color:#f2d3bd}
+.agListe{max-height:340px;overflow:auto}
+@media(max-width:700px){.agKpi.k4{grid-template-columns:1fr 1fr}.agGrid{grid-template-columns:1fr}.agOng{margin-left:0}}
+
+/* tableau de bord v2 */
+#sysWin.large .cadreSys{width:min(1240px,100%)}
+.agTop{display:flex;align-items:center;gap:12px;margin-bottom:14px;flex-wrap:wrap}
+.agPills{display:flex;gap:4px;flex-wrap:wrap;flex:1}
+.agPills button{border:1px solid rgba(255,200,87,.22);background:rgba(20,17,12,.6);color:#b7a985;font:700 10px Rajdhani,sans-serif;letter-spacing:.12em;padding:6px 9px;border-radius:4px;cursor:pointer}
+.agPills button:hover{color:#fff3d1;border-color:rgba(255,200,87,.5)}
+.agPills button.on{background:linear-gradient(180deg,rgba(255,200,87,.35),rgba(255,200,87,.12));color:#fff3d1;border-color:#ffc857;box-shadow:0 0 10px rgba(255,200,87,.3)}
+.agDash{display:grid;grid-template-columns:1fr 1fr 1fr;gap:14px}
+.agWide{grid-column:span 2}
+.agCarte{border-radius:12px;padding:14px 16px;background:linear-gradient(180deg,rgba(32,26,16,.75),rgba(16,13,9,.8));border:1px solid rgba(255,200,87,.18)}
+.agHd{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;margin-bottom:6px}
+.agBig{font:700 32px Rajdhani,sans-serif;color:#fff3d1;letter-spacing:.02em;display:flex;align-items:center;gap:10px;text-shadow:0 0 14px rgba(255,200,87,.35)}
+.agBig.s{font-size:24px}.agBig small{font:600 12px Rajdhani,sans-serif;color:#a8997a;margin-left:6px}
+.chip{font:700 11px Rajdhani,sans-serif;padding:3px 8px;border-radius:20px;background:rgba(95,211,154,.15);color:#9ff0c6;border:1px solid rgba(95,211,154,.35)}
+.chip.bas{background:rgba(255,120,120,.12);color:#ffb3b3;border-color:rgba(255,120,120,.35)}
+.agAct{display:flex;gap:6px;margin:12px 0}
+.agAct .btn{flex:1;margin:0;padding:8px 4px;font-size:11px}
+.agAct .btn.or{background:linear-gradient(180deg,#e0b04a,#a87a22);color:#1a1205;border-color:#ffc857}
+.agDuo{display:grid;grid-template-columns:1fr 1fr;gap:10px;padding:10px 0;border-top:1px solid rgba(255,200,87,.15)}
+.agDuo small,.agFin,.agSm{font:600 10px Rajdhani,sans-serif;letter-spacing:.14em;color:#a8997a}
+.agDuo b{display:block;font:700 20px Rajdhani,sans-serif;color:#fff3d1}.agDuo b.neg{color:#ffb3b3}
+.agBudget{margin-top:6px}.agBudget i{display:flex;gap:3px}.agBudget u{flex:1;height:7px;border-radius:4px;background:rgba(255,232,176,.1)}
+.agBudget u.plein{background:#e0b04a;box-shadow:0 0 6px rgba(255,200,87,.5)}.agBudget u.rouge{background:#e66767}
+.agBudget div{display:flex;justify-content:space-between;margin-top:6px;font:600 12px Rajdhani,sans-serif;color:#d8c9a3}
+.agBudget.vide{font:500 11px Rajdhani,sans-serif;color:#a8997a}
+.agFin{margin-top:10px}.agFin b{color:#fff3d1;font-size:12px}
+.agAreaW{position:relative;cursor:crosshair}
+.agSvg .selL{stroke:rgba(255,232,176,.25);stroke-width:1;stroke-dasharray:3 4}
+.agSvg .agCross{stroke:rgba(255,232,176,.5);stroke-width:1}
+.agTip{position:absolute;top:8px;min-width:150px;pointer-events:none;background:rgba(12,10,7,.95);border:1px solid rgba(255,200,87,.4);border-radius:6px;padding:7px 9px;font:600 11px Rajdhani,sans-serif;color:#d8c9a3;display:flex;flex-direction:column;gap:3px}
+.agTip>b{color:#fff3d1;font-size:12px}.agTip span{display:flex;align-items:center;gap:6px}.agTip span b{margin-left:auto;color:#fff3d1}.agTip i{width:8px;height:8px;border-radius:2px;display:inline-block}
+.agGoal{display:grid;grid-template-columns:58px 1fr auto auto;gap:12px;align-items:center;padding:8px 0;border-bottom:1px solid rgba(255,200,87,.1)}
+.agGoal:last-child{border-bottom:0}
+.gN b{display:block;font:700 13px Rajdhani,sans-serif;color:#fff3d1}.gN small,.gV small{font:500 11px Rajdhani,sans-serif;color:#a8997a}
+.gV{text-align:right}.gV b{display:block;font:700 14px Rajdhani,sans-serif;color:#f3e6c6}
+.agRing .ringTx{fill:#fff3d1;font:700 13px Rajdhani,sans-serif}
+.agDon{display:flex;justify-content:center}.agDonut{width:190px;height:190px}
+.agDonut .dTx1{fill:#a8997a;font:600 12px Rajdhani,sans-serif}.agDonut .dTx2{fill:#fff3d1;font:700 20px Rajdhani,sans-serif}
+.agDLeg{display:grid;grid-template-columns:1fr 1fr;gap:6px 12px;margin-top:10px;font:600 12px Rajdhani,sans-serif;color:#d8c9a3}
+.agDLeg span{display:flex;align-items:center;gap:6px}.agDLeg i{width:9px;height:9px;border-radius:50%}.agDLeg b{margin-left:auto;color:#fff3d1}
+.agTx{display:grid;grid-template-columns:36px 1fr auto;gap:10px;align-items:center;padding:8px 10px;margin-bottom:6px;border-radius:10px;background:rgba(255,232,176,.04);border:1px solid rgba(255,200,87,.08)}
+.agTx .ic{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:rgba(255,200,87,.1);font-size:16px}
+.agTx b{display:block;font:700 13px Rajdhani,sans-serif;color:#fff3d1}.agTx small{font:500 11px Rajdhani,sans-serif;color:#a8997a}
+.agTx .v{text-align:right}
+.btn.mini{width:auto;margin:0;padding:4px 10px;font-size:10px}
+.agBud{justify-content:flex-start;border-bottom:0;padding-top:0}.agBud label{font:600 12px Rajdhani,sans-serif;color:#d8c9a3}
+@media(max-width:980px){.agDash{grid-template-columns:1fr 1fr}.agWide{grid-column:span 2}}
+@media(max-width:700px){.agDash{grid-template-columns:1fr}.agWide{grid-column:auto}.agGoal{grid-template-columns:50px 1fr auto}.agGoal .gV:nth-of-type(2){display:none}}
+
+.agLA .agBig,.agBTC .agBig{margin-bottom:4px}
+.agSpark{width:100%;height:56px;display:block;margin:4px 0 8px}
+.agBtcC .agSpark{height:90px}
+.agMini{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-top:10px;padding-top:10px;border-top:1px solid rgba(255,200,87,.15)}
+.agMini input{background:rgba(25,18,5,.8);border:1px solid rgba(255,200,87,.4);color:#fff3d1;border-radius:4px;padding:6px 8px;font:600 13px Rajdhani,sans-serif;width:92px}
+.agMini .btn{width:auto;margin:0;padding:6px 10px;font-size:10px}
+.agMini label,.agMini span{font:600 12px Rajdhani,sans-serif;letter-spacing:0;color:#cfc2a3}
+.agCours{text-align:right;display:flex;flex-direction:column;gap:3px;font:600 12px Rajdhani,sans-serif}
+.agCours b{color:#fff3d1;font-size:16px}.agCours .haut{color:#9ff0c6}.agCours .bas{color:#ffb3b3}.agCours small{color:#a8997a;font-size:10px}
+.agFin{line-height:1.7}
 
 </style>
 </head>
@@ -2497,7 +2581,7 @@ appliquerTheme(true);majVue();rendre();
    Fusion : le journal des quêtes est réuni des deux côtés, le reste suit la version la plus récente. */
 const SB={url:"https://vildzxdbiayignkshcca.supabase.co",cle:"sb_publishable_NMxVL7Y8y3W8dvAnVHOcqg_k6lERTt-"};
 const URL_WEB="https://katbe-png.github.io/system/";
-const VERSION_APP="1795427395";
+const VERSION_APP="1795428357";
 /* App Mac : si une nouvelle version est en ligne, la page se recharge d'elle-même
    dès que la fenêtre n'est pas utilisée (l'app Mac a déjà téléchargé le fichier). */
 function verifVersion(){if(!/Electron/.test(navigator.userAgent))return;
@@ -2564,6 +2648,12 @@ function fusion(loc,dist){
   if(loc.programme||dist.programme)r.programme=JSON.parse(JSON.stringify(((loc.programme||{})._maj||0)>=((dist.programme||{})._maj||0)?loc.programme:dist.programme));
   r.donjons={finis,actifs:[...act.values()].filter(x=>!finis.some(f=>!f.rep&&f.id===x.id&&f.date>=x.debut)).slice(0,2)};
   if(loc.qj&&dist.qj&&loc.qj.date===dist.qj.date){const f=q=>(q.statut==="reussie"?100:0)+q.taches.filter(t=>t.fait).length;r.qj=JSON.parse(JSON.stringify(f(loc.qj)>=f(dist.qj)?loc.qj:dist.qj))}
+  // argent : mouvements réunis ligne par ligne (les suppressions sont mémorisées), Livret A / Bitcoin / budget : la version la plus récente
+  if(loc.argent||dist.argent){const al=loc.argent||{},ad=dist.argent||{},sup=new Set([...(al.suppr||[]),...(ad.suppr||[])]),mv=new Map();
+    for(const x of [...(al.mouv||[]),...(ad.mouv||[])])if(!sup.has(x.id))mv.set(x.id,x);
+    const rec=k=>{const x=al[k],y=ad[k];return !x?y:!y?x:((x._maj||0)>=(y._maj||0)?x:y)};
+    r.argent=JSON.parse(JSON.stringify({mouv:[...mv.values()].sort((x,y)=>x.t-y.t),suppr:[...sup].slice(-500),la:rec("la"),btc:rec("btc"),
+      budget:((al.budMaj||0)>=(ad.budMaj||0)?al:ad).budget,budMaj:Math.max(al.budMaj||0,ad.budMaj||0)}))}
   return{...r,journal:[...m.values()].sort((x,y)=>y.t-x.t).slice(0,3000),_suppr:[...suppr].slice(-500),_maj:Math.max(a,b)};
 }
 /* Répare les incohérences venant d'un appareil resté en retard :
@@ -2795,7 +2885,7 @@ document.addEventListener("keydown",e=>{if(/INPUT|TEXTAREA|SELECT/.test(document
    Rentrées, dépenses et épargne. L'épargne rapporte de l'XP en Finances et remplit les objectifs (objets « à débloquer » de l'inventaire). */
 const AG_CATS=["Salaire","Sorties","Nourriture","Essence","Sapes","Abonnements","Tech","Autre"];
 const AG_TYPES={in:"Rentrée",out:"Dépense",ep:"Épargne",ret:"Retrait d'épargne"};
-const agMv=()=>{if(!etat.argent||!Array.isArray(etat.argent.mouv))etat.argent={mouv:[]};return etat.argent.mouv};
+const agMv=()=>{if(!etat.argent)etat.argent={mouv:[]};if(!Array.isArray(etat.argent.mouv))etat.argent.mouv=[];return etat.argent.mouv};
 const eur=n=>(Math.round(n*100)/100).toLocaleString("fr-FR",{minimumFractionDigits:n%1?2:0,maximumFractionDigits:2})+" €";
 const moisCle=(d=new Date())=>d.toISOString().slice(0,7);
 const agEpargne=()=>agMv().reduce((a,m)=>a+(m.type==="ep"?m.m:m.type==="ret"?-m.m:0),0);
@@ -2803,37 +2893,135 @@ function agMois(cle=moisCle()){const l=agMv().filter(m=>(m.d||"").slice(0,7)===c
   const s=t=>l.filter(m=>m.type===t).reduce((a,m)=>a+m.m,0);
   return{l,in:s("in"),out:s("out"),ep:s("ep"),ret:s("ret"),reste:s("in")-s("out")-s("ep")+s("ret")}}
 const prixNum=p=>parseFloat(String(p||"").replace(/[^\d,.]/g,"").replace(",","."))||0;
-function majHoloArg(){const h=$("holoArg");if(!h)return;const M=agMois(),e=agEpargne();
-  const hs=[.35,.6,.85].map((k,i)=>Math.max(.12,Math.min(1,e>0?k*Math.min(1,.4+e/2000)+i*.05:k*.35)));
-  h.querySelector(".ha").innerHTML=hs.map(x=>`<i style="height:${Math.round(x*100)}%"></i>`).join("");
+function majHoloArg(){const h=$("holoArg");if(!h)return;const M=agMois();
+  if(!h.querySelector(".ha svg"))h.querySelector(".ha").innerHTML=`<svg viewBox="0 0 100 100" class="haIco"><defs><linearGradient id="haG" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffe8b0"/><stop offset="1" stop-color="#c98a1c"/></linearGradient></defs>
+    <path d="M6 86 H94" stroke="rgba(255,200,87,.45)" stroke-width="1.5"/><path d="M8 78 L30 62 L46 70 L70 44 L88 30" fill="none" stroke="#ffc857" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/><path d="M78 28 L90 28 L90 40" fill="none" stroke="#ffc857" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round"/>
+    <g transform="translate(36 38)"><circle r="19" fill="#2a1d06" stroke="url(#haG)" stroke-width="3.5"/><circle r="13.5" fill="none" stroke="rgba(255,232,176,.35)" stroke-width="1"/><text y="7.5" text-anchor="middle" font-family="Rajdhani,sans-serif" font-weight="700" font-size="22" fill="url(#haG)">€</text></g></svg>`;
   h.querySelector(".holoLab").innerHTML="ARGENT"+(M.l.length?`<small class="${M.reste<0?"neg":""}">${M.reste<0?"":"+"}${eur(M.reste)} CE MOIS</small>`:"")}
+let agOng="dash",agSel=null;
+const AG_C={in:"#3f8fe8",out:"#d9773f",ep:"#e0b04a"};
+const moisDecale=(cle,n)=>{const[y,m]=cle.split("-").map(Number);const d=new Date(y,m-1+n,1);return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")};
+const nomMoisC=(cle,court)=>{const[y,m]=cle.split("-").map(Number);return new Date(y,m-1,1).toLocaleDateString("fr-FR",court?{month:"short"}:{month:"long",year:"numeric"})};
+const epAu=cle=>agMv().filter(m=>(m.d||"").slice(0,7)<=cle).reduce((a,m)=>a+(m.type==="ep"?m.m:m.type==="ret"?-m.m:0),0);
+const kEur=n=>Math.abs(n)>=1000?(Math.round(n/100)/10).toLocaleString("fr-FR")+" k€":Math.round(n)+" €";
+function delta(a,b,inv){if(!b&&!a)return"";if(!b)return`<em>nouveau ce mois</em>`;const d=(a-b)/Math.abs(b)*100,up=d>=0;
+  return `<em class="${(up!==!!inv)?"bon":"mauvais"}">${up?"▲":"▼"} ${Math.abs(Math.round(d))} % vs ${nomMoisC(moisDecale(agSel,-1),true)}</em>`}
+const AG_CATC={Sorties:"#3987e5",Nourriture:"#d95926",Essence:"#199e70",Sapes:"#c98500",Abonnements:"#d55181",Tech:"#0ca30c",Autre:"#9085e9",Salaire:"#9085e9"};
+const AG_ICO={Salaire:"💼",Sorties:"🍹",Nourriture:"🍔",Essence:"⛽",Sapes:"👕",Abonnements:"📺",Tech:"💻",Autre:"🧾","Épargne":"🏦","Retrait d'épargne":"↩️"};
+const pasJoli=mx=>{const b=Math.pow(10,Math.floor(Math.log10(mx/4)));for(const k of [1,2,2.5,5,10])if(b*k*4>=mx)return b*k;return b*10};
+const lisse=(pts,yb)=>{const cl=v=>yb==null?v:Math.min(yb,v);if(pts.length<2)return"";let d=`M${pts[0][0]},${pts[0][1]}`;for(let i=0;i<pts.length-1;i++){const p0=pts[i-1]||pts[i],p1=pts[i],p2=pts[i+1],p3=pts[i+2]||p2,t=.18;
+  d+=` C${p1[0]+(p2[0]-p0[0])*t},${cl(p1[1]+(p2[1]-p0[1])*t)} ${p2[0]-(p3[0]-p1[0])*t},${cl(p2[1]-(p3[1]-p1[1])*t)} ${p2[0]},${p2[1]}`}return d};
+function svgAire(mois){const W=760,H=230,top=16,bas=26,gauche=44,droite=12;
+  const D=mois.map(c=>({c,...agMois(c)})),mx=Math.max(50,...D.map(d=>Math.max(d.in,d.out)));
+  const haut=pasJoli(mx)*4,y=v=>top+(H-top-bas)*(1-v/haut),x=i=>gauche+(W-gauche-droite)*i/(D.length-1);
+  let o=`<svg viewBox="0 0 ${W} ${H}" class="agSvg agArea" data-n="${D.length}" data-g="${gauche}" data-w="${W}" data-d='${JSON.stringify(D.map(d=>[nomMoisC(d.c),Math.round(d.in*100)/100,Math.round(d.out*100)/100,d.c]))}' role="img" aria-label="Rentrées et dépenses sur 12 mois">
+    <defs><linearGradient id="agGi" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${AG_C.in}" stop-opacity=".35"/><stop offset="1" stop-color="${AG_C.in}" stop-opacity="0"/></linearGradient>
+    <linearGradient id="agGo" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="${AG_C.out}" stop-opacity=".3"/><stop offset="1" stop-color="${AG_C.out}" stop-opacity="0"/></linearGradient></defs>`;
+  for(let k=0;k<=4;k++){const v=haut*k/4;o+=`<line x1="${gauche}" x2="${W-droite}" y1="${y(v)}" y2="${y(v)}" class="grille" stroke-dasharray="3 5"/><text x="${gauche-8}" y="${y(v)+4}" class="ax" text-anchor="end">${kEur(v)}</text>`}
+  for(const k of ["in","out"]){const P=D.map((d,i)=>[x(i),y(d[k])]),l=lisse(P,y(0));
+    o+=`<path d="${l} L${x(D.length-1)},${y(0)} L${x(0)},${y(0)} Z" fill="url(#agG${k[0]})"/><path d="${l}" fill="none" stroke="${AG_C[k]}" stroke-width="2.2" stroke-linecap="round"/>`}
+  D.forEach((d,i)=>{const sel=d.c===agSel;o+=`<text x="${x(i)}" y="${H-6}" class="ax${sel?" axSel":""}" text-anchor="middle">${nomMoisC(d.c,true)}</text>`;
+    if(sel)o+=`<line x1="${x(i)}" x2="${x(i)}" y1="${top}" y2="${y(0)}" class="selL"/><circle cx="${x(i)}" cy="${y(d.in)}" r="5" fill="${AG_C.in}" stroke="#14110c" stroke-width="2"/><circle cx="${x(i)}" cy="${y(d.out)}" r="5" fill="${AG_C.out}" stroke="#14110c" stroke-width="2"/>`});
+  o+=`<line class="agCross" x1="0" x2="0" y1="${top}" y2="${y(0)}" style="display:none"/></svg><div class="agTip" style="display:none"></div>`;return o}
+function anneau(r,taille,col){const R=taille/2-5,C=2*Math.PI*R;return `<svg viewBox="0 0 ${taille} ${taille}" width="${taille}" height="${taille}" class="agRing"><circle cx="${taille/2}" cy="${taille/2}" r="${R}" fill="none" stroke="rgba(255,232,176,.1)" stroke-width="6"/><circle cx="${taille/2}" cy="${taille/2}" r="${R}" fill="none" stroke="${col}" stroke-width="6" stroke-linecap="round" stroke-dasharray="${C*Math.min(1,r)} ${C}" transform="rotate(-90 ${taille/2} ${taille/2})"/><text x="50%" y="54%" text-anchor="middle" class="ringTx">${Math.floor(Math.min(1,r)*100)}%</text></svg>`}
+function donut(cats,total){const T=200,R=78,ep=24,C=2*Math.PI*R;let acc=0,o=`<svg viewBox="0 0 ${T} ${T}" class="agDonut" role="img" aria-label="Dépenses par catégorie"><circle cx="100" cy="100" r="${R}" fill="none" stroke="rgba(255,232,176,.07)" stroke-width="${ep}"/>`;
+  cats.forEach(([c,v])=>{const l=C*v/total,g=cats.length>1?3:0;o+=`<circle cx="100" cy="100" r="${R}" fill="none" stroke="${AG_CATC[c]||"#9085e9"}" stroke-width="${ep}" stroke-dasharray="${Math.max(0,l-g)} ${C}" stroke-dashoffset="${-acc}" transform="rotate(-90 100 100)"><title>${esc(c)} : ${eur(v)} (${Math.round(v/total*100)} %)</title></circle>`;acc+=l});
+  return o+`<text x="100" y="94" text-anchor="middle" class="dTx1">Dépensé</text><text x="100" y="118" text-anchor="middle" class="dTx2">${eur(total)}</text></svg>`}
 function vueArgent(){
-  const M=agMois(),e=agEpargne(),f=val("fin"),nomMois=new Date().toLocaleDateString("fr-FR",{month:"long",year:"numeric"});
-  const sign={in:["+","p"],out:["−","n"],ep:["→","e"],ret:["←","e"]};
-  const lignes=M.l.slice().sort((a,b)=>b.t-a.t).map(m=>`<div class="agM ${m.type}"><span>${esc(m.lib||AG_TYPES[m.type])} <small>· ${esc(m.cat||AG_TYPES[m.type])} · ${new Date(m.t).toLocaleDateString("fr-FR",{day:"numeric",month:"short"})}</small></span><b class="${sign[m.type][1]}">${sign[m.type][0]} ${eur(m.m)}</b><button data-agdel="${m.id}" title="Supprimer">✕</button></div>`).join("")||`<div class="agVide">Rien de noté ce mois-ci. Ajoute ta première rentrée ou dépense.</div>`;
-  const cats={};M.l.filter(m=>m.type==="out").forEach(m=>cats[m.cat||"Autre"]=(cats[m.cat||"Autre"]||0)+m.m);
-  const maxC=Math.max(1,...Object.values(cats));
-  const catsH=Object.entries(cats).sort((a,b)=>b[1]-a[1]).map(([c,v])=>`<div class="agCat"><span>${esc(c)}</span><i><u style="width:${v/maxC*100}%"></u></i><b>${eur(v)}</b></div>`).join("");
+  if(!agSel)agSel=moisCle();
+  const M=agMois(agSel),Mp=agMois(moisDecale(agSel,-1)),e=agEpargne(),f=val("fin"),bud=+(etat.argent&&etat.argent.budget)||0;
+  const mois=[];for(let k=11;k>=0;k--)mois.push(moisDecale(moisCle(),-k));
+  const pills=`<div class="agPills">${mois.map(c=>`<button class="${c===agSel?"on":""}" data-agmois="${c}">${nomMoisC(c,true).replace(".","").toUpperCase()}</button>`).join("")}</div>`;
+  const ong=`<div class="agTop">${pills}<span class="agOng"><button class="btn ${agOng==="dash"?"on":""}" data-agong="dash">TABLEAU DE BORD</button><button class="btn ${agOng==="mv"?"on":""}" data-agong="mv">MOUVEMENTS</button></span></div>`;
+  if(agOng==="mv"){
+    const sign={in:["+","p"],out:["−","n"],ep:["→","e"],ret:["←","e"]};
+    const lignes=M.l.slice().sort((a,b)=>b.t-a.t).map(m=>`<div class="agM ${m.type}"><span>${esc(m.lib||AG_TYPES[m.type])} <small>· ${esc(m.cat||AG_TYPES[m.type])} · ${new Date(m.t).toLocaleDateString("fr-FR",{day:"numeric",month:"short"})}</small></span><b class="${sign[m.type][1]}">${sign[m.type][0]} ${eur(m.m)}</b><button data-agdel="${m.id}" title="Supprimer">✕</button></div>`).join("")||`<div class="agVide">Rien de noté en ${nomMoisC(agSel)}.</div>`;
+    return ong+`<div class="agForm">
+      <select id="agT">${Object.entries(AG_TYPES).map(([k,n])=>`<option value="${k}" ${k===agTypeDef?"selected":""}>${n}</option>`).join("")}</select>
+      <input type="number" id="agM" min="0" step="0.01" placeholder="Montant €">
+      <input type="text" id="agL" placeholder="Libellé (facultatif)" maxlength="40">
+      <select id="agC">${AG_CATS.map(c=>`<option>${c}</option>`).join("")}</select>
+      <button class="btn valider" data-agadd="1">AJOUTER</button></div>
+      <div class="agForm agBud"><label>Budget dépenses par mois</label><input type="number" id="agB" min="0" step="10" placeholder="ex : 500" value="${bud||""}"><button class="btn" data-agbud="1">ENREGISTRER</button></div>
+      <div class="agListe">${lignes}</div>`}
+  const epM=M.ep-M.ret,avant=e-epM,chip=avant>0?Math.round(epM/avant*100):null;
+  const rB=bud?M.out/bud:0;
+  const hero=`<div class="agCarte agHero"><h4>ÉPARGNE TOTALE</h4><div class="agBig">${eur(e)}${chip!=null&&epM?`<span class="chip ${epM<0?"bas":""}">${epM<0?"▼":"▲"} ${Math.abs(chip)} %</span>`:""}</div>
+    <div class="agAct"><button class="btn" data-agvite="in">+ RENTRÉE</button><button class="btn" data-agvite="out">− DÉPENSE</button><button class="btn or" data-agvite="ep">ÉPARGNER</button></div>
+    <div class="agDuo"><div><small>RESTE DU MOIS</small><b class="${M.reste<0?"neg":""}">${eur(M.reste)}</b></div><div><small>ÉPARGNÉ CE MOIS</small><b>${eur(epM)}</b></div></div>
+    ${bud?`<div class="agBudget"><i>${Array.from({length:10},(_,k)=>`<u class="${k<Math.round(Math.min(1,rB)*10)?(rB>1?"plein rouge":"plein"):""}"></u>`).join("")}</i><div><span>${eur(M.out)} dépensés sur ${eur(bud)}</span><b>${Math.round(rB*100)} %</b></div></div>`:`<div class="agBudget vide">Fixe un budget mensuel dans l'onglet Mouvements pour suivre tes dépenses.</div>`}
+    <div class="agFin">Patrimoine <b>${eur(Math.round((e+agLA().solde+(_btcCours?agBTC().qte*_btcCours.eur:0))*100)/100)}</b> · épargne + Livret A + Bitcoin<br>Finances <b>${dec(f)}</b> · rang ${rangStat(f)}</div></div>`;
+  const tot12=mois.reduce((a,c)=>{const x=agMois(c);return a+x.in-x.out},0);
+  const aire=`<div class="agCarte agWide"><div class="agHd"><div><h4>RENTRÉES ET DÉPENSES · 12 MOIS</h4><div class="agBig s">${tot12<0?"−":"+"}${eur(Math.abs(tot12))}<small> net sur 12 mois</small></div></div>
+    <div class="agLeg"><span><i style="background:${AG_C.in}"></i>Rentrées</span><span><i style="background:${AG_C.out}"></i>Dépenses</span></div></div><div class="agAreaW">${svgAire(mois)}</div></div>`;
+  const rythme=[1,2,3].map(k=>agMois(moisDecale(moisCle(),-k))).reduce((a,x)=>a+x.ep-x.ret,0)/3||Math.max(0,M.ep-M.ret);
   const obj=(etat.inv&&etat.inv.items||[]).filter(i=>i.statut==="lock"&&prixNum(i.prix)>0).sort((a,b)=>prixNum(a.prix)-prixNum(b.prix));
-  const objH=obj.map(i=>{const p=prixNum(i.prix),r=Math.min(1,Math.max(0,e)/p);return `<div class="agO ${r>=1?"pret":""}"><div><span>${esc(i.emo||"")} ${esc(i.nom)}</span><small>${r>=1?"PRÊT À DÉBLOQUER":`${eur(Math.max(0,e))} / ${eur(p)}`}</small></div><i><u style="width:${r*100}%"></u></i></div>`}).join("")||`<div class="agVide">Mets un prix aux objets « à débloquer » de ton inventaire pour suivre ton épargne vers eux.</div>`;
-  return `<div class="agKpi">
-    <div><small>RESTE CE MOIS</small><b class="${M.reste<0?"neg":""}">${eur(M.reste)}</b><em>+${eur(M.in)} · −${eur(M.out)}</em></div>
-    <div><small>ÉPARGNE</small><b>${eur(e)}</b><em>${M.ep?`+${eur(M.ep)} ce mois`:"rien mis de côté ce mois"}</em></div>
-    <div><small>FINANCES</small><b>${dec(f)}</b><em>rang ${rangStat(f)} · l'épargne rapporte de l'XP</em></div></div>
-  <div class="agForm">
-    <select id="agT">${Object.entries(AG_TYPES).map(([k,n])=>`<option value="${k}">${n}</option>`).join("")}</select>
-    <input type="number" id="agM" min="0" step="0.01" placeholder="Montant €">
-    <input type="text" id="agL" placeholder="Libellé (facultatif)" maxlength="40">
-    <select id="agC">${AG_CATS.map(c=>`<option>${c}</option>`).join("")}</select>
-    <button class="btn valider" data-agadd="1">AJOUTER</button></div>
-  <div class="agCols"><div><h4>${nomMois.toUpperCase()}</h4>${lignes}</div>
-    <div><h4>OBJECTIFS D'ÉPARGNE</h4>${objH}${catsH?`<h4 style="margin-top:16px">DÉPENSES PAR CATÉGORIE</h4>${catsH}`:""}</div></div>`}
+  const objH=obj.slice(0,4).map(i=>{const p=prixNum(i.prix),r=Math.max(0,e)/p,n=rythme>0?Math.ceil((p-e)/rythme):null;
+    return `<div class="agGoal">${anneau(r,58,r>=1?"#5fd39a":"#e0b04a")}<div class="gN"><b>${esc(i.nom)}</b><small>${r>=1?"Prêt à débloquer":n?(n>60?"Plus de 5 ans au rythme actuel":`~${n} mois au rythme actuel`):"Épargne pour avancer"}</small></div><div class="gV"><small>Épargné</small><b>${eur(Math.min(p,Math.max(0,e)))}</b></div><div class="gV"><small>Objectif</small><b>${eur(p)}</b></div></div>`}).join("")||`<div class="agVide">Mets un prix aux objets « à débloquer » de ton inventaire.</div>`;
+  const goals=`<div class="agCarte"><div class="agHd"><h4>OBJECTIFS D'ÉPARGNE</h4>${rythme>0?`<small class="agSm">Rythme : ${eur(Math.round(rythme))} / mois</small>`:""}</div>${objH}</div>`;
+  const cats={};M.l.filter(m=>m.type==="out").forEach(m=>cats[m.cat||"Autre"]=(cats[m.cat||"Autre"]||0)+m.m);
+  const cl=Object.entries(cats).sort((a,b)=>b[1]-a[1]);
+  const dep=`<div class="agCarte"><h4>DÉPENSES · ${nomMoisC(agSel).toUpperCase()}</h4>${cl.length?`<div class="agDon">${donut(cl,M.out)}</div><div class="agDLeg">${cl.map(([c,v])=>`<span><i style="background:${AG_CATC[c]||"#9085e9"}"></i>${esc(c)}<b>${eur(v)}</b></span>`).join("")}</div>`:`<div class="agVide">Aucune dépense ce mois-ci.</div>`}</div>`;
+  const rec=agMv().slice().sort((a,b)=>b.t-a.t).slice(0,5);
+  const recH=`<div class="agCarte"><div class="agHd"><h4>DERNIERS MOUVEMENTS</h4><button class="btn mini" data-agong="mv">TOUT ›</button></div>${rec.map(m=>`<div class="agTx"><span class="ic">${AG_ICO[m.cat]||AG_ICO[AG_TYPES[m.type]]||"🧾"}</span><div><b>${esc(m.lib||m.cat||AG_TYPES[m.type])}</b><small>${new Date(m.t).toLocaleDateString("fr-FR",{day:"numeric",month:"short"})}</small></div><div class="v"><b>${m.type==="in"?"+":m.type==="out"?"−":m.type==="ep"?"→":"←"} ${eur(m.m)}</b><small>${AG_TYPES[m.type]}</small></div></div>`).join("")||`<div class="agVide">Aucun mouvement pour l'instant.</div>`}</div>`;
+  chargerBTC();
+  return ong+`<div class="agDash">${hero}${aire}${goals}${dep}${recH}${carteLA()}${carteBTC()}</div>`}
+
+/* ---- Livret A et Bitcoin ---- */
+const LA_TAUX_DEF=1.7,LA_PLAFOND=22950;
+const agLA=()=>{agMv();if(!etat.argent.la)etat.argent.la={solde:0,taux:LA_TAUX_DEF,hist:[]};return etat.argent.la};
+const agBTC=()=>{agMv();if(!etat.argent.btc)etat.argent.btc={qte:0,investi:0};return etat.argent.btc};
+let _btcCours=null,_btcCourbe=null,_btcCharge=0;
+try{const c=JSON.parse(localStorage.getItem("systeme_btc")||"null");if(c){_btcCours=c.cours;_btcCourbe=c.courbe}}catch(e){}
+function chargerBTC(force){if(!force&&Date.now()-_btcCharge<5*60e3)return;_btcCharge=Date.now();
+  Promise.all([fetch("https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=eur&include_24hr_change=true").then(r=>r.json()),
+    fetch("https://api.coingecko.com/api/v3/coins/bitcoin/market_chart?vs_currency=eur&days=30&interval=daily").then(r=>r.json()).catch(()=>null)])
+  .then(([p,h])=>{if(!p||!p.bitcoin)return;_btcCours={eur:p.bitcoin.eur,ch:p.bitcoin.eur_24h_change,t:Date.now()};if(h&&h.prices)_btcCourbe=h.prices.map(x=>x[1]);
+    try{localStorage.setItem("systeme_btc",JSON.stringify({cours:_btcCours,courbe:_btcCourbe}))}catch(e){}
+    if(sysVue==="argent"&&agOng==="dash")rendreSys()}).catch(()=>{})}
+function sparkline(v,col,W=300,H=70){if(!v||v.length<2)return"";const mn=Math.min(...v),mx=Math.max(...v),y=x=>6+(H-12)*(1-(x-mn)/((mx-mn)||1)),X=i=>W*i/(v.length-1);
+  const P=v.map((x,i)=>[X(i),y(x)]),l=lisse(P);
+  return `<svg viewBox="0 0 ${W} ${H}" class="agSpark" preserveAspectRatio="none"><path d="${l} L${W},${H} L0,${H} Z" fill="${col}" opacity=".14"/><path d="${l}" fill="none" stroke="${col}" stroke-width="2" vector-effect="non-scaling-stroke"/></svg>`}
+function carteLA(){const L=agLA(),r=L.solde/LA_PLAFOND,int=L.solde*L.taux/100;
+  const h=L.hist.slice(-12).map(x=>x.solde);
+  return `<div class="agCarte agLA"><div class="agHd"><h4>LIVRET A</h4><small class="agSm">${String(L.taux).replace(".",",")} % / an</small></div>
+    <div class="agBig s">${eur(L.solde)}</div>
+    ${h.length>1?sparkline(h,"#e0b04a"):""}
+    <div class="agBudget"><i>${Array.from({length:10},(_,k)=>`<u class="${k<Math.round(Math.min(1,r)*10)?"plein":""}"></u>`).join("")}</i><div><span>Plafond ${eur(LA_PLAFOND)}</span><b>${Math.round(r*100)} %</b></div></div>
+    <div class="agDuo"><div><small>INTÉRÊTS / AN</small><b>≈ ${eur(Math.round(int*100)/100)}</b></div><div><small>PAR MOIS</small><b>≈ ${eur(Math.round(int/12*100)/100)}</b></div></div>
+    <div class="agMini"><input type="number" id="laM" min="0" step="0.01" placeholder="Montant €"><button class="btn" data-la="plus">+ VERSER</button><button class="btn" data-la="moins">− RETIRER</button><button class="btn" data-la="solde" title="Remplacer le solde par ce montant">= SOLDE</button></div></div>`}
+function carteBTC(){const B=agBTC(),c=_btcCours,val=c?B.qte*c.eur:null,pv=val!=null&&B.investi?val-B.investi:null;
+  return `<div class="agCarte agWide agBTC"><div class="agHd"><div><h4>BITCOIN</h4><div class="agBig s">${val!=null?eur(Math.round(val*100)/100):"—"}<small>${B.qte?` ${String(B.qte).replace(".",",")} BTC`:" aucun BTC enregistré"}</small>${pv!=null?`<span class="chip ${pv<0?"bas":""}">${pv<0?"▼":"▲"} ${eur(Math.abs(Math.round(pv)))} (${Math.round(pv/B.investi*100)} %)</span>`:""}</div></div>
+    <div class="agCours">${c?`<b>1 BTC = ${eur(Math.round(c.eur))}</b><span class="${c.ch<0?"bas":"haut"}">${c.ch<0?"▼":"▲"} ${Math.abs(c.ch).toFixed(1).replace(".",",")} % sur 24 h</span><small>cours mis à jour à ${new Date(c.t).toLocaleTimeString("fr-FR",{hour:"2-digit",minute:"2-digit"})}</small>`:`<small>Cours indisponible hors connexion</small>`}</div></div>
+    ${_btcCourbe?`<div class="agBtcC"><small class="agSm">COURS SUR 30 JOURS</small>${sparkline(_btcCourbe,"#c98500",760,90)}</div>`:""}
+    <div class="agMini"><label>Je possède</label><input type="number" id="btcQ" min="0" step="0.00000001" value="${B.qte||""}" placeholder="0,0025"><span>BTC</span><label>Investi au total</label><input type="number" id="btcI" min="0" step="0.01" value="${B.investi||""}" placeholder="€"><span>€</span><button class="btn" data-btc="1">ENREGISTRER</button></div></div>`}
+
+let agTypeDef="in";
+document.addEventListener("mousemove",ev=>{const w=ev.target.closest&&ev.target.closest(".agAreaW");document.querySelectorAll(".agAreaW").forEach(z=>{if(z!==w){const c=z.querySelector(".agCross"),t=z.querySelector(".agTip");if(c)c.style.display="none";if(t)t.style.display="none"}});if(!w)return;
+  const s=w.querySelector("svg"),r=s.getBoundingClientRect(),Wv=+s.dataset.w,g=+s.dataset.g,n=+s.dataset.n,D=JSON.parse(s.dataset.d);
+  const vx=(ev.clientX-r.left)/r.width*Wv,i=Math.max(0,Math.min(n-1,Math.round((vx-g)/((Wv-g-12)/(n-1))))),X=g+(Wv-g-12)*i/(n-1);
+  const c=s.querySelector(".agCross");c.setAttribute("x1",X);c.setAttribute("x2",X);c.style.display="";
+  const t=w.querySelector(".agTip");t.style.display="";t.innerHTML=`<b>${D[i][0]}</b><span><i style="background:${AG_C.in}"></i>Rentrées <b>${eur(D[i][1])}</b></span><span><i style="background:${AG_C.out}"></i>Dépenses <b>${eur(D[i][2])}</b></span>`;
+  const px=X/Wv*r.width;t.style.left=Math.min(r.width-170,Math.max(0,px+12))+"px"});
 document.addEventListener("click",e=>{
-  if(e.target.closest("#holoArg")){sfx("clic");ouvrirSys("argent");return}
+  if(e.target.closest("#holoArg")){sfx("clic");agSel=moisCle();ouvrirSys("argent");return}
   if(sysVue!=="argent")return;let t;
+  if(t=e.target.closest("[data-agong]")){agOng=t.dataset.agong;sfx("clic");rendreSys();return}
+  if(t=e.target.closest("[data-agnav]")){agSel=moisDecale(agSel||moisCle(),+t.dataset.agnav);if(agSel>moisCle())agSel=moisCle();sfx("clic");rendreSys();return}
+  if(t=e.target.closest("[data-agmois]")){agSel=t.dataset.agmois;sfx("clic");rendreSys();return}
+  if(t=e.target.closest("[data-agvite]")){agTypeDef=t.dataset.agvite;agOng="mv";sfx("clic");rendreSys();setTimeout(()=>{const m=$("agM");if(m)m.focus()},50);return}
+  if(t=e.target.closest(".agAreaW")){const s=t.querySelector("svg"),r=s.getBoundingClientRect(),Wv=+s.dataset.w,g=+s.dataset.g,n=+s.dataset.n,D=JSON.parse(s.dataset.d);
+    const i=Math.max(0,Math.min(n-1,Math.round(((e.clientX-r.left)/r.width*Wv-g)/((Wv-g-12)/(n-1)))));agSel=D[i][3];rendreSys();return}
+  if(t=e.target.closest("[data-la]")){const m=parseFloat($("laM").value),L=agLA(),k=t.dataset.la;
+    if(!(m>=0)||($("laM").value==="")){notif("[ LIVRET A ]","Indique un montant.");return}
+    L.solde=Math.max(0,Math.round((k==="plus"?L.solde+m:k==="moins"?L.solde-m:m)*100)/100);L.hist.push({t:Date.now(),solde:L.solde});L._maj=Date.now();if(L.hist.length>60)L.hist.shift();
+    const j0=joueur();if(k==="plus"&&m>0){crediter("fin",Math.min(80,Math.max(5,Math.round(m/2))),`Livret A : +${eur(m)}`,"E");apresGain(j0)}
+    sauver();sfx("valide");notif("[ LIVRET A ]",`Solde : ${eur(L.solde)}`);rendreSys();return}
+  if(t=e.target.closest("[data-btc]")){const B=agBTC();B.qte=Math.max(0,parseFloat($("btcQ").value)||0);B.investi=Math.max(0,parseFloat($("btcI").value)||0);B._maj=Date.now();sauver();sfx("valide");notif("[ BITCOIN ]",`${String(B.qte).replace(".",",")} BTC enregistrés`);chargerBTC(true);rendreSys();return}
+  if(t=e.target.closest("[data-agbud]")){const v=parseFloat($("agB").value);agMv();etat.argent.budget=v>0?Math.round(v):0;etat.argent.budMaj=Date.now();sauver();sfx("valide");notif("[ ARGENT ]",v>0?`Budget mensuel : ${eur(Math.round(v))}`:"Budget mensuel retiré");rendreSys();return}
   if(t=e.target.closest("[data-agadd]")){const m=parseFloat(String($("agM").value).replace(",","."));
     if(!(m>0)){notif("[ SYSTÈME ]","Indique un montant.");return}
-    const type=$("agT").value,mv={id:Math.random().toString(36).slice(2,9),t:Date.now(),d:new Date().toISOString().slice(0,10),type,m:Math.round(m*100)/100,lib:$("agL").value.trim(),cat:type==="in"&&$("agC").value==="Autre"?"Salaire":$("agC").value};
+    const type=$("agT").value,mv={id:Math.random().toString(36).slice(2,9),t:Date.now(),d:(agSel&&agSel!==moisCle()?agSel+"-01":new Date().toISOString().slice(0,10)),type,m:Math.round(m*100)/100,lib:$("agL").value.trim(),cat:type==="in"&&$("agC").value==="Autre"?"Salaire":$("agC").value};
     if(type==="ep"||type==="ret")mv.cat=AG_TYPES[type];
     const j0=joueur();
     if(type==="ep"){const xp=Math.min(80,Math.max(5,Math.round(m/2)));mv.xpT=mv.t;crediter("fin",xp,`Épargne : +${eur(m)}`,"E",mv.t)}
@@ -2841,10 +3029,10 @@ document.addEventListener("click",e=>{
     if(type==="ep"){notif("[ FINANCES ]",`+${eur(m)} mis de côté · XP Finances gagnée`,true);apresGain(j0)}
     majHoloArg();rendreSys();return}
   if(t=e.target.closest("[data-agdel]")){const mv=agMv().find(x=>x.id===t.dataset.agdel);if(!mv)return;
-    if(mv.xpT)etat.journal=etat.journal.filter(j=>!(j.t===mv.xpT&&j.stat==="fin"));
-    etat.argent.mouv=agMv().filter(x=>x!==mv);sauver();sfx("clic");majHoloArg();rendreSys();return}
+    if(mv.xpT){etat.journal=etat.journal.filter(j=>!(j.t===mv.xpT&&j.stat==="fin"));etat._suppr=[...(etat._suppr||[]),mv.xpT].slice(-500)}
+    etat.argent.suppr=[...(etat.argent.suppr||[]),mv.id].slice(-500);etat.argent.mouv=agMv().filter(x=>x!==mv);sauver();sfx("clic");majHoloArg();rendreSys();return}
 });
-{const _r2=rendreSys;rendreSys=function(...a){_r2.apply(this,a);majHoloArg()}}
+{const _r2=rendreSys;rendreSys=function(...a){_r2.apply(this,a);majHoloArg();$("sysWin").classList.toggle("large",sysVue==="argent")}}
 setTimeout(majHoloArg,900);
 
 /* ---------- EMPLOI DU TEMPS ----------
