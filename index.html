@@ -2555,7 +2555,7 @@ appliquerTheme(true);majVue();rendre();
    Fusion : le journal des quêtes est réuni des deux côtés, le reste suit la version la plus récente. */
 const SB={url:"https://vildzxdbiayignkshcca.supabase.co",cle:"sb_publishable_NMxVL7Y8y3W8dvAnVHOcqg_k6lERTt-"};
 const URL_WEB="https://katbe-png.github.io/system/";
-const VERSION_APP="1795429564";
+const VERSION_APP="1795429887";
 /* App Mac : si une nouvelle version est en ligne, la page se recharge d'elle-même
    dès que la fenêtre n'est pas utilisée (l'app Mac a déjà téléchargé le fichier). */
 function verifVersion(){if(!/Electron/.test(navigator.userAgent))return;
@@ -3050,12 +3050,23 @@ document.addEventListener("click",e=>{
     if(mv.xpT){etat.journal=etat.journal.filter(j=>!(j.t===mv.xpT&&j.stat==="fin"));etat._suppr=[...(etat._suppr||[]),mv.xpT].slice(-500)}
     etat.argent.suppr=[...(etat.argent.suppr||[]),mv.id].slice(-500);etat.argent.mouv=agMv().filter(x=>x!==mv);sauver();sfx("clic");majHoloArg();rendreSys();return}
 });
-{const _r2=rendreSys;rendreSys=function(...a){
-  // pendant une saisie, un rafraîchissement automatique (synchro, cours du Bitcoin…) ne doit pas effacer le champ en cours
-  const c=$("sysCorps"),ae=document.activeElement,enSaisie=c&&ae&&c.contains(ae)&&/INPUT|SELECT|TEXTAREA/.test(ae.tagName)&&ae.id;
-  const sv={};let car=null;if(enSaisie){c.querySelectorAll("input[id],select[id],textarea[id]").forEach(x=>sv[x.id]=x.value);try{car=[ae.selectionStart,ae.selectionEnd]}catch(e){}}
-  const sc=c?c.scrollTop:0;_r2.apply(this,a);majHoloArg();$("sysWin").classList.toggle("large",sysVue==="argent");
-  if(enSaisie){for(const id in sv){const x=document.getElementById(id);if(x&&c.contains(x))x.value=sv[id]}const f=document.getElementById(ae.id);if(f){f.focus();try{if(car&&car[0]!=null)f.setSelectionRange(car[0],car[1])}catch(e){}}c.scrollTop=sc}}}
+{const _r2=rendreSys;rendreSys=function(...a){_r2.apply(this,a);majHoloArg();$("sysWin").classList.toggle("large",sysVue==="argent")}}
+/* ---------- Saisie protégée (toutes les fenêtres) ----------
+   Les rafraîchissements automatiques (synchro toutes les minutes, cours du Bitcoin, emploi du temps…) redessinent les fenêtres.
+   Pendant qu'un champ est en cours de saisie, on garde ce qui a été tapé, le champ actif, le curseur et la position de défilement. */
+const cleChamp=el=>el.id?"#"+el.id:[...el.attributes].filter(a=>a.name.startsWith("data-")||a.name==="name").map(a=>a.name+"="+a.value).join("&");
+function garderSaisie(fn){return function(...a){
+  const ae=document.activeElement,enSaisie=ae&&/INPUT|SELECT|TEXTAREA/.test(ae.tagName)&&!ae.closest("#auth")&&cleChamp(ae);
+  if(!enSaisie)return fn.apply(this,a);
+  const sv=new Map();document.querySelectorAll("input,select,textarea").forEach(x=>{if(x.type==="checkbox"||x.type==="radio")return;const k=cleChamp(x);if(k)sv.set(k,x.value)});
+  const cle=cleChamp(ae);let car=null;try{car=[ae.selectionStart,ae.selectionEnd]}catch(e){}
+  const scr=[...document.querySelectorAll(".sysCorps,#panneau,.invCorps,.invGrille")].map(x=>[x,x.scrollTop]);
+  const r=fn.apply(this,a);
+  document.querySelectorAll("input,select,textarea").forEach(x=>{if(x.type==="checkbox"||x.type==="radio")return;const k=cleChamp(x);if(k&&sv.has(k)&&x.value!==sv.get(k))x.value=sv.get(k)});
+  const f=[...document.querySelectorAll("input,select,textarea")].find(x=>cleChamp(x)===cle);
+  if(f&&document.activeElement!==f){f.focus({preventScroll:true});try{if(car&&car[0]!=null)f.setSelectionRange(car[0],car[1])}catch(e){}}
+  scr.forEach(([x,t])=>{if(document.body.contains(x))x.scrollTop=t});return r}}
+rendreSys=garderSaisie(rendreSys);rendre=garderSaisie(rendre);if(typeof rendreInv==="function")rendreInv=garderSaisie(rendreInv);
 setTimeout(majHoloArg,900);
 
 /* ---------- EMPLOI DU TEMPS ----------
