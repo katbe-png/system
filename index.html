@@ -2566,7 +2566,7 @@ appliquerTheme(true);majVue();rendre();
    Fusion : le journal des quêtes est réuni des deux côtés, le reste suit la version la plus récente. */
 const SB={url:"https://vildzxdbiayignkshcca.supabase.co",cle:"sb_publishable_NMxVL7Y8y3W8dvAnVHOcqg_k6lERTt-"};
 const URL_WEB="https://katbe-png.github.io/system/";
-const VERSION_APP="1795461581";
+const VERSION_APP="1795461863";
 /* App Mac : si une nouvelle version est en ligne, la page se recharge d'elle-même
    dès que la fenêtre n'est pas utilisée (l'app Mac a déjà téléchargé le fichier). */
 function verifVersion(){if(!/Electron/.test(navigator.userAgent))return;
@@ -2916,6 +2916,11 @@ function chargerBTC(force){if(!force&&Date.now()-_btcCharge<5*60e3)return;_btcCh
     try{localStorage.setItem("systeme_btc",JSON.stringify({cours:_btcCours,courbe:_btcCourbe}))}catch(e){}
     if(sysVue==="argent"&&agOng==="dash")rendreSys()}).catch(()=>{})}
 const valBTC=()=>_btcCours?agBTC().qte*_btcCours.eur:0;
+const ccPlus=(mv,sens)=>{const c=agCC(),cr=new Set(c.cr||[]);if(sens>0?cr.has(mv.id):!cr.has(mv.id))return;
+  c.solde=Math.round((c.solde+sens*mv.m)*100)/100;sens>0?cr.add(mv.id):cr.delete(mv.id);c.cr=[...cr].slice(-300);c._maj=Date.now()};
+// rentrées notées à la main depuis le 23/11/2026 (y compris depuis un appareil pas encore à jour) : créditées une seule fois
+function ccRattraper(){const d=new Date("2026-11-23T00:00:00").getTime(),cr=new Set(agCC().cr||[]);let n=0;
+  for(const m of agMv())if(m.type==="in"&&!m.imp&&m.t>=d&&!cr.has(m.id)){ccPlus(m,1);n++}if(n){sauver();invalider&&invalider()}}
 const patrimoine=()=>agCC().solde+totLivrets()+valBTC();
 // l'épargne affichée = ce qui est réellement sur les livrets (si renseignés), sinon les versements notés
 agEpargne=()=>{const t=totLivrets();return t>0?t:agMv().reduce((a,m)=>a+(m.type==="ep"?m.m:m.type==="ret"?-m.m:0),0)};
@@ -3000,7 +3005,7 @@ function vagues(){return `<svg viewBox="0 0 300 110" preserveAspectRatio="none" 
 
 /* ===== Vue ===== */
 function vueArgent(){
-  if(!agSel)agSel=moisCle();importNov26();importOct26();importBTC1();chargerBTC();
+  if(!agSel)agSel=moisCle();importNov26();importOct26();importBTC1();ccRattraper();chargerBTC();
   const M=agMois(agSel),Mp=agMois(moisDecale(agSel,-1)),f=val("fin"),bud=+(etat.argent&&etat.argent.budget)||0;
   const mois=[];for(let k=11;k>=0;k--)mois.push(moisDecale(moisCle(),-k));
   const tabs=`<div class="fyTabs">${[["dash","Vue d'ensemble"],["mv","Mouvements"],["cpt","Comptes"]].map(([k,n])=>`<button class="${agOng===k?"on":""}" data-agong="${k}">${n}</button>`).join("")}
@@ -3010,7 +3015,7 @@ function vueArgent(){
     const lignes=M.l.slice().sort((a,b)=>b.t-a.t).map(m=>`<div class="agTx"><span class="ic">${AG_ICO[m.cat]||"🧾"}</span><div><b>${esc(m.lib||AG_TYPES[m.type])}</b><small>${esc(m.cat||"")} · ${new Date(m.t).toLocaleDateString("fr-FR",{day:"numeric",month:"short"})}</small></div><div class="v"><b class="${sign[m.type][1]}">${sign[m.type][0]} ${eur(m.m)}</b><small>${AG_TYPES[m.type]}</small></div><button class="del" data-agdel="${m.id}" title="Supprimer">✕</button></div>`).join("")||`<div class="agVide">Rien de noté en ${nomMoisC(agSel)}.</div>`;
     return tabs+`<div class="fyCard"><div class="agForm">
       <select id="agT">${Object.entries(AG_TYPES).map(([k,n])=>`<option value="${k}" ${k===agTypeDef?"selected":""}>${n}</option>`).join("")}</select>
-      <input type="number" id="agM" min="0" step="0.01" placeholder="Montant €" value="${esc(agBr.m)}">
+      <input type="text" inputmode="decimal" autocomplete="off" id="agM" placeholder="Montant €" value="${esc(agBr.m)}">
       <input type="text" id="agL" placeholder="Libellé (facultatif)" maxlength="40" value="${esc(agBr.l)}">
       <select id="agC">${agOptsCat(agTypeDef,agBr.c)}</select>
       <button class="fyBtn on" data-agadd="1">Ajouter</button></div>
@@ -3087,22 +3092,24 @@ document.addEventListener("click",e=>{
     const type=$("agT").value,mv={id:Math.random().toString(36).slice(2,9),t:Date.now(),d:(agSel&&agSel!==moisCle()?agSel+"-01":new Date().toISOString().slice(0,10)),type,m:Math.round(m*100)/100,lib:$("agL").value.trim(),cat:$("agC").value||"Autre"};
     const j0=joueur();
     if(type==="ep"){const xp=Math.min(80,Math.max(5,Math.round(m/2)));mv.xpT=mv.t;crediter("fin",xp,`Épargne : +${eur(m)}`,"E",mv.t)}
+    if(type==="in")ccPlus(mv,1);
     agMv().push(mv);agBr={m:"",l:"",c:""};["agM","agL"].forEach(i=>{const x=$(i);if(x)x.value=""});sauver();sfx("valide");
     if(type==="ep"){notif("[ FINANCES ]",`+${eur(m)} mis de côté · XP Finances gagnée`,true);apresGain(j0)}
     majHoloArg();rendreSys();return}
   if(t=e.target.closest("[data-agdel]")){const mv=agMv().find(x=>x.id===t.dataset.agdel);if(!mv)return;
     if(mv.xpT){etat.journal=etat.journal.filter(j=>!(j.t===mv.xpT&&j.stat==="fin"));etat._suppr=[...(etat._suppr||[]),mv.xpT].slice(-500)}
-    etat.argent.suppr=[...(etat.argent.suppr||[]),mv.id].slice(-500);etat.argent.mouv=agMv().filter(x=>x!==mv);sauver();sfx("clic");majHoloArg();rendreSys();return}
+    ccPlus(mv,-1);etat.argent.suppr=[...(etat.argent.suppr||[]),mv.id].slice(-500);etat.argent.mouv=agMv().filter(x=>x!==mv);sauver();sfx("clic");majHoloArg();rendreSys();return}
 });
 {const _r2=rendreSys;rendreSys=function(...a){_r2.apply(this,a);majHoloArg();$("sysWin").classList.toggle("large",sysVue==="argent")}}
 /* ---------- Saisie protégée (toutes les fenêtres) ----------
    Les rafraîchissements automatiques (synchro toutes les minutes, cours du Bitcoin, emploi du temps…) redessinent les fenêtres.
    Pendant qu'un champ est en cours de saisie, on garde ce qui a été tapé, le champ actif, le curseur et la position de défilement. */
 const cleChamp=el=>el.id?"#"+el.id:[...el.attributes].filter(a=>a.name.startsWith("data-")||a.name==="name").map(a=>a.name+"="+a.value).join("&");
+let _dernierGeste=0;["pointerdown","keydown"].forEach(t=>document.addEventListener(t,()=>{_dernierGeste=Date.now()},true));
 function garderSaisie(fn){const w=function(...a){
   const ae=document.activeElement,enSaisie=ae&&/INPUT|SELECT|TEXTAREA/.test(ae.tagName)&&!ae.closest("#auth")&&cleChamp(ae);
   if(!enSaisie)return fn.apply(this,a);
-  if(ae.tagName==="SELECT"){const self=this;if(!ae._attente){ae._attente=1;const go=()=>{ae.removeEventListener("blur",go);setTimeout(()=>w.apply(self,a),400)};ae.addEventListener("blur",go)}return}
+  if(ae.tagName==="SELECT"||(ae.closest("#sysWin")&&Date.now()-_dernierGeste>600)){const self=this;if(!ae._attente){ae._attente=1;const go=()=>{ae.removeEventListener("blur",go);setTimeout(()=>w.apply(self,a),400)};ae.addEventListener("blur",go)}return}
   const sv=new Map();document.querySelectorAll("input,select,textarea").forEach(x=>{if(x.type==="checkbox"||x.type==="radio")return;const k=cleChamp(x);if(k)sv.set(k,x.value)});
   const cle=cleChamp(ae);let car=null;try{car=[ae.selectionStart,ae.selectionEnd]}catch(e){}
   const scr=[...document.querySelectorAll(".sysCorps,#panneau,.invCorps,.invGrille")].map(x=>[x,x.scrollTop]);
