@@ -2555,7 +2555,7 @@ appliquerTheme(true);majVue();rendre();
    Fusion : le journal des quêtes est réuni des deux côtés, le reste suit la version la plus récente. */
 const SB={url:"https://vildzxdbiayignkshcca.supabase.co",cle:"sb_publishable_NMxVL7Y8y3W8dvAnVHOcqg_k6lERTt-"};
 const URL_WEB="https://katbe-png.github.io/system/";
-const VERSION_APP="1795429057";
+const VERSION_APP="1795429241";
 /* App Mac : si une nouvelle version est en ligne, la page se recharge d'elle-même
    dès que la fenêtre n'est pas utilisée (l'app Mac a déjà téléchargé le fichier). */
 function verifVersion(){if(!/Electron/.test(navigator.userAgent))return;
@@ -2905,7 +2905,7 @@ function chargerBTC(force){if(!force&&Date.now()-_btcCharge<5*60e3)return;_btcCh
     fetch("https://api.coingecko.com/api/v3/coins/bitcoin/market_chart?vs_currency=eur&days=30&interval=daily").then(r=>r.json()).catch(()=>null)])
   .then(([p,h])=>{if(!p||!p.bitcoin)return;_btcCours={eur:p.bitcoin.eur,ch:p.bitcoin.eur_24h_change,t:Date.now()};if(h&&h.prices)_btcCourbe=h.prices.map(x=>x[1]);
     try{localStorage.setItem("systeme_btc",JSON.stringify({cours:_btcCours,courbe:_btcCourbe}))}catch(e){}
-    if(sysVue==="argent")rendreSys()}).catch(()=>{})}
+    if(sysVue==="argent"&&agOng==="dash")rendreSys()}).catch(()=>{})}
 const valBTC=()=>_btcCours?agBTC().qte*_btcCours.eur:0;
 const patrimoine=()=>agCC().solde+totLivrets()+valBTC();
 // l'épargne affichée = ce qui est réellement sur les livrets (si renseignés), sinon les versements notés
@@ -3048,7 +3048,12 @@ document.addEventListener("click",e=>{
     if(mv.xpT){etat.journal=etat.journal.filter(j=>!(j.t===mv.xpT&&j.stat==="fin"));etat._suppr=[...(etat._suppr||[]),mv.xpT].slice(-500)}
     etat.argent.suppr=[...(etat.argent.suppr||[]),mv.id].slice(-500);etat.argent.mouv=agMv().filter(x=>x!==mv);sauver();sfx("clic");majHoloArg();rendreSys();return}
 });
-{const _r2=rendreSys;rendreSys=function(...a){_r2.apply(this,a);majHoloArg();$("sysWin").classList.toggle("large",sysVue==="argent")}}
+{const _r2=rendreSys;rendreSys=function(...a){
+  // pendant une saisie, un rafraîchissement automatique (synchro, cours du Bitcoin…) ne doit pas effacer le champ en cours
+  const c=$("sysCorps"),ae=document.activeElement,enSaisie=c&&ae&&c.contains(ae)&&/INPUT|SELECT|TEXTAREA/.test(ae.tagName)&&ae.id;
+  const sv={};let car=null;if(enSaisie){c.querySelectorAll("input[id],select[id],textarea[id]").forEach(x=>sv[x.id]=x.value);try{car=[ae.selectionStart,ae.selectionEnd]}catch(e){}}
+  const sc=c?c.scrollTop:0;_r2.apply(this,a);majHoloArg();$("sysWin").classList.toggle("large",sysVue==="argent");
+  if(enSaisie){for(const id in sv){const x=document.getElementById(id);if(x&&c.contains(x))x.value=sv[id]}const f=document.getElementById(ae.id);if(f){f.focus();try{if(car&&car[0]!=null)f.setSelectionRange(car[0],car[1])}catch(e){}}c.scrollTop=sc}}}
 setTimeout(majHoloArg,900);
 
 /* ---------- EMPLOI DU TEMPS ----------
