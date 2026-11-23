@@ -2566,7 +2566,7 @@ appliquerTheme(true);majVue();rendre();
    Fusion : le journal des quêtes est réuni des deux côtés, le reste suit la version la plus récente. */
 const SB={url:"https://vildzxdbiayignkshcca.supabase.co",cle:"sb_publishable_NMxVL7Y8y3W8dvAnVHOcqg_k6lERTt-"};
 const URL_WEB="https://katbe-png.github.io/system/";
-const VERSION_APP="1795430554";
+const VERSION_APP="1795460750";
 /* App Mac : si une nouvelle version est en ligne, la page se recharge d'elle-même
    dès que la fenêtre n'est pas utilisée (l'app Mac a déjà téléchargé le fichier). */
 function verifVersion(){if(!/Electron/.test(navigator.userAgent))return;
@@ -2950,6 +2950,34 @@ function importNov26(){const A=(agMv(),etat.argent);if(A.importNov26)return;cons
 // portefeuille Bitstack au 23/11/2026 (capture) : 0,00711471 BTC pour 467,38 € de dépôts nets
 function importBTC1(){const A=(agMv(),etat.argent),B=agBTC();if(A.importBTC1)return;if(!B.qte){B.qte=0.00711471;B.investi=467.38;B._maj=Date.now()}A.importBTC1=1;sauver()}
 
+// relevés d'octobre 2026 (captures du 23/11) — ajout idempotent par id, sans XP rétroactive
+const IMPORT_OCT26=[
+ ["10-01","in",20,"Virement Wero Alexandra E.","Virement"],
+ ["10-03","ret",200,"Virement depuis mon livret","Livret Jeune"],
+ ["10-05","out",8.55,"Burger King St-Parres","Nourriture"],["10-05","out",10,"Le Moulin Club Barberey","Sorties"],["10-05","out",8,"MFS Saint-Parres","Autre"],["10-05","out",14.98,"Leclerc Station St-Parres","Essence"],
+ ["10-06","out",3.5,"Cotisation Eurocompte Jeune","Abonnements"],["10-06","out",40.23,"Leclerc Rosières","Nourriture"],["10-06","ret",50,"Virement depuis mon livret","Livret Jeune"],["10-06","out",163.02,"Assurance auto","Voiture"],
+ ["10-07","out",19.5,"McDonald's Troyes","Nourriture"],["10-07","ep",3.24,"Bitstack","Bitcoin"],["10-07","ret",15,"Virement depuis mon livret","Livret Jeune"],
+ ["10-08","in",1272.58,"Salaire SARL M3C","Salaire"],["10-08","out",8,"Krousty Time Troyes","Nourriture"],["10-08","out",10.95,"KFC Troyes","Nourriture"],
+ ["10-09","ep",641,"Virement vers Livret Jeune","Livret Jeune"],
+ ["10-11","ret",300,"Virement depuis mon livret","Livret Jeune"],
+ ["10-12","out",29.05,"McDonald's St-Julien","Nourriture"],["10-12","out",32.25,"Quick Troyes","Nourriture"],["10-12","out",8,"Casino Lac du Der","Nourriture"],["10-12","out",50.93,"Leclerc Rosières","Nourriture"],["10-12","out",24.99,"Basic-Fit","Abonnements"],
+ ["10-13","ep",100,"Bitstack","Bitcoin"],["10-13","out",140.83,"Hipobuy","Autre"],
+ ["10-14","ep",16.08,"Bitstack","Bitcoin"],["10-14","in",20.05,"Virement Wero Louis M.","Virement"],
+ ["10-15","out",20.04,"Certas Troyes","Essence"],["10-15","out",19.7,"KFC Troyes","Nourriture"],
+ ["10-16","out",50.6,"L'Anima Troyes","Sorties"],
+ ["10-19","out",9.99,"Apple.com","Abonnements"],["10-19","out",18.99,"Instant Gaming","Tech"],["10-19","out",20.21,"Leclerc Rosières","Nourriture"],["10-19","out",28.65,"McDonald's St-Parres","Nourriture"],["10-19","out",33.95,"Quick Barberey","Sorties"],
+ ["10-20","out",0.6,"Dallmayr Troyes","Nourriture"],["10-20","out",14,"2 paiements Troyes","Sorties"],
+ ["10-21","out",14.5,"Maywi Troyes","Sorties"],
+ ["10-23","in",51,"Virement Wero Alexandra E.","Virement"],
+ ["10-26","out",18.27,"Buffalo Grill St-Parres","Sorties"],["10-26","out",14.5,"Krousty Time Troyes","Nourriture"],["10-26","out",50.5,"McDonald's St-Parres","Nourriture"],
+ ["10-27","ep",6.54,"Bitstack","Bitcoin"],["10-27","out",20,"Relais du Vouldy","Essence"],["10-27","out",1.3,"Dallmayr Troyes","Nourriture"],["10-27","out",9,"Cappadoce Troyes","Sorties"],
+ ["10-28","out",14.5,"Maywi Troyes","Sorties"],["10-28","in",10,"Virement Wero Alexandra E.","Virement"],["10-28","in",105,"Virement Wero Alexandra E.","Virement"],["10-28","ret",200,"Virement depuis mon livret","Livret Jeune"],["10-28","in",225,"Virement Wero Alexandra E.","Virement"],
+ ["10-29","out",357.41,"Hipobuy (397,94 $)","Autre"],["10-29","out",21.6,"Claude (Anthropic)","Abonnements"],["10-29","out",110.36,"Hipobuy","Autre"]];
+function importOct26(){const A=(agMv(),etat.argent),sup=new Set(A.suppr||[]),ids=new Set(A.mouv.map(m=>m.id));let n=0;
+  IMPORT_OCT26.forEach((r,i)=>{const id="oct26_"+i;if(ids.has(id)||sup.has(id))return;
+    A.mouv.push({id,t:new Date("2026-"+r[0]+"T12:00:00").getTime()+i,d:"2026-"+r[0],type:r[1],m:r[2],lib:r[3],cat:r[4],imp:1});n++});
+  if(n){A.mouv.sort((x,y)=>x.t-y.t);sauver();invalider()}}
+
 /* ===== Graphiques ===== */
 function svgAire(mois){const W=640,H=168,top=26,bas=20,gauche=36,droite=8;
   const D=mois.map(c=>({c,...agMois(c)})),mx=Math.max(50,...D.map(d=>Math.max(d.in,d.out)));
@@ -2972,7 +3000,7 @@ function vagues(){return `<svg viewBox="0 0 300 110" preserveAspectRatio="none" 
 
 /* ===== Vue ===== */
 function vueArgent(){
-  if(!agSel)agSel=moisCle();importNov26();importBTC1();chargerBTC();
+  if(!agSel)agSel=moisCle();importNov26();importOct26();importBTC1();chargerBTC();
   const M=agMois(agSel),Mp=agMois(moisDecale(agSel,-1)),f=val("fin"),bud=+(etat.argent&&etat.argent.budget)||0;
   const mois=[];for(let k=11;k>=0;k--)mois.push(moisDecale(moisCle(),-k));
   const tabs=`<div class="fyTabs">${[["dash","Vue d'ensemble"],["mv","Mouvements"],["cpt","Comptes"]].map(([k,n])=>`<button class="${agOng===k?"on":""}" data-agong="${k}">${n}</button>`).join("")}
