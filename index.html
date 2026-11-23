@@ -2334,7 +2334,7 @@ const MAX_SEC=4,MAX_PRI=1;
 const CATALOGUE=[
   // ----- légendaire (sans limite de temps, ne bloque pas les autres quêtes) -----
   ["l_bts","legendaire","int","S",730,"Le Diplôme du Monarque","Obtenir ton BTS NDRC en 2 ans. Chaque semestre validé et chaque épreuve préparée te rapproche du titre.",["1re année · semestre 1 validé","1re année · semestre 2 validé","Passage en 2e année validé","E1 · Culture générale et expression révisée","E2 · Anglais révisé","E3 · CEJM (culture économique, juridique et managériale) révisée","E4 · Relation client et négociation-vente : fiches et entraînement à l'oral","E5 · Relation client à distance et digitalisation révisée","E6 · Relation client et animation de réseaux : dossier prêt","Toutes les épreuves passées","BTS NDRC obtenu"]],
-  ["l_tabac","legendaire","dis","S",0,"Arrêter de fumer","Arrêter complètement de fumer et tenir dans la durée. Chaque palier sans cigarette te rapproche de la victoire.",["Choisir ta date d'arrêt et jeter cigarettes, briquet et cendrier","En parler à un pharmacien ou à Tabac Info Service (39 89) pour les substituts","24 h sans fumer","1 semaine sans fumer","2 semaines sans fumer","1 mois sans fumer","3 mois sans fumer","6 mois sans fumer","1 an sans fumer"]],
+  ["l_tabac","legendaire","dis","S",0,"Arrêter de fumer","Arrêter complètement de fumer et tenir 3 mois. Chaque palier sans cigarette te rapproche de la victoire.",["Choisir ta date d'arrêt et jeter cigarettes, briquet et cendrier","24 h sans fumer","1 semaine sans fumer","2 semaines sans fumer","1 mois sans fumer","2 mois sans fumer","3 mois sans fumer : quête accomplie"]],
   // ----- principales (2 à 4 semaines) -----
   ["p_vente","secondaire","cha","B",21,"L'Éveil du Vendeur","Conclure 10 ventes complètes chez Cuir Center en menant toi-même la découverte des besoins.",["3 ventes conclues","6 ventes conclues","10 ventes conclues","Noter ce qui a fait signer à chaque fois"]],
   ["p_bts","secondaire","int","B",21,"Le Grimoire du BTS","Avoir une fiche de révision à jour pour chaque matière et traiter 2 sujets d'annales.",["Fiche Relation client","Fiche Gestion de la relation","Fiche Culture économique","Fiche Culture générale","Sujet d'annales 1","Sujet d'annales 2"]],
@@ -2441,8 +2441,9 @@ function migrerBTS(){let ch=false;
   for(const o of etat.offres)if(o.type==="principale"){o.type="secondaire";o.maj=Date.now();ch=true}for(const q of etat.quetes)if(q.cle==="l_bts"&&!q.v2){ch=true;const c=catQ("l_bts"),anc=new Map(q.etapes.map(e=>[e.txt,e.fait]));
   q.etapes=c[7].map(t=>({txt:t,fait:!!anc.get(t)}));q.desc=c[6];q.xp=Math.round(XP_RANG.S*MULT.legendaire);q.echeance=q.echeance||ajJours(q.cree||auj(),729);q.v2=true;q.maj=Date.now()}return ch}
 migrerBTS();
-function ajoutTabac(){if(etat.quetes.some(q=>q.cle==="l_tabac"))return;const c=catQ("l_tabac");
-  etat.quetes.push({id:"q-l_tabac",cle:"l_tabac",titre:c[5],desc:c[6],type:"legendaire",stat:"dis",rang:"S",xp:Math.round(XP_RANG.S*MULT.legendaire),echeance:"",cree:auj(),statut:"active",etapes:c[7].map(t=>({txt:t,fait:false})),maj:Date.now()});sauver()}
+function ajoutTabac(){const c=catQ("l_tabac"),ex=etat.quetes.find(q=>q.cle==="l_tabac");
+  if(ex){if(!ex.v3m){const anc=new Map(ex.etapes.map(e=>[e.txt,e.fait]));ex.etapes=c[7].map(t=>({txt:t,fait:!!anc.get(t)}));ex.desc=c[6];ex.v3m=1;ex.maj=Date.now();sauver()}return}
+  etat.quetes.push({id:"q-l_tabac",cle:"l_tabac",titre:c[5],desc:c[6],type:"legendaire",stat:"dis",rang:"S",xp:Math.round(XP_RANG.S*MULT.legendaire),echeance:"",cree:auj(),statut:"active",etapes:c[7].map(t=>({txt:t,fait:false})),v3m:1,maj:Date.now()});sauver()}
 ajoutTabac();
 
 /* ---------- vues ---------- */
@@ -2654,7 +2655,7 @@ appliquerTheme(true);majVue();rendre();
    Fusion : le journal des quêtes est réuni des deux côtés, le reste suit la version la plus récente. */
 const SB={url:"https://vildzxdbiayignkshcca.supabase.co",cle:"sb_publishable_NMxVL7Y8y3W8dvAnVHOcqg_k6lERTt-"};
 const URL_WEB="https://katbe-png.github.io/system/";
-const VERSION_APP="1795465525";
+const VERSION_APP="1795465676";
 /* App Mac : si une nouvelle version est en ligne, la page se recharge d'elle-même
    dès que la fenêtre n'est pas utilisée (l'app Mac a déjà téléchargé le fichier). */
 function verifVersion(){if(!/Electron/.test(navigator.userAgent))return;
