@@ -2655,7 +2655,7 @@ appliquerTheme(true);majVue();rendre();
    Fusion : le journal des quêtes est réuni des deux côtés, le reste suit la version la plus récente. */
 const SB={url:"https://vildzxdbiayignkshcca.supabase.co",cle:"sb_publishable_NMxVL7Y8y3W8dvAnVHOcqg_k6lERTt-"};
 const URL_WEB="https://katbe-png.github.io/system/";
-const VERSION_APP="1795724571";
+const VERSION_APP="1795724716";
 /* App Mac : si une nouvelle version est en ligne, la page se recharge d'elle-même
    dès que la fenêtre n'est pas utilisée (l'app Mac a déjà téléchargé le fichier). */
 function verifVersion(){if(!/Electron/.test(navigator.userAgent))return;
@@ -3087,6 +3087,8 @@ function importNov26b(){const A=(agMv(),etat.argent),sup=new Set(A.suppr||[]),id
   const c=agCC();if(!c.nov26b){c.solde=140.79;c.nov26b=1;c._maj=Date.now();n++}
   const lb=agLivrets().find(l=>l.id==="bleu"),d0=new Date("2026-11-26T00:00:00").getTime();
   if(lb&&!lb.nov26b){if((lb._maj||0)<d0&&lb.solde>=600){lb.solde=Math.round((lb.solde-600)*100)/100;lb.hist=[...(lb.hist||[]),{t:Date.now(),solde:lb.solde}].slice(-60)}lb.nov26b=1;lb._maj=Date.now();n++}
+  // soldes réels relevés le 26/11 à 21h24
+  for(const [id,v] of [["bleu",0.83],["jeune",65.74]]){const l=agLivrets().find(x=>x.id===id);if(l&&!l.nov26c){l.solde=v;l.hist=[...(l.hist||[]),{t:Date.now(),solde:v}].slice(-60);l.nov26c=1;l._maj=Date.now();n++}}
   if(n){A.mouv.sort((x,y)=>x.t-y.t);sauver();invalider&&invalider()}}
 
 /* ===== Graphiques ===== */
