@@ -2655,7 +2655,7 @@ appliquerTheme(true);majVue();rendre();
    Fusion : le journal des quêtes est réuni des deux côtés, le reste suit la version la plus récente. */
 const SB={url:"https://vildzxdbiayignkshcca.supabase.co",cle:"sb_publishable_NMxVL7Y8y3W8dvAnVHOcqg_k6lERTt-"};
 const URL_WEB="https://katbe-png.github.io/system/";
-const VERSION_APP="1795465676";
+const VERSION_APP="1795724571";
 /* App Mac : si une nouvelle version est en ligne, la page se recharge d'elle-même
    dès que la fenêtre n'est pas utilisée (l'app Mac a déjà téléchargé le fichier). */
 function verifVersion(){if(!/Electron/.test(navigator.userAgent))return;
@@ -3074,6 +3074,21 @@ function importOct26(){const A=(agMv(),etat.argent),sup=new Set(A.suppr||[]),ids
     A.mouv.push({id,t:new Date("2026-"+r[0]+"T12:00:00").getTime()+i,d:"2026-"+r[0],type:r[1],m:r[2],lib:r[3],cat:r[4],imp:1});n++});
   if(n){A.mouv.sort((x,y)=>x.t-y.t);sauver();invalider()}}
 
+// relevé du 26/11/2026 (24 → 26 nov.) — ajout idempotent par id ; solde du compte courant recalé sur la banque
+const IMPORT_NOV26B=[
+ ["11-24","out",12.5,"Krousty Time Troyes","Nourriture"],["11-24","ep",10.82,"Bitstack","Bitcoin"],["11-24","out",17,"Virement Wero Louis M.","Autre"],
+ ["11-25","out",7.7,"Maywi Troyes","Sorties"],["11-25","out",4.95,"Burger King St-Parres","Nourriture"],["11-25","out",8.95,"Burger King St-Parres","Nourriture"],
+ ["11-26","ret",200,"Virement depuis mon Livret A","Livret Bleu"],["11-26","ret",350,"Virement depuis mon Livret A","Livret Bleu"],["11-26","ret",50,"Virement depuis mon Livret A","Livret Bleu"],
+ ["11-26","in",50,"Virement Wero Alexandra E.","Virement"],["11-26","out",250,"Virement Wero Adem L.","Autre"],["11-26","out",250,"Virement Wero Adem L.","Autre"],
+ ["11-26","out",28,"Le Palais d'Asie Troyes","Sorties"],["11-26","out",7,"Ganne Buchères","Autre"],["11-26","out",8.7,"Burger King St-Parres","Nourriture"],["11-26","out",12.1,"Burger King St-Parres","Nourriture"]];
+function importNov26b(){const A=(agMv(),etat.argent),sup=new Set(A.suppr||[]),ids=new Set(A.mouv.map(m=>m.id));let n=0;
+  IMPORT_NOV26B.forEach((r,i)=>{const id="nov26b_"+i;if(ids.has(id)||sup.has(id))return;
+    A.mouv.push({id,t:new Date("2026-"+r[0]+"T12:00:00").getTime()+i,d:"2026-"+r[0],type:r[1],m:r[2],lib:r[3],cat:r[4],imp:1});n++});
+  const c=agCC();if(!c.nov26b){c.solde=140.79;c.nov26b=1;c._maj=Date.now();n++}
+  const lb=agLivrets().find(l=>l.id==="bleu"),d0=new Date("2026-11-26T00:00:00").getTime();
+  if(lb&&!lb.nov26b){if((lb._maj||0)<d0&&lb.solde>=600){lb.solde=Math.round((lb.solde-600)*100)/100;lb.hist=[...(lb.hist||[]),{t:Date.now(),solde:lb.solde}].slice(-60)}lb.nov26b=1;lb._maj=Date.now();n++}
+  if(n){A.mouv.sort((x,y)=>x.t-y.t);sauver();invalider&&invalider()}}
+
 /* ===== Graphiques ===== */
 function svgAire(mois){const W=640,H=168,top=26,bas=20,gauche=36,droite=8;
   const D=mois.map(c=>({c,...agMois(c)})),mx=Math.max(50,...D.map(d=>Math.max(d.in,d.out)));
@@ -3096,7 +3111,7 @@ function vagues(){return `<svg viewBox="0 0 300 110" preserveAspectRatio="none" 
 
 /* ===== Vue ===== */
 function vueArgent(){
-  if(!agSel)agSel=moisCle();importNov26();importOct26();importBTC1();ccRattraper();chargerBTC();
+  if(!agSel)agSel=moisCle();importNov26();importOct26();importNov26b();importBTC1();ccRattraper();chargerBTC();
   const M=agMois(agSel),Mp=agMois(moisDecale(agSel,-1)),f=val("fin"),bud=+(etat.argent&&etat.argent.budget)||0;
   const mois=[];for(let k=11;k>=0;k--)mois.push(moisDecale(moisCle(),-k));
   const tabs=`<div class="fyTabs">${[["dash","Vue d'ensemble"],["mv","Mouvements"],["cpt","Comptes"]].map(([k,n])=>`<button class="${agOng===k?"on":""}" data-agong="${k}">${n}</button>`).join("")}

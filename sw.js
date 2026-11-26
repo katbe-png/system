@@ -1,5 +1,5 @@
 /* Système — fonctionnement hors ligne. Réseau d'abord (pour recevoir les mises à jour), copie locale si pas de connexion. */
-const CACHE="systeme-v46";
+const CACHE="systeme-v47";
 const FICHIERS=["./","./index.html","./manifest.webmanifest","./icon-192-v2.png","./icon-512-v2.png","./apple-touch-icon-v2.png"];
 self.addEventListener("install",e=>{e.waitUntil(caches.open(CACHE).then(c=>c.addAll(FICHIERS)));self.skipWaiting()});
 self.addEventListener("activate",e=>{e.waitUntil(caches.keys().then(k=>Promise.all(k.filter(x=>x!==CACHE).map(x=>caches.delete(x)))).then(()=>self.clients.claim()))});
